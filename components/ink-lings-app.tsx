@@ -17,6 +17,7 @@ import { saveUserPreferences, getUserPreferences } from '@/lib/user-preferences'
 import { Button } from './ui/button';
 import { useAuth } from './auth-context';
 import { startPromptScheduler } from '@/lib/prompt-scheduler';
+import { supabase } from '@/lib/supabase';
 
 type AppPhase = 'welcome' | 'create-account' | 'onboarding' | 'account' | 'complete';
 
@@ -86,14 +87,22 @@ export function InkLingsApp() {
   // Check for password reset redirect
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      console.log('🔍 Checking for password reset redirect...');
+      console.log('Current URL:', window.location.href);
+      
       const urlParams = new URLSearchParams(window.location.search);
       const type = urlParams.get('type');
       const token = urlParams.get('token');
       
+      console.log('URL Parameters:', { type, token });
+      
       if (type === 'recovery' && token) {
         // This is a password reset redirect
-        console.log('Password reset detected, redirecting to reset page');
+        console.log('✅ Password reset detected, redirecting to reset page');
+        console.log('Redirecting to:', `/reset-password?token=${token}&type=recovery`);
         window.location.href = `/reset-password?token=${token}&type=recovery`;
+      } else {
+        console.log('❌ No password reset parameters found');
       }
     }
   }, []);
@@ -263,11 +272,30 @@ export function InkLingsApp() {
     setAppPhase('complete');
   };
 
-  const handleSignOut = () => {
-    // Sign out and redirect to sign-in page
-    setAppPhase('create-account');
-    setAuthMode('signin');
-    setUserPreferences(null);
+  const handleSignOut = async () => {
+    try {
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+      }
+      
+      // Clear local storage
+      localStorage.removeItem('ink-lings-preferences');
+      
+      // Clear local state
+      setUserPreferences(null);
+      setAppPhase('create-account');
+      setAuthMode('signin');
+      
+      console.log('✅ User signed out successfully');
+    } catch (error) {
+      console.error('Error during sign out:', error);
+      // Fallback: still clear local state
+      setUserPreferences(null);
+      setAppPhase('create-account');
+      setAuthMode('signin');
+    }
   };
 
   const handleEditCategories = () => {
