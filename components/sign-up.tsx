@@ -69,9 +69,10 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
               <Image
                 src="/ink_links_logo_final_final.png"
                 alt="Ink-lings Logo"
-                width={520}
-                height={208}
+                width={260}
+                height={104}
                 priority
+                className="h-20 w-auto"
               />
             </div>
           </div>
