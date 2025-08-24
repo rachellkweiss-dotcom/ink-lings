@@ -1,0 +1,2812 @@
+
+> ink-lings@0.1.0 dev
+> next dev --turbopack
+
+   ▲ Next.js 15.5.0 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.86.29:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 722ms
+ ○ Compiling /api/user-prompt-history ...
+ ✓ Compiled /api/user-prompt-history in 852ms
+=== user-prompt-history API called ===
+User ID: efc24ebd-c202-4444-a03e-727fe3db22bc
+Querying prompt_history table for user: efc24ebd-c202-4444-a03e-727fe3db22bc
+Query result: {
+  promptHistory: null,
+  error: {
+    code: 'PGRST205',
+    details: null,
+    hint: "Perhaps you meant the table 'public.prompt_bank'",
+    message: "Could not find the table 'public.prompt_history' in the schema cache"
+  }
+}
+Error fetching prompt history: {
+  code: 'PGRST205',
+  details: null,
+  hint: "Perhaps you meant the table 'public.prompt_bank'",
+  message: "Could not find the table 'public.prompt_history' in the schema cache"
+}
+ GET /api/user-prompt-history?userId=efc24ebd-c202-4444-a03e-727fe3db22bc 500 in 1540ms
+=== user-prompt-history API called ===
+User ID: efc24ebd-c202-4444-a03e-727fe3db22bc
+Querying prompt_history table for user: efc24ebd-c202-4444-a03e-727fe3db22bc
+Query result: {
+  promptHistory: null,
+  error: {
+    code: 'PGRST205',
+    details: null,
+    hint: "Perhaps you meant the table 'public.prompt_bank'",
+    message: "Could not find the table 'public.prompt_history' in the schema cache"
+  }
+}
+Error fetching prompt history: {
+  code: 'PGRST205',
+  details: null,
+  hint: "Perhaps you meant the table 'public.prompt_bank'",
+  message: "Could not find the table 'public.prompt_history' in the schema cache"
+}
+ GET /api/user-prompt-history?userId=efc24ebd-c202-4444-a03e-727fe3db22bc 500 in 474ms
+=== user-prompt-history API called ===
+User ID: efc24ebd-c202-4444-a03e-727fe3db22bc
+Querying prompt_history table for user: efc24ebd-c202-4444-a03e-727fe3db22bc
+Query result: {
+  promptHistory: null,
+  error: {
+    code: 'PGRST205',
+    details: null,
+    hint: "Perhaps you meant the table 'public.prompt_bank'",
+    message: "Could not find the table 'public.prompt_history' in the schema cache"
+  }
+}
+Error fetching prompt history: {
+  code: 'PGRST205',
+  details: null,
+  hint: "Perhaps you meant the table 'public.prompt_bank'",
+  message: "Could not find the table 'public.prompt_history' in the schema cache"
+}
+ GET /api/user-prompt-history?userId=efc24ebd-c202-4444-a03e-727fe3db22bc 500 in 364ms
+=== user-prompt-history API called ===
+User ID: efc24ebd-c202-4444-a03e-727fe3db22bc
+Querying prompt_history table for user: efc24ebd-c202-4444-a03e-727fe3db22bc
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=efc24ebd-c202-4444-a03e-727fe3db22bc 200 in 717ms
+ ✓ Compiled /api/send-prompts in 75ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 12:01:11 AM
+Server UTC time: 2025-08-24T05:01:11.427Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'c40ff1bb-9586-4086-b651-146e17b560bb',
+    user_id: 'c9f6af34-53b7-4e4e-b10c-39dff05cbd85',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:41',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:41:02.003655+00:00',
+    updated_at: '2025-08-24T03:41:02.003655+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T03:41:06.815+00:00',
+    current_category_index: 1
+  },
+  {
+    id: 'ef22f1fd-2e2f-4960-afd8-15fe0c85d960',
+    user_id: '3f97d20e-b0cc-455f-96e7-2068676c580a',
+    categories: [
+      'playful-whimsical',
+      'creativity-arts',
+      'work-craft',
+      'nature-senses',
+      'wildcard-surreal',
+      'learning-growth',
+      'personal-reflection',
+      'relationships'
+    ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '8:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T02:26:20.740191+00:00',
+    updated_at: '2025-08-24T02:38:29.656+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '05e38b34-2173-43c3-9cef-9f20ae62bf9a',
+    user_id: '02a047d2-5d4d-4cc1-b07b-f96e541d63bd',
+    categories: [ 'personal-reflection' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'monday' ],
+    notification_time: '09:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:02:03.649762+00:00',
+    updated_at: '2025-08-24T03:02:03.649762+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'cb9ebecc-8945-436c-9e4a-72e0b1faa21d',
+    user_id: 'f958ba3b-4458-4823-b000-93e7e4242e02',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:02:42.740309+00:00',
+    updated_at: '2025-08-24T03:02:42.740309+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '4a18177b-0a94-45cc-ab18-ba131aabeda8',
+    user_id: '8abbde0c-d82c-4033-9399-d5a1cba79b6d',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:04:39.146417+00:00',
+    updated_at: '2025-08-24T03:04:39.146417+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '3b4f8d4c-ca89-43af-804d-f6f3d51bd2c5',
+    user_id: '74873d0c-ebd2-49bb-9f1a-10619a88fba1',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:06:08.288247+00:00',
+    updated_at: '2025-08-24T03:06:08.288247+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '1c915700-5eeb-4f96-868c-19cc655cdc72',
+    user_id: 'e7f85517-e0e2-407b-8b3a-9c5497d7b762',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:23:12.142175+00:00',
+    updated_at: '2025-08-24T03:23:12.142175+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '56487f34-68c3-441c-b70e-9547ce576106',
+    user_id: '1607f8bb-9b8f-4c2d-9dcc-cd5809fae830',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'testnow@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:25',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:25:44.414027+00:00',
+    updated_at: '2025-08-24T03:25:44.414027+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '5bc32cb1-75a3-40f0-9adc-f68ed16b8199',
+    user_id: 'ea1dccb4-2545-40fc-901c-bbefbdb7b33d',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'testnow@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:27',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:27:07.658891+00:00',
+    updated_at: '2025-08-24T03:27:07.658891+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '071607b8-79db-42a3-a77f-ef272730fc93',
+    user_id: '5e02ce67-a080-4464-b2c0-f80fa4d1c44a',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'testnow@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:31',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:31:09.576035+00:00',
+    updated_at: '2025-08-24T03:31:09.576035+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T03:38:54.868+00:00',
+    current_category_index: 1
+  },
+  {
+    id: '16ebdb26-6fa8-4208-9f5b-7539371a2fb7',
+    user_id: 'd8ad6976-0a8f-463c-91f0-744fe773bed0',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:45',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:45:06.861766+00:00',
+    updated_at: '2025-08-24T03:45:06.861766+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T03:45:10.117+00:00',
+    current_category_index: 1
+  },
+  {
+    id: '67fce606-c8a3-4dbf-a5a0-8b946f76d105',
+    user_id: 'ef0a61d2-336a-4ab2-ae36-58c8db813952',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '23:08',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T04:18:57.348808+00:00',
+    updated_at: '2025-08-24T04:18:57.348808+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T04:19:37.049+00:00',
+    current_category_index: 1
+  },
+  {
+    id: 'da9fd58c-8556-4a32-916d-0bc103eda96d',
+    user_id: 'efc24ebd-c202-4444-a03e-727fe3db22bc',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'test@inklings.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '23:45',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T04:50:08.127062+00:00',
+    updated_at: '2025-08-24T04:50:08.127062+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T04:52:16.363+00:00',
+    current_category_index: 0
+  },
+  {
+    id: 'd0193099-42ea-4e56-87ea-a1b087ea3eee',
+    user_id: 'd6c861d7-ca45-4698-96f5-d94822848316',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:52',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:52:09.158597+00:00',
+    updated_at: '2025-08-24T03:52:09.158597+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T04:02:06.349+00:00',
+    current_category_index: 0
+  },
+  {
+    id: '957b08df-d5e6-4a44-bff8-82c2a734c7ce',
+    user_id: '8e7e6561-6508-4d68-9b50-6d36ac0cd765',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '23:29',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T04:29:35.004985+00:00',
+    updated_at: '2025-08-24T04:29:35.004985+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T04:33:30.231+00:00',
+    current_category_index: 1
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '3f97d20e-b0cc-455f-96e7-2068676c580a',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '8:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 3f97d20e-b0cc-455f-96e7-2068676c580a progress summary:
+  playful-whimsical: prompt #1
+  creativity-arts: prompt #1
+  work-craft: prompt #1
+  nature-senses: prompt #1
+  wildcard-surreal: prompt #1
+  learning-growth: prompt #1
+  personal-reflection: prompt #1
+  relationships: prompt #1
+Found 1 users for today: [
+  {
+    id: '3f97d20e-b0cc-455f-96e7-2068676c580a',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '8:00 AM',
+    timezone: 'America/Chicago'
+  }
+]
+User 3f97d20e-b0cc-455f-96e7-2068676c580a: Current time 0:01, Preferred time 8:00 AM, Timezone: America/Chicago
+User 3f97d20e-b0cc-455f-96e7-2068676c580a not ready for prompt yet. Time diff: 479 minutes (current: 0:01, preferred: 8:00 AM)
+ GET /api/send-prompts 200 in 759ms
+=== user-prompt-history API called ===
+User ID: efc24ebd-c202-4444-a03e-727fe3db22bc
+Querying prompt_history table for user: efc24ebd-c202-4444-a03e-727fe3db22bc
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=efc24ebd-c202-4444-a03e-727fe3db22bc 200 in 330ms
+ ✓ Compiled /api/create-test-user in 63ms
+=== create-test-user API started ===
+Request body: {
+  email: 'test2@inklings.com',
+  timezone: 'America/Chicago',
+  notificationDays: [ 'sunday' ],
+  notificationTime: '00:05',
+  categories: [ 'personal-reflection', 'playful-whimsical' ]
+}
+Creating real auth user...
+Created real auth user ID: cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892
+Testing database connection...
+Database connection successful
+Creating user preferences...
+User preferred time: 00:05 America/Chicago
+User preferences created successfully: {
+  id: '080b14e1-283d-4016-8890-66824ebf8994',
+  user_id: 'cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892',
+  categories: [ 'personal-reflection', 'playful-whimsical' ],
+  notification_email: 'test2@inklings.com',
+  notification_days: [ 'sunday' ],
+  notification_time: '00:05',
+  timezone: 'America/Chicago',
+  created_at: '2025-08-24T05:01:40.857468+00:00',
+  updated_at: '2025-08-24T05:01:40.857468+00:00',
+  notification_time_utc: null,
+  next_prompt_utc: null,
+  last_prompt_sent: null,
+  current_category_index: 0
+}
+Creating progress entries for categories: [ 'personal-reflection', 'playful-whimsical' ]
+Progress created for category: personal-reflection
+Progress created for category: playful-whimsical
+=== create-test-user API completed successfully ===
+ POST /api/create-test-user 200 in 1176ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 12:01:47 AM
+Server UTC time: 2025-08-24T05:01:47.510Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'c40ff1bb-9586-4086-b651-146e17b560bb',
+    user_id: 'c9f6af34-53b7-4e4e-b10c-39dff05cbd85',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:41',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:41:02.003655+00:00',
+    updated_at: '2025-08-24T03:41:02.003655+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T03:41:06.815+00:00',
+    current_category_index: 1
+  },
+  {
+    id: 'ef22f1fd-2e2f-4960-afd8-15fe0c85d960',
+    user_id: '3f97d20e-b0cc-455f-96e7-2068676c580a',
+    categories: [
+      'playful-whimsical',
+      'creativity-arts',
+      'work-craft',
+      'nature-senses',
+      'wildcard-surreal',
+      'learning-growth',
+      'personal-reflection',
+      'relationships'
+    ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '8:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T02:26:20.740191+00:00',
+    updated_at: '2025-08-24T02:38:29.656+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '05e38b34-2173-43c3-9cef-9f20ae62bf9a',
+    user_id: '02a047d2-5d4d-4cc1-b07b-f96e541d63bd',
+    categories: [ 'personal-reflection' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'monday' ],
+    notification_time: '09:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:02:03.649762+00:00',
+    updated_at: '2025-08-24T03:02:03.649762+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'cb9ebecc-8945-436c-9e4a-72e0b1faa21d',
+    user_id: 'f958ba3b-4458-4823-b000-93e7e4242e02',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:02:42.740309+00:00',
+    updated_at: '2025-08-24T03:02:42.740309+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '4a18177b-0a94-45cc-ab18-ba131aabeda8',
+    user_id: '8abbde0c-d82c-4033-9399-d5a1cba79b6d',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:04:39.146417+00:00',
+    updated_at: '2025-08-24T03:04:39.146417+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '3b4f8d4c-ca89-43af-804d-f6f3d51bd2c5',
+    user_id: '74873d0c-ebd2-49bb-9f1a-10619a88fba1',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:06:08.288247+00:00',
+    updated_at: '2025-08-24T03:06:08.288247+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '1c915700-5eeb-4f96-868c-19cc655cdc72',
+    user_id: 'e7f85517-e0e2-407b-8b3a-9c5497d7b762',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'test@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:00',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T03:23:12.142175+00:00',
+    updated_at: '2025-08-24T03:23:12.142175+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '56487f34-68c3-441c-b70e-9547ce576106',
+    user_id: '1607f8bb-9b8f-4c2d-9dcc-cd5809fae830',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'testnow@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:25',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:25:44.414027+00:00',
+    updated_at: '2025-08-24T03:25:44.414027+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '5bc32cb1-75a3-40f0-9adc-f68ed16b8199',
+    user_id: 'ea1dccb4-2545-40fc-901c-bbefbdb7b33d',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'testnow@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:27',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:27:07.658891+00:00',
+    updated_at: '2025-08-24T03:27:07.658891+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '071607b8-79db-42a3-a77f-ef272730fc93',
+    user_id: '5e02ce67-a080-4464-b2c0-f80fa4d1c44a',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'testnow@example.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:31',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:31:09.576035+00:00',
+    updated_at: '2025-08-24T03:31:09.576035+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T03:38:54.868+00:00',
+    current_category_index: 1
+  },
+  {
+    id: '16ebdb26-6fa8-4208-9f5b-7539371a2fb7',
+    user_id: 'd8ad6976-0a8f-463c-91f0-744fe773bed0',
+    categories: [ 'personal-reflection', 'creativity' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:45',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:45:06.861766+00:00',
+    updated_at: '2025-08-24T03:45:06.861766+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T03:45:10.117+00:00',
+    current_category_index: 1
+  },
+  {
+    id: '67fce606-c8a3-4dbf-a5a0-8b946f76d105',
+    user_id: 'ef0a61d2-336a-4ab2-ae36-58c8db813952',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '23:08',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T04:18:57.348808+00:00',
+    updated_at: '2025-08-24T04:18:57.348808+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T04:19:37.049+00:00',
+    current_category_index: 1
+  },
+  {
+    id: 'da9fd58c-8556-4a32-916d-0bc103eda96d',
+    user_id: 'efc24ebd-c202-4444-a03e-727fe3db22bc',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'test@inklings.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '23:45',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T04:50:08.127062+00:00',
+    updated_at: '2025-08-24T04:50:08.127062+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T04:52:16.363+00:00',
+    current_category_index: 0
+  },
+  {
+    id: '080b14e1-283d-4016-8890-66824ebf8994',
+    user_id: 'cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'test2@inklings.com',
+    notification_days: [ 'sunday' ],
+    notification_time: '00:05',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T05:01:40.857468+00:00',
+    updated_at: '2025-08-24T05:01:40.857468+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'd0193099-42ea-4e56-87ea-a1b087ea3eee',
+    user_id: 'd6c861d7-ca45-4698-96f5-d94822848316',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '22:52',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T03:52:09.158597+00:00',
+    updated_at: '2025-08-24T03:52:09.158597+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T04:02:06.349+00:00',
+    current_category_index: 0
+  },
+  {
+    id: '957b08df-d5e6-4a44-bff8-82c2a734c7ce',
+    user_id: '8e7e6561-6508-4d68-9b50-6d36ac0cd765',
+    categories: [ 'personal-reflection', 'relationships' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [ 'saturday' ],
+    notification_time: '23:29',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T04:29:35.004985+00:00',
+    updated_at: '2025-08-24T04:29:35.004985+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: '2025-08-24T04:33:30.231+00:00',
+    current_category_index: 1
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '3f97d20e-b0cc-455f-96e7-2068676c580a',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '8:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892',
+      notification_email: 'test2@inklings.com',
+      notification_days: [Array],
+      notification_time: '00:05',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 3f97d20e-b0cc-455f-96e7-2068676c580a progress summary:
+  playful-whimsical: prompt #1
+  creativity-arts: prompt #1
+  work-craft: prompt #1
+  nature-senses: prompt #1
+  wildcard-surreal: prompt #1
+  learning-growth: prompt #1
+  personal-reflection: prompt #1
+  relationships: prompt #1
+User cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+Found 2 users for today: [
+  {
+    id: '3f97d20e-b0cc-455f-96e7-2068676c580a',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '8:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: 'cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892',
+    days: [ 'sunday' ],
+    time: '00:05',
+    timezone: 'America/Chicago'
+  }
+]
+User 3f97d20e-b0cc-455f-96e7-2068676c580a: Current time 0:01, Preferred time 8:00 AM, Timezone: America/Chicago
+User 3f97d20e-b0cc-455f-96e7-2068676c580a not ready for prompt yet. Time diff: 479 minutes (current: 0:01, preferred: 8:00 AM)
+User cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892: Current time 0:01, Preferred time 0:05, Timezone: America/Chicago
+Processing user cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892 for category index 0
+Getting prompt for user cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892, category personal-reflection, current number: 1
+Logged prompt 1 to history for user cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892
+Updated in-memory progress for user cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892, category personal-reflection: 1 → 2
+Database progress update failed (continuing with in-memory): {
+  code: '23505',
+  details: 'Key (user_id, category_id)=(cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892, personal-reflection) already exists.',
+  hint: null,
+  message: 'duplicate key value violates unique constraint "user_prompt_progress_user_id_category_id_key"'
+}
+Rotating category index for user cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892: 0 → 1 (2 active categories)
+User preferences updated successfully for user cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892
+Sent prompt 1 in category Personal Reflection to test2@inklings.com
+ GET /api/send-prompts 200 in 1535ms
+=== user-prompt-history API called ===
+User ID: cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892
+Querying prompt_history table for user: cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892
+Query result: {
+  promptHistory: [
+    {
+      id: '6bd9b083-a70c-4458-8abc-b8c31d4182ce',
+      category_id: 'personal-reflection',
+      prompt_text: 'What did you learn about yourself today?',
+      prompt_number: 1,
+      sent_at: '2025-08-24T05:01:48.585598+00:00',
+      email_sent_to: 'test2@inklings.com'
+    }
+  ],
+  error: null
+}
+ GET /api/user-prompt-history?userId=cfcb03c4-c4b1-4b6a-9aa8-c25de0ae3892 200 in 329ms
+ ✓ Compiled /api/test-db in 74ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+=== test-db API started ===
+Testing basic connection...
+Basic connection successful
+Checking table structure...
+Structure check successful
+Testing insert permissions...
+Insert failed (expected due to RLS): {
+  code: '22P02',
+  details: null,
+  hint: null,
+  message: 'invalid input syntax for type uuid: "test-1756011998878"'
+}
+ GET /api/test-db 200 in 749ms
+ ○ Compiling /upload-prompts ...
+ ✓ Compiled /upload-prompts in 1597ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /upload-prompts 200 in 1855ms
+ ✓ Compiled /favicon.ico in 294ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 539ms
+ ✓ Compiled /api/upload-prompts in 77ms
+=== upload-prompts API called ===
+Processing upload for category: community-society
+File size: 23956 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 29543ms
+ ✓ Compiled in 111ms
+ ✓ Compiled in 83ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /upload-prompts 200 in 246ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 236ms
+=== upload-prompts API called ===
+Processing upload for category: health-wellness
+File size: 21311 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 29349ms
+ GET /upload-prompts 200 in 81ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 236ms
+=== upload-prompts API called ===
+Processing upload for category: creativity-expression
+File size: 22160 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 29962ms
+ GET /upload-prompts 200 in 77ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 238ms
+=== upload-prompts API called ===
+Processing upload for category: nature-senses
+File size: 20230 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 30603ms
+ ✓ Compiled in 94ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /upload-prompts 200 in 245ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 237ms
+ GET /upload-prompts 200 in 102ms
+ GET /upload-prompts 200 in 65ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /upload-prompts 200 in 257ms
+ GET /upload-prompts 200 in 77ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 259ms
+=== upload-prompts API called ===
+Processing upload for category: community-society
+File size: 23956 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 28327ms
+ GET /upload-prompts 200 in 90ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 241ms
+=== upload-prompts API called ===
+Processing upload for category: creativity-arts
+File size: 22160 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 29750ms
+ GET /upload-prompts 200 in 74ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 230ms
+=== upload-prompts API called ===
+Processing upload for category: future-aspirations
+File size: 24302 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 26864ms
+ GET /upload-prompts 200 in 87ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 236ms
+=== upload-prompts API called ===
+Processing upload for category: gratitude-joy
+File size: 21383 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 28093ms
+ GET /upload-prompts 200 in 77ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 237ms
+=== upload-prompts API called ===
+Processing upload for category: health-body
+File size: 21311 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 28681ms
+ GET /upload-prompts 200 in 80ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 234ms
+=== upload-prompts API called ===
+Processing upload for category: learning-growth
+File size: 22693 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 28317ms
+ GET /upload-prompts 200 in 91ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 232ms
+=== upload-prompts API called ===
+Processing upload for category: memory-past
+File size: 21222 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 28005ms
+ GET /upload-prompts 200 in 167ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 233ms
+=== upload-prompts API called ===
+Processing upload for category: money-life-admin
+File size: 22846 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 29676ms
+ GET /upload-prompts 200 in 85ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 238ms
+=== upload-prompts API called ===
+Processing upload for category: nature-senses
+File size: 20230 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 28524ms
+ GET /upload-prompts 200 in 73ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 236ms
+=== upload-prompts API called ===
+Processing upload for category: personal-reflection
+File size: 24141 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 28677ms
+ GET /upload-prompts 200 in 106ms
+ GET /upload-prompts 200 in 38ms
+ ✓ Compiled in 91ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /upload-prompts 200 in 238ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 264ms
+=== upload-prompts API called ===
+Processing upload for category: philosophy-values
+File size: 22916 bytes
+Found 365 prompt lines to process
+ GET /upload-prompts 200 in 94ms
+ GET /upload-prompts 200 in 41ms
+ ✓ Compiled in 96ms
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 28513ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /upload-prompts 200 in 203ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 264ms
+=== upload-prompts API called ===
+Processing upload for category: playful-whimsical
+File size: 26429 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 29174ms
+   Reload env: .env.local
+ GET /upload-prompts 200 in 667ms
+   Reload env: .env.local
+ GET /upload-prompts 200 in 91ms
+   Reload env: .env.local
+ GET /upload-prompts 200 in 89ms
+ GET /upload-prompts 200 in 113ms
+   Reload env: .env.local
+ GET /upload-prompts 200 in 106ms
+   Reload env: .env.local
+ GET /upload-prompts 200 in 85ms
+ GET /upload-prompts 200 in 84ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /upload-prompts 200 in 204ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 269ms
+=== upload-prompts API called ===
+Processing upload for category: relationships
+File size: 22267 bytes
+Found 365 prompt lines to process
+ ✓ Compiled / in 290ms
+ GET / 200 in 368ms
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 24112ms
+ GET / 200 in 85ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 240ms
+ ✓ Compiled /api/create-donation-session in 180ms
+ POST /api/create-donation-session 200 in 1449ms
+ ✓ Compiled /_not-found/page in 178ms
+ GET /account 404 in 250ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 237ms
+ GET /account 404 in 74ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 249ms
+ GET /account 404 in 59ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 232ms
+ GET / 200 in 61ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 242ms
+ POST /api/create-donation-session 200 in 699ms
+ ✓ Compiled in 99ms
+ ✓ Compiled /donation-success in 230ms
+ GET /donation-success?session_id=cs_test_a1YTe8iD627UqMgsUdysYCn4hO3jVDuprPvBfpG3qSRuvYQIOmql5zyZE8 200 in 327ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 253ms
+ GET /apple-touch-icon.png 404 in 114ms
+ GET /apple-touch-icon-precomposed.png 404 in 114ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /favicon.ico 200 in 348ms
+ GET / 200 in 210ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 235ms
+ GET /upload-prompts 200 in 87ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 231ms
+=== upload-prompts API called ===
+Processing upload for category: risk-adventure
+File size: 21816 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 23240ms
+ GET /upload-prompts 200 in 80ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 241ms
+=== upload-prompts API called ===
+Processing upload for category: tech-media
+File size: 19565 bytes
+Found 365 prompt lines to process
+ ✓ Compiled in 95ms
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 22363ms
+ GET /upload-prompts 200 in 75ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 236ms
+=== upload-prompts API called ===
+Processing upload for category: travel-place
+File size: 21166 bytes
+Found 365 prompt lines to process
+ GET /account 404 in 60ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 237ms
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 22263ms
+ GET / 200 in 67ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 235ms
+ GET /upload-prompts 200 in 68ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 234ms
+=== upload-prompts API called ===
+Processing upload for category: wildcard-surreal
+File size: 25022 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 24356ms
+ GET /upload-prompts 200 in 73ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 235ms
+ ✓ Compiled in 95ms
+=== upload-prompts API called ===
+Processing upload for category: work-craft
+File size: 20462 bytes
+Found 365 prompt lines to process
+Upload completed. Success: 365, Errors: 0
+ POST /api/upload-prompts 200 in 22865ms
+ ✓ Compiled in 98ms
+ GET /upload-prompts 200 in 77ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 232ms
+ ✓ Compiled in 75ms
+ GET /upload-prompts 404 in 142ms
+ GET / 200 in 142ms
+ GET /upload-prompts 404 in 90ms
+ GET / 200 in 75ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /upload-prompts 404 in 221ms
+ GET /upload-prompts 404 in 129ms
+ GET / 200 in 132ms
+ GET /upload-prompts 404 in 61ms
+ GET / 200 in 67ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /upload-prompts 404 in 334ms
+ GET /upload-prompts 404 in 135ms
+ GET / 200 in 138ms
+ GET / 200 in 260ms
+ ✓ Compiled in 91ms
+ ✓ Compiled in 74ms
+ ✓ Compiled in 39ms
+ POST /api/create-donation-session 200 in 865ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /donation-success?session_id=cs_test_a1ldMCrm3JIx24dOSXdLenNfO2O94mHH8qyMhxNLE453wiFHvG5XpEYRRQ 200 in 195ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 271ms
+ ✓ Compiled in 263ms
+ ✓ Compiled in 82ms
+ ✓ Compiled in 82ms
+ ✓ Compiled in 83ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /account 404 in 72ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 235ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET / 200 in 229ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 259ms
+ ✓ Compiled in 82ms
+ ✓ Compiled in 77ms
+   Reload env: .env.local
+ ✓ Compiled in 419ms
+ GET / 200 in 460ms
+ GET / 200 in 34ms
+   Reload env: .env.local
+ GET / 200 in 94ms
+ GET / 200 in 93ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET / 200 in 194ms
+ GET / 200 in 71ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 273ms
+ GET / 200 in 74ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 234ms
+ GET / 200 in 65ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 235ms
+ GET / 200 in 73ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 237ms
+ GET / 200 in 88ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 240ms
+ GET / 200 in 67ms
+ ✓ Compiled /api/send-email in 83ms
+ POST /api/send-email 200 in 879ms
+=== user-prompt-history API called ===
+User ID: 070eca51-61ce-4721-9944-48358454b203
+Querying prompt_history table for user: 070eca51-61ce-4721-9944-48358454b203
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=070eca51-61ce-4721-9944-48358454b203 200 in 523ms
+=== user-prompt-history API called ===
+User ID: 070eca51-61ce-4721-9944-48358454b203
+Querying prompt_history table for user: 070eca51-61ce-4721-9944-48358454b203
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=070eca51-61ce-4721-9944-48358454b203 200 in 312ms
+ ✓ Compiled in 85ms
+ ✓ Compiled in 80ms
+=== user-prompt-history API called ===
+User ID: 070eca51-61ce-4721-9944-48358454b203
+Querying prompt_history table for user: 070eca51-61ce-4721-9944-48358454b203
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=070eca51-61ce-4721-9944-48358454b203 200 in 404ms
+=== user-prompt-history API called ===
+User ID: 070eca51-61ce-4721-9944-48358454b203
+Querying prompt_history table for user: 070eca51-61ce-4721-9944-48358454b203
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=070eca51-61ce-4721-9944-48358454b203 200 in 328ms
+ ✓ Compiled in 86ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET / 200 in 239ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 241ms
+ ✓ Compiled in 104ms
+ ✓ Compiled in 94ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET / 200 in 314ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 241ms
+ GET / 200 in 68ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 242ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 239ms
+ POST /api/send-email 200 in 806ms
+=== user-prompt-history API called ===
+User ID: c449ba23-6248-4529-9514-ff95c5801475
+Querying prompt_history table for user: c449ba23-6248-4529-9514-ff95c5801475
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=c449ba23-6248-4529-9514-ff95c5801475 200 in 440ms
+=== user-prompt-history API called ===
+User ID: c449ba23-6248-4529-9514-ff95c5801475
+Querying prompt_history table for user: c449ba23-6248-4529-9514-ff95c5801475
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=c449ba23-6248-4529-9514-ff95c5801475 200 in 354ms
+ POST /api/create-donation-session 200 in 784ms
+ ✓ Compiled /donation-success in 20ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET /donation-success?session_id=cs_test_a1tJVO7zEUjoaqHYsqmG1D4SaJrNcpyPYeCaCmQgJAJnhhX7LdbVND2Omx 200 in 236ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 281ms
+ GET /account 404 in 86ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 234ms
+ GET / 200 in 83ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 239ms
+ GET / 200 in 134ms
+ GET / 200 in 136ms
+ GET / 200 in 67ms
+ GET / 200 in 68ms
+Supabase configuration: {
+  url: 'https://plbesopwfipvxqqzendc.supabase.co',
+  hasAnonKey: true,
+  urlLength: 40,
+  keyLength: 208
+}
+ GET / 200 in 197ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 294ms
+ GET / 200 in 73ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 238ms
+ GET / 200 in 59ms
+ GET / 200 in 64ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 242ms
+=== user-prompt-history API called ===
+User ID: 23a9ad38-4442-49c5-88f5-472bd969f830
+Querying prompt_history table for user: 23a9ad38-4442-49c5-88f5-472bd969f830
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=23a9ad38-4442-49c5-88f5-472bd969f830 200 in 394ms
+=== user-prompt-history API called ===
+User ID: 23a9ad38-4442-49c5-88f5-472bd969f830
+Querying prompt_history table for user: 23a9ad38-4442-49c5-88f5-472bd969f830
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=23a9ad38-4442-49c5-88f5-472bd969f830 200 in 296ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 1:55:00 AM
+Server UTC time: 2025-08-24T06:55:00.778Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:54:39.42+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 has new categories: personal-reflection, playful-whimsical
+Created progress entry for user 070eca51-61ce-4721-9944-48358454b203, category personal-reflection starting at #1
+Created progress entry for user 070eca51-61ce-4721-9944-48358454b203, category playful-whimsical starting at #1
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 has new categories: community-society, health-body
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 1:55:01 AM
+Server UTC time: 2025-08-24T06:55:01.380Z
+Querying for users with notification_days containing: [sunday]
+Created progress entry for user c449ba23-6248-4529-9514-ff95c5801475, category community-society starting at #1
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:54:39.42+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Created progress entry for user c449ba23-6248-4529-9514-ff95c5801475, category health-body starting at #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 23a9ad38-4442-49c5-88f5-472bd969f830 has new categories: money-life-admin, nature-senses, memory-past
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+Created progress entry for user 23a9ad38-4442-49c5-88f5-472bd969f830, category money-life-admin starting at #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+Created progress entry for user 23a9ad38-4442-49c5-88f5-472bd969f830, category nature-senses starting at #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 has new categories: memory-past
+Created progress entry for user 23a9ad38-4442-49c5-88f5-472bd969f830, category memory-past starting at #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 2:55, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 185 minutes (current: 2:55, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 1:55, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 305 minutes (current: 1:55, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 23:55, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 1075 minutes (current: 23:55, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 1329ms
+Error creating progress for category memory-past: {
+  code: '23505',
+  details: 'Key (user_id, category_id)=(23a9ad38-4442-49c5-88f5-472bd969f830, memory-past) already exists.',
+  hint: null,
+  message: 'duplicate key value violates unique constraint "user_prompt_progress_user_id_category_id_key"'
+}
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 2:55, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 185 minutes (current: 2:55, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 1:55, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 305 minutes (current: 1:55, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 23:55, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 1075 minutes (current: 23:55, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 743ms
+ POST /api/create-donation-session 200 in 776ms
+ GET /donation-success?session_id=cs_test_a12iJnjjIoT9k3edyc4egte0JLnnXybuz1ZCtvkE5528Kl03zKL8nfAtOt 200 in 78ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 246ms
+ ✓ Compiled /account in 172ms
+ GET /account 200 in 230ms
+ GET / 200 in 48ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 249ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 228ms
+=== user-prompt-history API called ===
+User ID: 23a9ad38-4442-49c5-88f5-472bd969f830
+Querying prompt_history table for user: 23a9ad38-4442-49c5-88f5-472bd969f830
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=23a9ad38-4442-49c5-88f5-472bd969f830 200 in 332ms
+=== user-prompt-history API called ===
+User ID: 23a9ad38-4442-49c5-88f5-472bd969f830
+Querying prompt_history table for user: 23a9ad38-4442-49c5-88f5-472bd969f830
+Query result: { promptHistory: [], error: null }
+ GET /api/user-prompt-history?userId=23a9ad38-4442-49c5-88f5-472bd969f830 200 in 298ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 2:00:01 AM
+Server UTC time: 2025-08-24T07:00:01.128Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:56:28.311+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 3:00, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 180 minutes (current: 3:00, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 2:00, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 300 minutes (current: 2:00, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 0:00, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 360 minutes (current: 0:00, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 771ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 3:50:25 AM
+Server UTC time: 2025-08-24T08:50:25.699Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:56:28.311+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 4:50, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 70 minutes (current: 4:50, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 3:50, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 190 minutes (current: 3:50, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 1:50, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 250 minutes (current: 1:50, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 1850ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 3:55:24 AM
+Server UTC time: 2025-08-24T08:55:24.695Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:56:28.311+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 4:55, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 65 minutes (current: 4:55, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 3:55, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 185 minutes (current: 3:55, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 1:55, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 245 minutes (current: 1:55, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 1497ms
+ GET / 200 in 79ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 9:13:53 AM
+Server UTC time: 2025-08-24T14:13:53.973Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:56:28.311+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 10:13, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 253 minutes (current: 10:13, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 9:13, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 133 minutes (current: 9:13, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 7:13, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 73 minutes (current: 7:13, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 1090ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 9:15:03 AM
+Server UTC time: 2025-08-24T14:15:03.289Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:56:28.311+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 10:15, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 255 minutes (current: 10:15, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 9:15, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 135 minutes (current: 9:15, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 7:15, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 75 minutes (current: 7:15, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 1015ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 9:15:28 AM
+Server UTC time: 2025-08-24T14:15:28.753Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:56:28.311+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 10:15, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 255 minutes (current: 10:15, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 9:15, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 135 minutes (current: 9:15, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 7:15, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 75 minutes (current: 7:15, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 947ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 9:20:02 AM
+Server UTC time: 2025-08-24T14:20:02.140Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:56:28.311+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 10:20, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 260 minutes (current: 10:20, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 9:20, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 140 minutes (current: 9:20, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 7:20, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 80 minutes (current: 7:20, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 786ms
+ ✓ Compiled /test-prompts in 173ms
+ GET /test-prompts 200 in 235ms
+ GET /favicon.ico?favicon.0b3bf435.ico 200 in 239ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 9:24:01 AM
+Server UTC time: 2025-08-24T14:24:01.327Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:56:28.311+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 10:24, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 264 minutes (current: 10:24, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 9:24, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 144 minutes (current: 9:24, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 7:24, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 84 minutes (current: 7:24, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 792ms
+Processing prompts for sunday (America/Chicago time)
+Current America/Chicago date: Sun Aug 24 2025
+Current America/Chicago time: 9:24:13 AM
+Server UTC time: 2025-08-24T14:24:13.749Z
+Querying for users with notification_days containing: [sunday]
+All users in database: [
+  {
+    id: 'd10b7983-1edb-4e67-bb1b-22de7bee69a0',
+    user_id: '070eca51-61ce-4721-9944-48358454b203',
+    categories: [ 'personal-reflection', 'playful-whimsical' ],
+    notification_email: 'rkweiss89@gmail.com',
+    notification_days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    notification_time: '6:00 AM',
+    timezone: 'America/New_York',
+    created_at: '2025-08-24T06:34:50.904275+00:00',
+    updated_at: '2025-08-24T06:40:47.446+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: 'fd5c66e4-2abb-4104-b07d-7e6a59f5d61f',
+    user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    categories: [ 'community-society', 'health-body' ],
+    notification_email: 'rachell.k.weiss@gmail.com',
+    notification_days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    notification_time: '7:00 AM',
+    timezone: 'America/Chicago',
+    created_at: '2025-08-24T06:48:52.925282+00:00',
+    updated_at: '2025-08-24T06:51:00.065+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  },
+  {
+    id: '8553b6fb-cade-49a6-a208-6b2c7dc120f7',
+    user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    categories: [ 'money-life-admin', 'nature-senses', 'memory-past' ],
+    notification_email: 'rachell.weiss.stst@gmail.com',
+    notification_days: [ 'saturday', 'sunday' ],
+    notification_time: '6:00 AM',
+    timezone: 'America/Los_Angeles',
+    created_at: '2025-08-24T06:54:39.572351+00:00',
+    updated_at: '2025-08-24T06:56:28.311+00:00',
+    notification_time_utc: null,
+    next_prompt_utc: null,
+    last_prompt_sent: null,
+    current_category_index: 0
+  }
+]
+All users error: null
+Filtered query result: {
+  users: [
+    {
+      user_id: '070eca51-61ce-4721-9944-48358454b203',
+      notification_email: 'rkweiss89@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/New_York',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: 'c449ba23-6248-4529-9514-ff95c5801475',
+      notification_email: 'rachell.k.weiss@gmail.com',
+      notification_days: [Array],
+      notification_time: '7:00 AM',
+      timezone: 'America/Chicago',
+      categories: [Array],
+      current_category_index: 0
+    },
+    {
+      user_id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+      notification_email: 'rachell.weiss.stst@gmail.com',
+      notification_days: [Array],
+      notification_time: '6:00 AM',
+      timezone: 'America/Los_Angeles',
+      categories: [Array],
+      current_category_index: 0
+    }
+  ],
+  error: null
+}
+User 070eca51-61ce-4721-9944-48358454b203 progress summary:
+  personal-reflection: prompt #1
+  playful-whimsical: prompt #1
+User c449ba23-6248-4529-9514-ff95c5801475 progress summary:
+  community-society: prompt #1
+  health-body: prompt #1
+User 23a9ad38-4442-49c5-88f5-472bd969f830 progress summary:
+  money-life-admin: prompt #1
+  nature-senses: prompt #1
+  memory-past: prompt #1
+Found 3 users for today: [
+  {
+    id: '070eca51-61ce-4721-9944-48358454b203',
+    days: [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday'
+    ],
+    time: '6:00 AM',
+    timezone: 'America/New_York'
+  },
+  {
+    id: 'c449ba23-6248-4529-9514-ff95c5801475',
+    days: [ 'monday', 'wednesday', 'friday', 'saturday', 'sunday' ],
+    time: '7:00 AM',
+    timezone: 'America/Chicago'
+  },
+  {
+    id: '23a9ad38-4442-49c5-88f5-472bd969f830',
+    days: [ 'saturday', 'sunday' ],
+    time: '6:00 AM',
+    timezone: 'America/Los_Angeles'
+  }
+]
+User 070eca51-61ce-4721-9944-48358454b203: Current time 10:24, Preferred time 6:00 AM, Timezone: America/New_York
+User 070eca51-61ce-4721-9944-48358454b203 not ready for prompt yet. Time diff: 264 minutes (current: 10:24, preferred: 6:00 AM)
+User c449ba23-6248-4529-9514-ff95c5801475: Current time 9:24, Preferred time 7:00 AM, Timezone: America/Chicago
+User c449ba23-6248-4529-9514-ff95c5801475 not ready for prompt yet. Time diff: 144 minutes (current: 9:24, preferred: 7:00 AM)
+User 23a9ad38-4442-49c5-88f5-472bd969f830: Current time 7:24, Preferred time 6:00 AM, Timezone: America/Los_Angeles
+User 23a9ad38-4442-49c5-88f5-472bd969f830 not ready for prompt yet. Time diff: 84 minutes (current: 7:24, preferred: 6:00 AM)
+ POST /api/send-prompts 200 in 678ms
