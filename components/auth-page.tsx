@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { SignIn } from './sign-in'
 import { SignUp } from './sign-up'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 
 export function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)

@@ -33,9 +33,9 @@ export function OnboardingComplete({ onGoToAccount }: OnboardingCompleteProps) {
         {/* Success Message */}
         <div className="text-center mb-8">
           <div className="bg-gradient-to-r from-cyan-50 to-blue-50 p-8 rounded-lg border border-cyan-200 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-semibold text-gray-900 mb-4">You're All Set! 🎉</h3>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-4">You&apos;re All Set! 🎉</h3>
             <p className="text-lg text-gray-600 mb-6">
-              We'll start sending you personalized journal prompts based on your preferences. 
+              We&apos;ll start sending you personalized journal prompts based on your preferences. 
               Get ready to discover new insights about yourself through writing!
             </p>
             

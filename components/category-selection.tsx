@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
+
 import { journalCategories, JournalCategory } from '../lib/categories';
 
 interface CategorySelectionProps {
@@ -173,7 +173,7 @@ export function CategorySelection({ onNext, onBack, existingSelections = [] }: C
                 </p>
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md h-20 flex items-center justify-center">
                   <p className="text-sm text-gray-700 text-center font-medium">
-                    "{category.prompt}"
+                    &ldquo;{category.prompt}&rdquo;
                   </p>
                 </div>
               </div>

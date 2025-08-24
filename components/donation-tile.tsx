@@ -2,10 +2,9 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 
 interface DonationTileProps {
   userEmail: string;
@@ -14,7 +13,7 @@ interface DonationTileProps {
 export function DonationTile({ userEmail }: DonationTileProps) {
   const [isDonating, setIsDonating] = useState(false);
   const [customAmount, setCustomAmount] = useState('');
-  const [selectedTier, setSelectedTier] = useState<string | null>(null);
+
 
   const handleDonation = async (amount: number, donationType: string) => {
     setIsDonating(true);
@@ -64,7 +63,7 @@ export function DonationTile({ userEmail }: DonationTileProps) {
           Support Ink-lings
         </h2>
         <p className="text-gray-600 text-sm">
-          Ink-lings is a passion project. If you've enjoyed the prompts and want to help keep it going, 
+          Ink-lings is a passion project. If you&apos;ve enjoyed the prompts and want to help keep it going, 
           you can chip in here. Every bit helps — thank you!
         </p>
       </CardHeader>

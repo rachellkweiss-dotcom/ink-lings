@@ -1,16 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-export default function DonationSuccessPage() {
+function DonationSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
-  const [donationDetails, setDonationDetails] = useState<any>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -64,7 +64,7 @@ export default function DonationSuccessPage() {
             {/* Next Steps */}
             <div className="text-center space-y-4">
               <p className="text-gray-600 text-lg">
-                Ink flows best when the well doesn't run dry. Thank you for keeping Ink-lings writing prompts flowing!
+                Ink flows best when the well doesn&apos;t run dry. Thank you for keeping Ink-lings writing prompts flowing!
               </p>
               
               <div className="flex justify-center">
@@ -87,10 +87,13 @@ export default function DonationSuccessPage() {
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    const text = "I'm loving these daily journal prompts from Ink-lings! Check it out: ";
+                    const text = "I&apos;m loving these daily journal prompts from Ink-lings! Check it out: ";
                     const url = window.location.origin;
-                    navigator.share?.({ title: 'Ink-lings', text, url }) || 
-                    navigator.clipboard.writeText(text + url);
+                    if (navigator.share) {
+                      navigator.share({ title: 'Ink-lings', text, url });
+                    } else {
+                      navigator.clipboard.writeText(text + url);
+                    }
                   }}
                   className="text-blue-600 hover:text-blue-700 transition-colors duration-200"
                 >
@@ -103,5 +106,20 @@ export default function DonationSuccessPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function DonationSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-cyan-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-blue-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <DonationSuccessContent />
+    </Suspense>
   );
 }

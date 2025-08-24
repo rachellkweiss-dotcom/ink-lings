@@ -71,7 +71,7 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetu
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">3. Choose Schedule</h1>
         <p className="text-lg text-gray-600">
-          Pick when you'd like to receive your journal prompts. Choose the days and time that work best for your routine.
+          Pick when you&apos;d like to receive your journal prompts. Choose the days and time that work best for your routine.
         </p>
       </div>
 
@@ -124,7 +124,7 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetu
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              What's your timezone?
+              What&apos;s your timezone?
             </label>
             <Select value={selectedTimezone} onValueChange={setSelectedTimezone}>
               <SelectTrigger className="w-full" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>

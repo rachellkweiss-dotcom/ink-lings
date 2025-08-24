@@ -24,7 +24,6 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
       <div className="w-full max-w-md">
         {isSignUp ? (
           <SignUp
-            onSuccess={onSuccess}
             onSwitchToSignIn={() => setIsSignUp(false)}
           />
         ) : (

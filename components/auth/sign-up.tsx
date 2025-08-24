@@ -9,11 +9,10 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 
 interface SignUpProps {
-  onSuccess: () => void;
   onSwitchToSignIn: () => void;
 }
 
-export function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
+export function SignUp({ onSwitchToSignIn }: SignUpProps) {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -165,7 +164,7 @@ export function SignUp({ onSuccess, onSwitchToSignIn }: SignUpProps) {
                 Check Your Email!
               </h3>
               <p className="text-gray-600 mb-4">
-                We've sent a verification link to <span className="font-semibold">{email}</span>
+                We&apos;ve sent a verification link to <span className="font-semibold">{email}</span>
               </p>
               <p className="text-gray-600 mb-4">
                 Please click the link in your email to verify your account before accessing Ink-lings.

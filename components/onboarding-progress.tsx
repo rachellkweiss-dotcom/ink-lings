@@ -13,7 +13,7 @@ export function OnboardingProgress({ currentPhase, totalPhases = 4 }: Onboarding
     { id: 4, label: 'Review', header: '4. Review & Complete' }
   ];
 
-  const currentPhaseData = phases[currentPhase - 1] || phases[0];
+
 
   return (
     <div className="w-full max-w-4xl mx-auto mb-8" style={{ fontFamily: 'var(--font-shadows-into-light)' }}>

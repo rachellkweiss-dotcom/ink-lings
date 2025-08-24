@@ -12,9 +12,10 @@ interface NotificationSetupProps {
   userFirstName?: string;
   accountEmail?: string; // This will be their sign-in email
   existingEmail?: string; // For editing existing preferences
+  selectedCategories?: string[];
 }
 
-export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail, existingEmail }: NotificationSetupProps) {
+export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail, existingEmail, selectedCategories }: NotificationSetupProps) {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -46,127 +47,19 @@ export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail,
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/send-email', {
+      // Use the proper onboarding confirmation API for the test email
+      const response = await fetch('/api/send-onboarding-confirmation', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          email,
-          subject: '✍️ Confirmed, this is your journaling inbox',
-          html: `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Ink-lings Journaling Inbox Confirmation</title>
-                <style>
-                    body {
-                        margin: 0;
-                        padding: 0;
-                        font-family: 'Shadows Into Light', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-                        background-color: #f8fafc;
-                        color: #1e293b;
-                        line-height: 1.6;
-                    }
-                    .container {
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: 20px;
-                    }
-                    .header {
-                        text-align: center;
-                        margin-bottom: 30px;
-                    }
-                    .logo {
-                        max-width: 200px;
-                        height: auto;
-                        margin-bottom: 10px;
-                    }
-
-                    .content-card {
-                        background: white;
-                        border-radius: 12px;
-                        padding: 40px;
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-                        margin-bottom: 30px;
-                    }
-                    .greeting {
-                        font-size: 18px;
-                        font-weight: 600;
-                        margin-bottom: 20px;
-                        color: #1e293b;
-                    }
-                    .message {
-                        font-size: 16px;
-                        margin-bottom: 20px;
-                        color: #1e293b;
-                    }
-                    .highlight {
-                        color: #1e293b;
-                        font-weight: 500;
-                    }
-                    .closing {
-                        margin-top: 30px;
-                        color: #1e293b;
-                        font-size: 16px;
-                    }
-                    .signature {
-                        font-size: 18px;
-                        font-weight: 600;
-                        color: #1e293b;
-                    }
-                    .footer {
-                        text-align: center;
-                        color: #1e293b;
-                        font-size: 14px;
-                    }
-                    @media only screen and (max-width: 600px) {
-                        .container {
-                            padding: 15px;
-                        }
-                        .content-card {
-                            padding: 30px 20px;
-                        }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <img src="https://your-domain.com/logo_for_emails.png" alt="Ink-lings Logo" class="logo">
-
-                    </div>
-                    
-                    <div class="content-card">
-                        <div class="greeting">Hi ${userFirstName || 'there'},</div>
-                        
-                        <div class="message">
-                            You're all set — this is the email address we'll use to send your <span class="highlight">Ink-lings</span> journaling prompts.
-                        </div>
-                        
-                        <div class="message">
-                            No need to reply. Just keep an eye out for your first prompt on the schedule you chose.
-                        </div>
-                        
-                        <div class="message">
-                            In the meantime, grab a pen and your favorite notebook — you're about to start building a legacy one page at a time.
-                        </div>
-                        
-                        <div class="closing">
-                            Talk soon,<br><br>
-                            <span class="signature">The Ink-lings Team</span>
-                        </div>
-                    </div>
-                    
-                    <div class="footer">
-                        <p>Need help? <a href="mailto:rachell.k.weiss@gmail.com" style="color: #0891b2; text-decoration: underline; font-weight: 500;">Contact Support</a></p>
-                    </div>
-                </div>
-            </body>
-            </html>
-          `,
+          userId: 'test-user', // We'll handle this in the API
+          userEmail: email,
+          userFirstName: userFirstName || 'there',
+          selectedCategories: selectedCategories || [],
+          categoryNames: [], // Let the API handle category names with fallbacks
+          isTestEmail: true // Flag to indicate this is a test
         }),
       });
 
@@ -174,10 +67,10 @@ export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail,
         toast.success('Test email sent successfully!');
         setShowSuccessPopup(true); // Show the success popup
       } else {
-        const error = await response.json();
-        toast.error(`Failed to send email: ${error.message}`);
+        const errorData = await response.json();
+        toast.error(`Failed to send email: ${errorData.message}`);
       }
-    } catch (error) {
+    } catch {
       toast.error('Failed to send test email. Please try again.');
     } finally {
       setIsLoading(false);
@@ -279,7 +172,7 @@ export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail,
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                You've got a message!
+                You&apos;ve got a message!
               </h3>
               <p className="text-gray-600">
                 Check to make sure it came through!
@@ -311,7 +204,7 @@ export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail,
                 Skip Email Test?
               </h3>
               <p className="text-gray-600 mb-4">
-                Are you sure you want to skip testing your email? We recommend testing to make sure you'll receive your journal prompts.
+                Are you sure you want to skip testing your email? We recommend testing to make sure you&apos;ll receive your journal prompts.
               </p>
             </div>
             

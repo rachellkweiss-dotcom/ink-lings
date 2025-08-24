@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     // Test database connection first
     console.log('Testing database connection...');
-    const { data: testData, error: testError } = await supabaseServiceRole
+    const { error: testError } = await supabaseServiceRole
       .from('user_preferences')
       .select('count')
       .limit(1);

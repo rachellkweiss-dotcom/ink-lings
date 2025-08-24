@@ -309,7 +309,7 @@ export function JournalHistory({ userId, onBackToAccount }: JournalHistoryProps)
 
                   {/* Prompt */}
                   <p className="text-gray-700 dark:text-gray-300 italic">
-                    "{entry.promptText}"
+                    &ldquo;{entry.promptText}&rdquo;
                   </p>
                 </div>
               </CardContent>

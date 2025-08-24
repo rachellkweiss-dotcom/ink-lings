@@ -12,14 +12,11 @@ import { JournalHistory } from './journal-history';
 import { SignUp } from './sign-up';
 import { SignIn } from './sign-in';
 import { AccountPage } from './account-page';
-import { UserPreferences, JournalEntry } from '@/lib/types';
+import { UserPreferences } from '@/lib/types';
 import { saveUserPreferences, getUserPreferences } from '@/lib/user-preferences';
-import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { useAuth } from './auth-context';
 import { startPromptScheduler } from '@/lib/prompt-scheduler';
-import { GlobalHeader } from './global-header';
-import { FloatingSettings } from './floating-settings';
 
 type AppPhase = 'welcome' | 'create-account' | 'onboarding' | 'account' | 'complete';
 
@@ -32,40 +29,10 @@ export function InkLingsApp() {
   const [onboardingPhase, setOnboardingPhase] = useState<OnboardingPhase>(1);
   const [authMode, setAuthMode] = useState<AuthMode>('signup');
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
-  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+
   const { user, isEmailVerified, loading } = useAuth();
 
-  // Mock data for demonstration
-  const mockEntries: JournalEntry[] = [
-    {
-      id: '1',
-      category: 'personal-reflection',
-      prompt: 'What did you learn about yourself today?',
-      sentAt: '2024-01-15T09:00:00Z',
-      completed: true,
-      content: 'Today I learned that I feel most energized when I start my day with a creative task. Even just 15 minutes of drawing or writing sets a positive tone for the rest of the day.'
-    },
-    {
-      id: '2',
-      category: 'gratitude-joy',
-      prompt: 'What small moment today filled you with gratitude?',
-      sentAt: '2024-01-14T09:00:00Z',
-      completed: true,
-      content: 'I felt grateful for the way my neighbor smiled and waved this morning. It\'s such a simple gesture but it reminded me that kindness is everywhere.'
-    },
-    {
-      id: '3',
-      category: 'creativity-arts',
-      prompt: 'What\'s one idea you\'d sketch, paint, or write if time didn\'t matter?',
-      sentAt: '2024-01-13T09:00:00Z',
-      completed: false
-    }
-  ];
 
-  // Initialize with mock data
-  useEffect(() => {
-    setJournalEntries(mockEntries);
-  }, []);
 
   // Start the automated prompt scheduler
   useEffect(() => {
@@ -126,12 +93,7 @@ export function InkLingsApp() {
     setAuthMode('signup');
   };
 
-  const handleAccountCreated = () => {
-    // This will now be called after email verification, not immediately
-    // For now, we'll let the user handle verification themselves
-    // setAppPhase('onboarding');
-    // setOnboardingPhase(1);
-  };
+
 
   const handleSignInSuccess = () => {
     // Only allow verified users to proceed to onboarding
@@ -199,32 +161,6 @@ export function InkLingsApp() {
         });
         
         console.log('Preferences saved to Supabase:', savedPreferences);
-        
-        // Send onboarding confirmation email with first prompt
-        try {
-          const emailResponse = await fetch('/api/send-onboarding-confirmation', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              userId: user.id,
-              userEmail: userPreferences.notification_email,
-              userFirstName: user.user_metadata?.first_name || 'there',
-              selectedCategories: userPreferences.categories
-            }),
-          });
-
-          if (emailResponse.ok) {
-            const emailResult = await emailResponse.json();
-            console.log('Onboarding confirmation email sent:', emailResult);
-          } else {
-            console.error('Failed to send onboarding confirmation email');
-          }
-        } catch (emailError) {
-          console.error('Error sending onboarding confirmation email:', emailError);
-          // Don't fail the setup if email fails
-        }
         
         // Also save to localStorage as backup
         localStorage.setItem('ink-lings-preferences', JSON.stringify(savedPreferences));
@@ -331,11 +267,7 @@ export function InkLingsApp() {
     setOnboardingPhase(3);
   };
 
-  const handleBackToWelcome = () => {
-    setAppPhase('welcome');
-    setOnboardingPhase(1);
-    setUserPreferences(null);
-  };
+
 
   // Render welcome screen
   if (appPhase === 'welcome') {
@@ -345,7 +277,7 @@ export function InkLingsApp() {
   // Render create account screen
   if (appPhase === 'create-account') {
     if (authMode === 'signup') {
-      return <SignUp onAccountCreated={handleAccountCreated} onSwitchToSignIn={handleSwitchToSignIn} />;
+              return <SignUp onSwitchToSignIn={handleSwitchToSignIn} />;
     } else {
       return <SignIn onSignInSuccess={handleSignInSuccess} onSwitchToSignUp={handleSwitchToSignUp} />;
     }
@@ -398,6 +330,7 @@ export function InkLingsApp() {
               accountEmail={user?.email}
               userFirstName={user?.user_metadata?.first_name || ''}
               existingEmail={userPreferences?.notification_email}
+              selectedCategories={userPreferences?.categories || []}
             />
           )}
 
@@ -426,7 +359,7 @@ export function InkLingsApp() {
               onEditNotifications={handleEditNotifications}
               onEditSchedule={handleEditSchedule}
               onComplete={handleSetupComplete}
-              onBack={() => setOnboardingPhase(3)}
+
             />
           )}
 

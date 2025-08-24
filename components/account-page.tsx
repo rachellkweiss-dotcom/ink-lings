@@ -54,7 +54,7 @@ export function AccountPage({
             Welcome to Your Ink-lings Dashboard
           </h1>
           <p className="text-lg text-gray-600">
-            Choose what you'd like to do today
+                          Choose what you&apos;d like to do today
           </p>
         </div>
 

@@ -1,13 +1,13 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabase } from '../../../lib/supabase';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     console.log('=== test-db API started ===');
     
     // Test 1: Basic connection
     console.log('Testing basic connection...');
-    const { data: testData, error: testError } = await supabase
+    const { error: testError } = await supabase
       .from('user_preferences')
       .select('count')
       .limit(1);
@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     
     // Test 2: Check table structure
     console.log('Checking table structure...');
-    const { data: structureData, error: structureError } = await supabase
+    const { error: structureError } = await supabase
       .from('user_preferences')
       .select('*')
       .limit(1);

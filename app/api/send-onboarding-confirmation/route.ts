@@ -8,48 +8,86 @@ const supabaseServiceRole = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, userEmail, userFirstName, selectedCategories } = await request.json();
+    const { userId, userEmail, userFirstName, selectedCategories, categoryNames, isTestEmail } = await request.json();
 
-    if (!userId || !userEmail || !userFirstName || !selectedCategories || selectedCategories.length === 0) {
+    if (!userEmail || !userFirstName) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Get the first category (this will always be prompt #1)
-    const firstCategoryId = selectedCategories[0];
+    // For test emails, we don't need a real userId
+    if (!isTestEmail && !userId) {
+      return NextResponse.json(
+        { error: 'Missing userId for non-test emails' },
+        { status: 400 }
+      );
+    }
+
+    // Smart category and prompt logic with fallbacks
+    let categoryName = 'Sample Category';
+    let promptText = 'What thought does the color yellow bring up for you today?';
     
-    // Get prompt #1 from the first category
-    const { data: firstPrompt, error: promptError } = await supabaseServiceRole
-      .from('prompt_bank')
-      .select('prompt_text')
-      .eq('category_id', firstCategoryId)
-      .eq('prompt_number', 1)
-      .single();
+    // Priority 1: Use frontend data if provided (new users)
+    if (categoryNames && categoryNames.length > 0 && selectedCategories && selectedCategories.length > 0) {
+      categoryName = categoryNames[0];
+      
+      // Try to fetch the actual prompt from database
+      const firstCategoryId = selectedCategories[0];
+      const { data: firstPrompt, error: promptError } = await supabaseServiceRole
+        .from('prompt_bank')
+        .select('prompt_text')
+        .eq('category_id', firstCategoryId)
+        .eq('prompt_number', 1)
+        .single();
 
-    if (promptError || !firstPrompt) {
-      console.error('Error fetching first prompt:', promptError);
-      return NextResponse.json(
-        { error: 'Failed to fetch first prompt' },
-        { status: 500 }
-      );
+      if (!promptError && firstPrompt) {
+        promptText = firstPrompt.prompt_text;
+      }
     }
+    // Priority 2: Fetch from database if userId provided (existing users)
+    else if (userId && userId !== 'test-user') {
+      try {
+        // Fetch user's categories from user_preferences
+        const { data: userPrefs, error: prefsError } = await supabaseServiceRole
+          .from('user_preferences')
+          .select('selected_categories')
+          .eq('user_id', userId)
+          .single();
 
-    // Get category name for display
-    const { data: categoryData, error: categoryError } = await supabaseServiceRole
-      .from('journal_categories')
-      .select('name')
-      .eq('id', firstCategoryId)
-      .single();
+        if (!prefsError && userPrefs && userPrefs.selected_categories && userPrefs.selected_categories.length > 0) {
+          const firstCategoryId = userPrefs.selected_categories[0];
+          
+          // Get category name
+          const { data: categoryData, error: categoryError } = await supabaseServiceRole
+            .from('journal_categories')
+            .select('name')
+            .eq('id', firstCategoryId)
+            .single();
 
-    if (categoryError || !categoryData) {
-      console.error('Error fetching category name:', categoryError);
-      return NextResponse.json(
-        { error: 'Failed to fetch category name' },
-        { status: 500 }
-      );
+          if (!categoryError && categoryData) {
+            categoryName = categoryData.name;
+          }
+
+          // Get prompt
+          const { data: firstPrompt, error: promptError } = await supabaseServiceRole
+            .from('prompt_bank')
+            .select('prompt_text')
+            .eq('category_id', firstCategoryId)
+            .eq('prompt_number', 1)
+            .single();
+
+          if (!promptError && firstPrompt) {
+            promptText = firstPrompt.prompt_text;
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching user preferences:', error);
+        // Fallback to default values
+      }
     }
+    // Priority 3: Use fallback values (already set above)
 
     // Calculate first prompt date (next occurrence of their schedule)
     const now = new Date();
@@ -105,7 +143,7 @@ export async function POST(request: NextRequest) {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;" class="container">
                 <tr>
                   <td align="center" style="padding-bottom:32px;">
-                    <img src="https://inklingsjournal.live/ink_links_logo_final_final.png" width="160" height="auto" alt="Ink‑lings" style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none;">
+                    <img src="https://inklingsjournal.live/logo_for_emails.png" width="160" height="auto" alt="Ink‑lings" style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none;">
                   </td>
                 </tr>
               </table>
@@ -130,10 +168,10 @@ export async function POST(request: NextRequest) {
                   <td class="px" style="padding:32px;">
                     <div style="background:#f8f9fa; border-left:4px solid #007bff; padding:20px; border-radius:8px;">
                       <div style="display:inline-block; background:#e9ecef; color:#495057; padding:4px 12px; border-radius:20px; font-size:14px; margin-bottom:15px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                        ${categoryData.name}
+                        ${categoryName}
                       </div>
                       <p style="font-size:18px; font-weight:500; color:#2c3e50; margin:0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                        "${firstPrompt.prompt_text}"
+                        "${promptText}"
                       </p>
                     </div>
                   </td>
@@ -156,8 +194,8 @@ export async function POST(request: NextRequest) {
                       <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#1e293b !important; font-size:14px; font-weight:600; margin:0 0 8px;">
                         📓 Journal Recommendation:
                       </p>
-                      <a href="https://amazon.com/placeholder-journal-link" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px;">
-                        Moleskine Classic Notebook (Placeholder Link)
+                      <a href="https://www.amazon.com/gp/product/B08LKMRYRY/ref=ox_sc_saved_title_1?smid=ALK198ZO0BL7J&th=1" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px;">
+                        Spiral Notebook
                       </a>
                     </div>
                     
@@ -182,12 +220,15 @@ export async function POST(request: NextRequest) {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px; background:#ffffff !important; border:1px solid #e9ecef !important; border-radius:8px; box-shadow:0 1px 3px 0 rgba(0,0,0,0.1);" class="container card">
                 <tr>
                   <td class="px" style="padding:32px;">
+                    ${!isTestEmail ? `
                     <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#475569 !important; font-size:16px; line-height:1.6; margin:0 0 16px;">
                       Your first scheduled prompt will arrive on ${formattedDate}.
                     </p>
+                    ` : ''}
                     <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#64748b !important; font-size:14px; line-height:1.5; margin:0; text-align:center;">
-                      Happy journaling!<br>
-                      <span style="color:#007bff !important;">The Ink-lings Team</span>
+                      Happy journaling,<br>
+                      Rachell<br>
+                      <span style="color:#007bff !important;">Founder of Ink-lings</span>
                     </p>
                   </td>
                 </tr>
@@ -214,7 +255,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         from: 'Ink-lings <noreply@inklingsjournal.live>',
         to: userEmail,
-        subject: '✍️ Welcome to Ink-lings - Your First Prompt!',
+        subject: isTestEmail ? '✍️ Test: Your Ink-lings Journal Prompt Sample' : '✍️ Welcome to Ink-lings - Your First Prompt!',
         html: emailHtml,
       }),
     });
@@ -224,30 +265,34 @@ export async function POST(request: NextRequest) {
       throw new Error(`Failed to send email: ${error}`);
     }
 
-    // Set up user prompt progress in the database
-    // First category starts at 1 (prompt #1 sent), others start at 1 (ready for first prompt)
-    for (const categoryId of selectedCategories) {
-      const isFirstCategory = categoryId === firstCategoryId;
+    // Set up user prompt progress in the database (only for non-test emails)
+    if (!isTestEmail && userId !== 'test-user' && selectedCategories && selectedCategories.length > 0) {
+      // First category starts at 1 (prompt #1 sent), others start at 1 (ready for first prompt)
+      const firstCategoryId = selectedCategories[0];
       
-      const { error: progressError } = await supabaseServiceRole
-        .from('user_prompt_progress')
-        .upsert({
-          user_id: userId,
-          category_id: categoryId,
-          current_prompt_number: isFirstCategory ? 1 : 1, // First category: 1 (sent), Others: 1 (ready)
-          last_sent_date: isFirstCategory ? new Date().toISOString() : null
-        });
+      for (const categoryId of selectedCategories) {
+        const isFirstCategory = categoryId === firstCategoryId;
+        
+        const { error: progressError } = await supabaseServiceRole
+          .from('user_prompt_progress')
+          .upsert({
+            user_id: userId,
+            category_id: categoryId,
+            current_prompt_number: isFirstCategory ? 1 : 1, // First category: 1 (sent), Others: 1 (ready)
+            last_sent_date: isFirstCategory ? new Date().toISOString() : null
+          });
 
-      if (progressError) {
-        console.error(`Error setting up progress for category ${categoryId}:`, progressError);
+        if (progressError) {
+          console.error(`Error setting up progress for category ${categoryId}:`, progressError);
+        }
       }
     }
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Onboarding confirmation email sent successfully',
-      firstCategoryId,
-      firstPromptNumber: 1
+      message: isTestEmail ? 'Test email sent successfully' : 'Onboarding confirmation email sent successfully',
+      categoryName,
+      promptText
     });
 
   } catch (error) {

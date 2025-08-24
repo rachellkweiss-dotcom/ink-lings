@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+
 import { Dancing_Script } from "next/font/google";
 import { Shadows_Into_Light } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-context";
 
-const inter = Inter({ subsets: ["latin"] });
+
 const dancingScript = Dancing_Script({ 
   subsets: ["latin"],
   variable: "--font-dancing-script"

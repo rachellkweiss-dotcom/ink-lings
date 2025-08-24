@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { journalCategories } from '../../../lib/categories';
 
@@ -331,7 +331,7 @@ async function processPrompts() {
           // Store the user's intended time (not scheduler time) for display
           // This shows users when they expected the email (e.g., 4:00 PM) not when it was sent (e.g., 3:55 PM)
           const userPreferredTime = new Date();
-          const [hour, minute] = user.notification_time.match(/(\d+):(\d+)\s*(AM|PM)/i)?.slice(1) || [];
+          const [hour] = user.notification_time.match(/(\d+):(\d+)\s*(AM|PM)/i)?.slice(1) || [];
           const userHour = parseInt(hour);
           const isPM = user.notification_time.includes('PM');
           
@@ -441,7 +441,7 @@ async function processPrompts() {
   };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const result = await processPrompts();
     return NextResponse.json(result);
@@ -455,7 +455,7 @@ export async function GET(request: NextRequest) {
 }
 
 // For testing purposes - you can call this manually
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const result = await processPrompts();
     return NextResponse.json(result);

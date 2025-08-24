@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/ca
 
 export default function TestPromptsPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<any>(null);
+  const [result, setResult] = useState<{ message: string; results?: Array<{ email: string; category?: string; promptNumber?: number; status: string; error?: string }> } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const testSendPrompts = async () => {
@@ -184,7 +184,7 @@ export default function TestPromptsPage() {
                   <div>
                     <h3 className="font-semibold text-green-800 mb-2">Details:</h3>
                     <div className="space-y-2">
-                      {result.results.map((item: any, index: number) => (
+                      {result.results.map((item: { email: string; category?: string; promptNumber?: number; status: string; error?: string }, index: number) => (
                         <div key={index} className="bg-white p-3 rounded border">
                           <div className="flex justify-between items-start">
                             <div>
@@ -231,14 +231,14 @@ export default function TestPromptsPage() {
             <div>
               <h3 className="font-semibold mb-2">2. Time Check</h3>
               <p className="text-gray-600">
-                For each user, it checks if it's within 1 hour of their preferred notification time.
+                For each user, it checks if it&apos;s within 1 hour of their preferred notification time.
               </p>
             </div>
             
             <div>
               <h3 className="font-semibold mb-2">3. Prompt Selection</h3>
               <p className="text-gray-600">
-                It rotates through the user's selected categories and picks the next prompt number for that category.
+                It rotates through the user&apos;s selected categories and picks the next prompt number for that category.
               </p>
             </div>
             

@@ -9,11 +9,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Image from 'next/image'
 
 interface SignUpProps {
-  onAccountCreated?: () => void;
   onSwitchToSignIn?: () => void;
 }
 
-export function SignUp({ onAccountCreated, onSwitchToSignIn }: SignUpProps) {
+export function SignUp({ onSwitchToSignIn }: SignUpProps) {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -21,7 +20,7 @@ export function SignUp({ onAccountCreated, onSwitchToSignIn }: SignUpProps) {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [message, setMessage] = useState('')
+
   const [isVerificationSent, setIsVerificationSent] = useState(false)
   const { signUp } = useAuth()
 
@@ -29,7 +28,6 @@ export function SignUp({ onAccountCreated, onSwitchToSignIn }: SignUpProps) {
     e.preventDefault()
     setLoading(true)
     setError('')
-    setMessage('')
 
     if (!firstName.trim() || !lastName.trim()) {
       setError('First name and last name are required')
@@ -52,7 +50,7 @@ export function SignUp({ onAccountCreated, onSwitchToSignIn }: SignUpProps) {
         }
       })
       setIsVerificationSent(true)
-      setMessage('Account created successfully! Please check your email and click the verification link to continue.')
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
@@ -92,7 +90,7 @@ export function SignUp({ onAccountCreated, onSwitchToSignIn }: SignUpProps) {
                 <div className="text-center space-y-4">
                   
                   <div className="text-gray-600 text-sm">
-                    <p>Didn't receive the email?</p>
+                    <p>Didn&apos;t receive the email?</p>
                     <p>Check your spam folder or contact support if you need help.</p>
                   </div>
                 </div>

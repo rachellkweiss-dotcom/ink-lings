@@ -207,7 +207,7 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
             <CardContent className="pt-6">
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-3">
-                  Don't have an account?
+                  Don&apos;t have an account?
                 </p>
                 <Button
                   variant="link"

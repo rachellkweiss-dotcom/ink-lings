@@ -26,7 +26,7 @@ export function WelcomeHero({ onGetStarted }: WelcomeHeroProps) {
           </div>
           
           <p className="text-2xl md:text-3xl text-gray-700 dark:text-gray-300 max-w-2xl mx-auto font-bold" style={{ fontFamily: 'var(--font-shadows-into-light)' }}>
-            When you don't know what to write, we'll guide the ink.
+            When you don&apos;t know what to write, we&apos;ll guide the ink.
           </p>
         </div>
 

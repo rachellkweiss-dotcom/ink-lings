@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { UserPreferences, User } from './types'
+import { UserPreferences } from './types'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -15,4 +15,4 @@ console.log('Supabase configuration:', {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Re-export types for convenience
-export type { UserPreferences, User }
+export type { UserPreferences }

@@ -13,7 +13,7 @@ interface SetupConfirmationProps {
   onEditCategories: () => void;
   onEditNotifications: () => void;
   onEditSchedule: () => void;
-  onBack: () => void;
+
   onComplete: () => void;
 }
 
@@ -24,7 +24,7 @@ export function SetupConfirmation({
   onEditCategories,
   onEditNotifications,
   onEditSchedule,
-  onBack, 
+
   onComplete
 }: SetupConfirmationProps) {
   // Ensure page starts at top
