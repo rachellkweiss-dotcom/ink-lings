@@ -83,6 +83,21 @@ export function InkLingsApp() {
     loadUserPreferences();
   }, [user, loading, isEmailVerified]);
 
+  // Check for password reset redirect
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const type = urlParams.get('type');
+      const token = urlParams.get('token');
+      
+      if (type === 'recovery' && token) {
+        // This is a password reset redirect
+        console.log('Password reset detected, redirecting to reset page');
+        window.location.href = `/reset-password?token=${token}&type=recovery`;
+      }
+    }
+  }, []);
+
   // Smooth scroll to top on page transitions
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
