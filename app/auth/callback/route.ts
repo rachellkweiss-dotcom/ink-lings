@@ -40,11 +40,13 @@ export async function GET(request: NextRequest) {
         .eq('user_id', data.user.id)
         .single();
 
-      if (preferences) {
-        // User has preferences, redirect to account page
+      if (preferences && preferences.notification_email) {
+        // User has complete preferences, redirect to account page
+        console.log('User has preferences, redirecting to account');
         return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/?phase=account`);
       } else {
-        // New user, redirect to onboarding
+        // New user or incomplete preferences, redirect to onboarding
+        console.log('New user or incomplete preferences, redirecting to onboarding');
         return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/?phase=onboarding`);
       }
     }
