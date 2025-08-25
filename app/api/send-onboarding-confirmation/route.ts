@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;" class="container">
                 <tr>
                   <td align="center" style="padding-bottom:32px;">
-                    <img src="https://inklingsjournal.live/logo_for_emails.png" width="160" height="auto" alt="Ink‑lings" style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none;">
+                    <img src="https://ink-lings-uewn.vercel.app/logo_for_emails.png" width="160" height="auto" alt="Ink‑lings" style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none;">
                   </td>
                 </tr>
               </table>
@@ -168,9 +168,17 @@ export async function POST(request: NextRequest) {
                       <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#1e293b !important; font-size:14px; font-weight:600; margin:0 0 8px;">
                         📓 Journal Recommendation:
                       </p>
-                      <a href="https://amzn.to/45AJUoA" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px;">
-                        Spiral Notebook
-                      </a>
+                      <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="https://m.media-amazon.com/images/I/71QKQfJqHBL._AC_UL320_.jpg" alt="Spiral Notebook" style="width:80px; height:80px; object-fit:cover; border-radius:4px;">
+                        <div>
+                          <a href="https://amzn.to/45AJUoA" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px; font-weight:500;">
+                            Spiral Notebook
+                          </a>
+                          <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#64748b !important; font-size:12px; margin:4px 0 0 0;">
+                            Perfect for daily journaling
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     
                     <!-- Pen Storage Recommendation -->
@@ -178,9 +186,17 @@ export async function POST(request: NextRequest) {
                       <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#1e293b !important; font-size:14px; font-weight:600; margin:0 0 8px;">
                         ✒️ Pen Storage:
                       </p>
-                      <a href="https://amzn.to/47dBYuG" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px;">
-                        Pen Organizer Case
-                      </a>
+                      <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="https://m.media-amazon.com/images/I/71QKQfJqHBL._AC_UL320_.jpg" alt="Pen Organizer" style="width:80px; height:80px; object-fit:cover; border-radius:4px;">
+                        <div>
+                          <a href="https://amzn.to/47dBYuG" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px; font-weight:500;">
+                            Pen Organizer Case
+                          </a>
+                          <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#64748b !important; font-size:12px; margin:4px 0 0 0;">
+                            Keep your pens organized
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     
                     <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#64748b !important; font-size:12px; line-height:1.5; margin:0; font-style:italic;">
