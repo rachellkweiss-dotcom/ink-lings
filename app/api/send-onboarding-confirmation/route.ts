@@ -168,7 +168,7 @@ export async function POST(request: NextRequest) {
                       <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#1e293b !important; font-size:14px; font-weight:600; margin:0 0 8px;">
                         📓 Journal Recommendation:
                       </p>
-                      <a href="https://www.amazon.com/gp/product/B08LKMRYRY/ref=ox_sc_saved_title_1?smid=ALK198ZO0BL7J&th=1" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px;">
+                      <a href="https://amzn.to/45AJUoA" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px;">
                         Spiral Notebook
                       </a>
                     </div>
@@ -178,8 +178,8 @@ export async function POST(request: NextRequest) {
                       <p style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color:#1e293b !important; font-size:14px; font-weight:600; margin:0 0 8px;">
                         ✒️ Pen Storage:
                       </p>
-                      <a href="https://amazon.com/placeholder-pen-storage-link" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px;">
-                        Pen Organizer Case (Placeholder Link)
+                      <a href="https://amzn.to/47dBYuG" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px;">
+                        Pen Organizer Case
                       </a>
                     </div>
                     
