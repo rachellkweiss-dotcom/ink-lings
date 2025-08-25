@@ -110,7 +110,7 @@ export function InkLingsApp() {
   // New approach: Check auth state for password reset mode
   useEffect(() => {
     const checkForPasswordReset = async () => {
-      if (typeof window !== 'undefined' && user) {
+      if (typeof window !== 'undefined') {
         console.log('🔍 Checking user auth state for password reset mode...');
         
         try {
@@ -138,7 +138,7 @@ export function InkLingsApp() {
               const { data: resetData, error: resetError } = await supabase.auth.verifyOtp({
                 token: session.access_token,
                 type: 'recovery',
-                email: user.email || ''
+                email: session.user.email || ''
               });
               
               if (!resetError && resetData) {
@@ -158,10 +158,8 @@ export function InkLingsApp() {
       }
     };
     
-    // Run the check when user state changes
-    if (user) {
-      checkForPasswordReset();
-    }
+    // Run the check immediately and when user state changes
+    checkForPasswordReset();
   }, [user, userPreferences]);
 
   // Fallback token validation - check for reset tokens in localStorage or URL
