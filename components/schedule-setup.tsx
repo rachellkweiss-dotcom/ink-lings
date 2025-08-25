@@ -13,7 +13,7 @@ interface ScheduleSetupProps {
   showStopButton?: boolean;
 }
 
-export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetupProps) {
+export function ScheduleSetup({ onNext, onBack, existingSchedule, onStopNotifications, showStopButton }: ScheduleSetupProps) {
   const [selectedDays, setSelectedDays] = useState<string[]>(existingSchedule?.days || []);
   const [selectedTime, setSelectedTime] = useState(existingSchedule?.time || '9:00 AM');
   const [selectedTimezone, setSelectedTimezone] = useState(existingSchedule?.timezone || 'America/New_York');
