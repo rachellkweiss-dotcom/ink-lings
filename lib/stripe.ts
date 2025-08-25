@@ -33,7 +33,7 @@ export async function createDonationCheckoutSession(
             product_data: {
               name: `Ink-lings ${donationType}`,
               description: 'Thank you for supporting Ink-lings!',
-              images: [`${process.env.NEXT_PUBLIC_BASE_URL}/ink_links_logo_final_final.png`], // Your logo
+              images: [`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/ink_links_logo_final_final.png`], // Your logo
             },
             unit_amount: amount,
           },
@@ -71,7 +71,7 @@ export async function createMonthlySubscriptionCheckoutSession(
             product_data: {
               name: 'Ink-lings Monthly Supporter',
               description: 'Monthly supporter subscription - thank you!',
-              images: [`${process.env.NEXT_PUBLIC_BASE_URL}/ink_links_logo_final_final.png`],
+              images: [`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/ink_links_logo_final_final.png`],
             },
             unit_amount: DONATION_AMOUNTS.MONTHLY_SUPPORTER,
             recurring: {
