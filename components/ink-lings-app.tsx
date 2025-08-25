@@ -299,21 +299,91 @@ export function InkLingsApp() {
         
         // Create user_prompt_rotation record for simplified prompt management
         try {
-          const { error: rotationError } = await supabase
+          // First check if user already has a rotation record
+          const { data: existingRotation } = await supabase
             .from('user_prompt_rotation')
-            .upsert({
-              user_id: user.id,
-              next_category_to_send: userPreferences.categories[0], // Start with first category
-              current_prompt_count: 1
-            });
+            .select('*')
+            .eq('uid', user.id)
+            .single();
           
-          if (rotationError) {
-            console.error('Error creating user_prompt_rotation record:', rotationError);
+          if (existingRotation) {
+            // User already has preferences - update with new categories
+            const updateData = {
+              next_category_to_send: userPreferences.categories[0] // Reset to first category
+            };
+            
+            // For each NEW category (count = 0), set count to 1
+            // For existing categories (count > 0), leave unchanged
+            userPreferences.categories.forEach(category => {
+              const categoryKey = category.replace(/-/g, '_') + '_current_count';
+              if (existingRotation.hasOwnProperty(categoryKey)) {
+                // Only update if count is 0 (new category) or doesn't exist
+                if ((existingRotation as any)[categoryKey] === 0 || (existingRotation as any)[categoryKey] === null) {
+                  (updateData as any)[categoryKey] = 1;
+                }
+                // If count > 0, leave it unchanged (preserve progress)
+                // This handles re-added categories continuing from where they left off
+              }
+            });
+            
+            // Update existing record
+            const { error: updateError } = await supabase
+              .from('user_prompt_rotation')
+              .update(updateData)
+              .eq('uid', user.id);
+            
+            if (updateError) {
+              console.error('Error updating user_prompt_rotation record:', updateError);
+            } else {
+              console.log('User prompt rotation record updated successfully');
+            }
+            
           } else {
-            console.log('User prompt rotation record created successfully');
+            // New user - create initial record
+            const baseRecord = {
+              uid: user.id,
+              next_category_to_send: userPreferences.categories[0],
+              work_craft_current_count: 0,
+              community_society_current_count: 0,
+              creativity_arts_current_count: 0,
+              future_aspirations_current_count: 0,
+              gratitude_joy_current_count: 0,
+              health_body_current_count: 0,
+              learning_growth_current_count: 0,
+              memory_past_current_count: 0,
+              money_life_admin_current_count: 0,
+              nature_senses_current_count: 0,
+              personal_reflection_current_count: 0,
+              philosophy_values_current_count: 0,
+              playful_whimsical_current_count: 0,
+              relationships_current_count: 0,
+              risk_adventure_current_count: 0,
+              tech_media_current_count: 0,
+              travel_place_current_count: 0,
+              wildcard_surreal_current_count: 0
+            };
+            
+            // Set enrolled categories to 1
+            userPreferences.categories.forEach(category => {
+              const categoryKey = category.replace(/-/g, '_') + '_current_count';
+              if (baseRecord.hasOwnProperty(categoryKey)) {
+                (baseRecord as any)[categoryKey] = 1;
+              }
+            });
+            
+            const { error: createError } = await supabase
+              .from('user_prompt_rotation')
+              .insert(baseRecord);
+            
+            if (createError) {
+              console.error('Error creating user_prompt_rotation record:', createError);
+            } else {
+              console.log('User prompt rotation record created successfully');
+            }
           }
+          
         } catch (rotationError) {
-          console.error('Error creating user_prompt_rotation record:', rotationError);
+          console.error('Error with user_prompt_rotation record:', rotationError);
         }
         
         // Also save to localStorage as backup
