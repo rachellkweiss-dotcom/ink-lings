@@ -107,6 +107,63 @@ export function InkLingsApp() {
     }
   }, []);
 
+  // New approach: Check auth state for password reset mode
+  useEffect(() => {
+    const checkForPasswordReset = async () => {
+      if (typeof window !== 'undefined' && user) {
+        console.log('🔍 Checking user auth state for password reset mode...');
+        
+        try {
+          // Check if user is in password reset mode by looking at their session
+          const { data: { session }, error } = await supabase.auth.getSession();
+          
+          if (error) {
+            console.log('❌ Error getting session:', error.message);
+            return;
+          }
+          
+          if (session) {
+            console.log('🔍 User has active session, checking for password reset state...');
+            
+            // Check if this is a fresh password reset session
+            // We can detect this by checking if the user was just created or if they have a specific flag
+            const userMetadata = session.user.user_metadata;
+            console.log('User metadata:', userMetadata);
+            
+            // If user has no preferences and just landed here, they might be in password reset mode
+            if (!userPreferences && userMetadata && Object.keys(userMetadata).length === 0) {
+              console.log('🔍 Potential password reset user detected (no metadata)');
+              
+              // Check if they have a reset token in their session
+              const { data: resetData, error: resetError } = await supabase.auth.verifyOtp({
+                token: session.access_token,
+                type: 'recovery',
+                email: user.email || ''
+              });
+              
+              if (!resetError && resetData) {
+                console.log('✅ Password reset session confirmed, redirecting to reset page');
+                window.location.href = `/reset-password?token=${session.access_token}&type=recovery`;
+                return;
+              }
+            }
+            
+            console.log('✅ User appears to be in normal auth mode');
+          } else {
+            console.log('❌ No active session found');
+          }
+        } catch (error) {
+          console.error('❌ Error checking password reset state:', error);
+        }
+      }
+    };
+    
+    // Run the check when user state changes
+    if (user) {
+      checkForPasswordReset();
+    }
+  }, [user, userPreferences]);
+
   // Fallback token validation - check for reset tokens in localStorage or URL
   useEffect(() => {
     const checkForResetToken = async () => {
