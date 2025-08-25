@@ -18,6 +18,11 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule, onStopNotifica
   const [selectedTime, setSelectedTime] = useState(existingSchedule?.time || '9:00 AM');
   const [selectedTimezone, setSelectedTimezone] = useState(existingSchedule?.timezone || 'America/New_York');
 
+  // Debug logging
+  console.log('ScheduleSetup - existingSchedule:', existingSchedule);
+  console.log('ScheduleSetup - selectedTime:', selectedTime);
+  console.log('ScheduleSetup - selectedTimezone:', selectedTimezone);
+
   // Ensure page starts at top
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -144,19 +149,6 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule, onStopNotifica
         </CardContent>
       </Card>
 
-      {/* Stop Notifications Button - Only show if user has existing preferences */}
-      {showStopButton && onStopNotifications && (
-        <div className="mb-6 text-center">
-          <Button 
-            onClick={onStopNotifications}
-            variant="outline"
-            className="border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400 px-6 py-2"
-          >
-            🛑 Stop Notifications
-          </Button>
-        </div>
-      )}
-
       <div className="flex justify-between items-center">
         <Button 
           variant="outline" 
@@ -172,6 +164,20 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule, onStopNotifica
         >
           Next: Review & Complete
         </Button>
+      </div>
+
+      {/* Stop Notifications Button - Only show if user has existing preferences */}
+      {showStopButton && onStopNotifications && (
+        <div className="mt-6 text-center">
+          <Button 
+            onClick={onStopNotifications}
+            variant="outline"
+            className="border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400 px-6 py-2"
+          >
+            Stop Notifications
+          </Button>
+        </div>
+      )}
       </div>
     </div>
   );
