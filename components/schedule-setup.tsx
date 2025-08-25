@@ -9,6 +9,8 @@ interface ScheduleSetupProps {
   onNext: (schedule: { days: string[]; time: string; timezone: string }) => void;
   onBack: () => void;
   existingSchedule?: { days: string[]; time: string; timezone: string };
+  onStopNotifications?: () => void;
+  showStopButton?: boolean;
 }
 
 export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetupProps) {
@@ -141,6 +143,19 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetu
           </div>
         </CardContent>
       </Card>
+
+      {/* Stop Notifications Button - Only show if user has existing preferences */}
+      {showStopButton && onStopNotifications && (
+        <div className="mb-6 text-center">
+          <Button 
+            onClick={onStopNotifications}
+            variant="outline"
+            className="border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400 px-6 py-2"
+          >
+            🛑 Stop Notifications
+          </Button>
+        </div>
+      )}
 
       <div className="flex justify-between items-center">
         <Button 

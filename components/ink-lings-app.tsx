@@ -12,6 +12,7 @@ import { JournalHistory } from './journal-history';
 import { SignUp } from './sign-up';
 import { SignIn } from './sign-in';
 import { AccountPage } from './account-page';
+import { StopNotificationsModal } from './stop-notifications-modal';
 import { UserPreferences } from '@/lib/types';
 import { saveUserPreferences, getUserPreferences } from '@/lib/user-preferences';
 import { Button } from './ui/button';
@@ -30,6 +31,7 @@ export function InkLingsApp() {
   const [onboardingPhase, setOnboardingPhase] = useState<OnboardingPhase>(1);
   const [authMode, setAuthMode] = useState<AuthMode>('signup');
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
+  const [showStopModal, setShowStopModal] = useState(false);
 
   const { user, isEmailVerified, loading } = useAuth();
 
@@ -419,6 +421,60 @@ export function InkLingsApp() {
     setOnboardingPhase(3);
   };
 
+  const handleStopNotifications = () => {
+    setShowStopModal(true);
+  };
+
+  const handlePauseNotifications = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch('/api/pause-notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id })
+      });
+
+      if (response.ok) {
+        // Clear local preferences
+        setUserPreferences(null);
+        localStorage.removeItem('ink-lings-preferences');
+        setShowStopModal(false);
+        // Redirect to welcome or sign in
+        setAppPhase('create-account');
+        setAuthMode('signin');
+      } else {
+        console.error('Failed to pause notifications');
+      }
+    } catch (error) {
+      console.error('Error pausing notifications:', error);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user?.id) return;
+    
+    try {
+      const response = await fetch('/api/delete-account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id })
+      });
+
+      if (response.ok) {
+        // Clear everything and redirect to welcome
+        setUserPreferences(null);
+        localStorage.removeItem('ink-lings-preferences');
+        setShowStopModal(false);
+        setAppPhase('welcome');
+      } else {
+        console.error('Failed to delete account');
+      }
+    } catch (error) {
+      console.error('Error deleting account:', error);
+    }
+  };
+
 
 
   // Render welcome screen
@@ -495,6 +551,8 @@ export function InkLingsApp() {
                 time: userPreferences.notification_time,
                 timezone: userPreferences.timezone
               } : undefined}
+              onStopNotifications={handleStopNotifications}
+              showStopButton={!!userPreferences?.notification_days?.length}
             />
           )}
 
@@ -525,6 +583,15 @@ export function InkLingsApp() {
               </div>
             </div>
           )}
+
+          {/* Stop Notifications Modal */}
+          <StopNotificationsModal
+            isOpen={showStopModal}
+            onClose={() => setShowStopModal(false)}
+            onPauseNotifications={handlePauseNotifications}
+            onDeleteAccount={handleDeleteAccount}
+            isNewUser={!userPreferences?.notification_days?.length}
+          />
         </div>
       </div>
     );
