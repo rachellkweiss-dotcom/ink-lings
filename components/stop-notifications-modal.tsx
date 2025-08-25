@@ -60,7 +60,7 @@ export function StopNotificationsModal({
                 ⏸️ Pause Notifications
               </h3>
               <p className="text-blue-700 text-sm mb-3">
-                Temporarily stop receiving prompts. You can resume anytime by updating your schedule.
+                Temporarily stop receiving prompts. Your progress is saved and you can resume anytime by updating your schedule.
               </p>
               <Button 
                 onClick={handlePause}
@@ -76,10 +76,10 @@ export function StopNotificationsModal({
           {/* Delete Account Option */}
           <div className="p-4 border-2 border-red-200 rounded-lg bg-red-50">
             <h3 className="font-semibold text-red-900 mb-2">
-              🗑️ Delete Account
+              🗑️ Request Account Deletion
             </h3>
             <p className="text-red-700 text-sm mb-3">
-              Permanently delete your account and all data. This action cannot be undone.
+              Submit a request to permanently delete your account. We&apos;ll process this manually and contact you to confirm the deletion.
             </p>
             <Button 
               onClick={handleDelete}
@@ -88,7 +88,7 @@ export function StopNotificationsModal({
               className="w-full"
               size="sm"
             >
-              {isProcessing ? 'Deleting...' : 'Delete Account'}
+              {isProcessing ? 'Submitting...' : 'Request Deletion'}
             </Button>
           </div>
 

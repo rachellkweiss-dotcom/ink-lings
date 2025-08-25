@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Clear notification preferences to pause notifications
+    // Clear only notification schedule to pause notifications (keeping all other data)
     const { error: updateError } = await supabaseServiceRole
       .from('user_preferences')
       .update({
@@ -36,22 +36,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Also clear prompt progress to reset their position
-    const { error: progressError } = await supabaseServiceRole
-      .from('user_prompt_progress')
-      .delete()
-      .eq('user_id', userId);
-
-    if (progressError) {
-      console.error('Error clearing prompt progress:', progressError);
-      // Don't fail the whole operation for this
-    }
+    // DON'T clear prompt progress - keep it so users can resume where they left off
+    // This makes pausing fully reversible
 
     console.log(`Notifications paused for user: ${userId}`);
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Notifications paused successfully' 
+      message: 'Notifications paused successfully. You can re-enable them anytime by updating your preferences.' 
     });
 
   } catch (error) {

@@ -20,6 +20,9 @@ export interface UserPreferences {
   next_prompt_utc?: string;
   last_prompt_sent?: string;
   current_category_index?: number;
+  // Status flags for UI
+  notificationsPaused?: boolean;
+  deletionRequested?: boolean;
 }
 
 export interface JournalEntry {

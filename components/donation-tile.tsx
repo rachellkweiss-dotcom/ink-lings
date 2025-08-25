@@ -62,10 +62,6 @@ export function DonationTile({ userEmail }: DonationTileProps) {
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">
           Support Ink-lings
         </h2>
-        <p className="text-gray-600 text-sm">
-          Ink-lings is a passion project. If you&apos;ve enjoyed the prompts and want to help keep it going, 
-          you can chip in here. Every bit helps — thank you!
-        </p>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Donation Tiers */}
@@ -78,16 +74,6 @@ export function DonationTile({ userEmail }: DonationTileProps) {
             size="sm"
           >
             ☕ Coffee & Journaling - $5
-          </Button>
-
-          {/* Monthly Supporter */}
-          <Button
-            onClick={() => handleDonation(500, 'monthly_supporter')}
-            disabled={isDonating}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
-            size="sm"
-          >
-            ✒️ Monthly Supporter - $5/month
           </Button>
 
           {/* Custom Amount */}

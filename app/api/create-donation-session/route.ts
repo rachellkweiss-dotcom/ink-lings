@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createDonationCheckoutSession, createMonthlySubscriptionCheckoutSession } from '@/lib/stripe';
+import { createDonationCheckoutSession } from '@/lib/stripe';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,15 +12,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let session;
-
-    if (donationType === 'monthly_supporter') {
-      // Create monthly subscription
-      session = await createMonthlySubscriptionCheckoutSession(customerEmail);
-    } else {
-      // Create one-time donation
-      session = await createDonationCheckoutSession(amount, customerEmail, donationType);
-    }
+    // Create one-time donation
+    const session = await createDonationCheckoutSession(amount, customerEmail, donationType);
 
     return NextResponse.json({
       success: true,

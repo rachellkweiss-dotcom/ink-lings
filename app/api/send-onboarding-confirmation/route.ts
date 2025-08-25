@@ -8,7 +8,7 @@ const supabaseServiceRole = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, userEmail, userFirstName, selectedCategories, categoryNames, isTestEmail } = await request.json();
+    const { userId, userEmail, userFirstName, selectedCategories, isTestEmail } = await request.json();
 
     if (!userEmail || !userFirstName) {
       return NextResponse.json(

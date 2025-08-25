@@ -297,6 +297,25 @@ export function InkLingsApp() {
         
         console.log('Preferences saved to Supabase:', savedPreferences);
         
+        // Create user_prompt_rotation record for simplified prompt management
+        try {
+          const { error: rotationError } = await supabase
+            .from('user_prompt_rotation')
+            .upsert({
+              user_id: user.id,
+              next_category_to_send: userPreferences.categories[0], // Start with first category
+              current_prompt_count: 1
+            });
+          
+          if (rotationError) {
+            console.error('Error creating user_prompt_rotation record:', rotationError);
+          } else {
+            console.log('User prompt rotation record created successfully');
+          }
+        } catch (rotationError) {
+          console.error('Error creating user_prompt_rotation record:', rotationError);
+        }
+        
         // Also save to localStorage as backup
         localStorage.setItem('ink-lings-preferences', JSON.stringify(savedPreferences));
         
@@ -436,18 +455,18 @@ export function InkLingsApp() {
       });
 
       if (response.ok) {
-        // Clear local preferences
-        setUserPreferences(null);
-        localStorage.removeItem('ink-lings-preferences');
+        // Close modal and redirect to account page with pause status
         setShowStopModal(false);
-        // Redirect to welcome or sign in
-        setAppPhase('create-account');
-        setAuthMode('signin');
+        setAppPhase('account');
+        // Set a flag to show notifications paused status
+        setUserPreferences(prev => prev ? { ...prev, notificationsPaused: true } : null);
       } else {
         console.error('Failed to pause notifications');
+        alert('Failed to pause notifications. Please try again.');
       }
     } catch (error) {
       console.error('Error pausing notifications:', error);
+      alert('Failed to pause notifications. Please try again.');
     }
   };
 
@@ -455,23 +474,31 @@ export function InkLingsApp() {
     if (!user?.id) return;
     
     try {
-      const response = await fetch('/api/delete-account', {
+      // Send deletion request instead of deleting immediately
+      const response = await fetch('/api/request-account-deletion', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id })
+        body: JSON.stringify({ 
+          userId: user.id,
+          userEmail: user.email,
+          userFirstName: user.user_metadata?.first_name,
+          registrationMethod: user.app_metadata?.provider || 'email'
+        })
       });
 
       if (response.ok) {
-        // Clear everything and redirect to welcome
-        setUserPreferences(null);
-        localStorage.removeItem('ink-lings-preferences');
+        // Close modal and redirect to account page with deletion status
         setShowStopModal(false);
-        setAppPhase('welcome');
+        setAppPhase('account');
+        // Set a flag to show deletion initiated status
+        setUserPreferences(prev => prev ? { ...prev, deletionRequested: true } : null);
       } else {
-        console.error('Failed to delete account');
+        console.error('Failed to submit deletion request');
+        alert('Failed to submit deletion request. Please try again or contact support.');
       }
     } catch (error) {
-      console.error('Error deleting account:', error);
+      console.error('Error submitting deletion request:', error);
+      alert('Error submitting deletion request. Please try again or contact support.');
     }
   };
 
@@ -605,6 +632,7 @@ export function InkLingsApp() {
         onViewHistory={handleViewHistory} 
         onSignOut={handleSignOut}
         userFirstName={user?.user_metadata?.first_name || ''}
+        userPreferences={userPreferences}
       />
     );
   }

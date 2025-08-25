@@ -5,19 +5,23 @@ import Image from 'next/image';
 import { Button } from './ui/button';
 import { Card, CardContent } from './ui/card';
 import { DonationTile } from './donation-tile';
+import { CostTransparencyWidget } from './cost-transparency-widget';
+import { UserPreferences } from '@/lib/types';
 
 interface AccountPageProps {
   onEditPreferences: () => void;
   onViewHistory: () => void;
   onSignOut: () => void;
   userFirstName?: string;
+  userPreferences?: UserPreferences | null;
 }
 
 export function AccountPage({ 
   onEditPreferences, 
   onViewHistory, 
   onSignOut,
-  userFirstName 
+  userFirstName,
+  userPreferences 
 }: AccountPageProps) {
   // Ensure page starts at top
   useEffect(() => {
@@ -57,6 +61,27 @@ export function AccountPage({
                           Choose what you&apos;d like to do today
           </p>
         </div>
+
+        {/* Status Flags */}
+        {userPreferences?.notificationsPaused && (
+          <div className="max-w-2xl mx-auto mb-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
+              <p className="text-blue-800 font-medium">
+                ⏸️ Notifications Paused; Restart them in your Account Preferences at any time
+              </p>
+            </div>
+          </div>
+        )}
+
+        {userPreferences?.deletionRequested && (
+          <div className="max-w-2xl mx-auto mb-6">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+              <p className="text-red-800 font-medium">
+                🗑️ Account Deletion Initiated; You&apos;ll receive confirmation via our team when completed
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Main Tiles */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto mb-12">
@@ -128,8 +153,34 @@ export function AccountPage({
         </div>
 
         {/* Donation Section */}
-        <div className="max-w-2xl mx-auto">
-          <DonationTile userEmail={userFirstName ? `${userFirstName}@example.com` : 'user@example.com'} />
+        <div className="max-w-4xl mx-auto">
+          {/* Separator Header Tile */}
+          <div className="mb-6">
+            <Card className="bg-blue-50/80 backdrop-blur-sm border-blue-200 shadow-md">
+              <CardContent className="p-6 text-center">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+                  Keeping the Ink flowing
+                </h2>
+                <p className="text-gray-900 text-sm leading-relaxed max-w-3xl mx-auto">
+                  Ink-lings is a passion project. If you&apos;ve enjoyed the prompts and want to help keep it going, 
+                  you can chip in below. Every bit helps because the site and automation have associated costs to keep running. 
+                  We want to be transparent; so here&apos;s the break down. — thank you!
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Donation Tile - 60% width (3/5 columns) */}
+            <div className="lg:col-span-3">
+              <DonationTile userEmail={userFirstName ? `${userFirstName}@example.com` : 'user@example.com'} />
+            </div>
+            
+            {/* Cost Transparency Widget - 40% width (2/5 columns) */}
+            <div className="lg:col-span-2">
+              <CostTransparencyWidget />
+            </div>
+          </div>
         </div>
       </div>
     </div>
