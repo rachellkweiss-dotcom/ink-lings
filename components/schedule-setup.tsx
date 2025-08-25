@@ -178,7 +178,6 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule, onStopNotifica
           </Button>
         </div>
       )}
-      </div>
     </div>
   );
 }
