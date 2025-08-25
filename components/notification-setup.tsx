@@ -40,13 +40,21 @@ export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail,
   console.log('NotificationSetup current email state:', email);
 
   const handleSendTestEmail = async () => {
+    console.log('🔍 handleSendTestEmail called!');
+    console.log('Email:', email);
+    console.log('User first name:', userFirstName);
+    console.log('Selected categories:', selectedCategories);
+    
     if (!email) {
+      console.log('❌ No email provided');
       toast.error('Please enter an email address');
       return;
     }
 
     setIsLoading(true);
     try {
+      console.log('📧 Making API call to /api/send-onboarding-confirmation...');
+      
       // Use the proper onboarding confirmation API for the test email
       const response = await fetch('/api/send-onboarding-confirmation', {
         method: 'POST',
@@ -63,14 +71,21 @@ export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail,
         }),
       });
 
+      console.log('📧 API response status:', response.status);
+      console.log('📧 API response ok:', response.ok);
+
       if (response.ok) {
+        const result = await response.json();
+        console.log('✅ API call successful:', result);
         toast.success('Test email sent successfully!');
         setShowSuccessPopup(true); // Show the success popup
       } else {
         const errorData = await response.json();
+        console.log('❌ API call failed:', errorData);
         toast.error(`Failed to send email: ${errorData.message}`);
       }
-    } catch {
+    } catch (error) {
+      console.error('❌ Exception in handleSendTestEmail:', error);
       toast.error('Failed to send test email. Please try again.');
     } finally {
       setIsLoading(false);

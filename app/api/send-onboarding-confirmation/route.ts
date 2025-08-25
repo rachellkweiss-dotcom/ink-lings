@@ -17,37 +17,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For test emails, we don't need a real userId
-    if (!isTestEmail && !userId) {
-      return NextResponse.json(
-        { error: 'Missing userId for non-test emails' },
-        { status: 400 }
-      );
-    }
-
-    // Smart category and prompt logic with fallbacks
+    // For test emails, always use static content
     let categoryName = 'Sample Category';
     let promptText = 'What thought does the color yellow bring up for you today?';
     
-    // Priority 1: Use frontend data if provided (new users)
-    if (categoryNames && categoryNames.length > 0 && selectedCategories && selectedCategories.length > 0) {
-      categoryName = categoryNames[0];
-      
-      // Try to fetch the actual prompt from database
-      const firstCategoryId = selectedCategories[0];
-      const { data: firstPrompt, error: promptError } = await supabaseServiceRole
-        .from('prompt_bank')
-        .select('prompt_text')
-        .eq('category_id', firstCategoryId)
-        .eq('prompt_number', 1)
-        .single();
-
-      if (!promptError && firstPrompt) {
-        promptText = firstPrompt.prompt_text;
-      }
-    }
-    // Priority 2: Fetch from database if userId provided (existing users)
-    else if (userId && userId !== 'test-user') {
+    // Only fetch real data for non-test emails
+    if (!isTestEmail && userId && userId !== 'test-user') {
       try {
         // Fetch user's categories from user_preferences
         const { data: userPrefs, error: prefsError } = await supabaseServiceRole
@@ -87,7 +62,6 @@ export async function POST(request: NextRequest) {
         // Fallback to default values
       }
     }
-    // Priority 3: Use fallback values (already set above)
 
     // Calculate first prompt date (next occurrence of their schedule)
     const now = new Date();
