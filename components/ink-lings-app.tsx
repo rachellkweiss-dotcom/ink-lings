@@ -107,6 +107,60 @@ export function InkLingsApp() {
     }
   }, []);
 
+  // Fallback token validation - check for reset tokens in localStorage or URL
+  useEffect(() => {
+    const checkForResetToken = async () => {
+      if (typeof window !== 'undefined') {
+        // Check URL parameters first
+        const urlParams = new URLSearchParams(window.location.search);
+        let resetToken = urlParams.get('token');
+        let tokenType = urlParams.get('type');
+        
+        // If no URL params, check localStorage for stored token
+        if (!resetToken) {
+          const storedToken = localStorage.getItem('ink-lings-reset-token');
+          const storedType = localStorage.getItem('ink-lings-reset-type');
+          if (storedToken && storedType === 'recovery') {
+            resetToken = storedToken;
+            tokenType = storedType;
+            console.log('🔍 Found stored reset token in localStorage');
+          }
+        }
+        
+        if (resetToken && tokenType === 'recovery') {
+          console.log('🔍 Found reset token, validating with Supabase...');
+          
+          try {
+            // Validate the token with Supabase
+            const { data, error } = await supabase.auth.verifyOtp({
+              token: resetToken,
+              type: 'recovery',
+              email: '' // Add empty email for recovery type
+            });
+            
+            if (error) {
+              console.log('❌ Token validation failed:', error.message);
+              // Clear invalid tokens
+              localStorage.removeItem('ink-lings-reset-token');
+              localStorage.removeItem('ink-lings-reset-type');
+            } else {
+              console.log('✅ Token validated successfully, redirecting to reset page');
+              // Store token temporarily and redirect
+              localStorage.setItem('ink-lings-reset-token', resetToken);
+              localStorage.setItem('ink-lings-reset-type', tokenType);
+              window.location.href = `/reset-password?token=${resetToken}&type=recovery`;
+            }
+          } catch (error) {
+            console.error('❌ Error validating token:', error);
+          }
+        }
+      }
+    };
+    
+    // Run the check
+    checkForResetToken();
+  }, []);
+
   // Smooth scroll to top on page transitions
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
