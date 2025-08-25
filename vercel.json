@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/send-prompts",
+      "schedule": "55 * * * *"
+    },
+    {
+      "path": "/api/cron/cleanup-prompts", 
+      "schedule": "0 2 * * *"
+    }
+  ]
+}
