@@ -41,8 +41,8 @@ export async function createDonationCheckoutSession(
         },
       ],
       mode: 'payment',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/donation-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/account`,
+      success_url: 'https://ink-lings-uewn.vercel.app/donation-success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://ink-lings-uewn.vercel.app/account',
       customer_email: customerEmail,
       metadata: {
         donationType,
@@ -82,8 +82,8 @@ export async function createMonthlySubscriptionCheckoutSession(
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/donation-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/account`,
+      success_url: 'https://ink-lings-uewn.vercel.app/donation-success?session_id={CHECKOUT_SESSION_ID}',
+      cancel_url: 'https://ink-lings-uewn.vercel.app/account',
       customer_email: customerEmail,
       metadata: {
         donationType: 'monthly_supporter',
