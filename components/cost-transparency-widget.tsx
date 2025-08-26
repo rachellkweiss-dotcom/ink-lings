@@ -9,7 +9,7 @@ export function CostTransparencyWidget() {
 
   // Annual cost breakdown
   const ANNUAL_COST = 570; // $570/year total
-  const GOAL_AMOUNT = 500; // Hide widget when $500+ is reached
+  const GOAL_AMOUNT = 570; // Hide widget when $570+ is reached
 
   useEffect(() => {
     // Fetch actual donation total from API
@@ -35,8 +35,11 @@ export function CostTransparencyWidget() {
     fetchDonationTotal();
   }, []);
 
-  // Calculate progress percentage
+  // Calculate progress percentage (cap at 100%)
   const progressPercentage = Math.min((donationTotal / GOAL_AMOUNT) * 100, 100);
+  
+  // Cap donation total at goal amount for display
+  const displayDonationTotal = Math.min(donationTotal, GOAL_AMOUNT);
   
   // Determine progress bar color based on percentage
   const getProgressBarColor = (percentage: number) => {
@@ -46,10 +49,7 @@ export function CostTransparencyWidget() {
     return 'bg-red-500';
   };
 
-  // Hide widget if goal is met
-  if (donationTotal >= GOAL_AMOUNT) {
-    return null;
-  }
+  // Always show widget, even when goal is met
 
   if (isLoading) {
     return (
@@ -103,7 +103,7 @@ export function CostTransparencyWidget() {
         <div className="space-y-3">
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-2">
-              Community Progress: ${donationTotal} of ${GOAL_AMOUNT} covered
+              Community Progress: ${displayDonationTotal} of ${GOAL_AMOUNT} covered
             </p>
             <p className="text-xs text-gray-600">
               by awesome people like you! 🎉
@@ -131,12 +131,14 @@ export function CostTransparencyWidget() {
           </div>
         </div>
 
-        {/* Remaining Amount */}
-        <div className="text-center p-3 bg-blue-50 rounded-lg">
-          <p className="text-sm text-gray-700">
-            <span className="font-medium">${GOAL_AMOUNT - donationTotal}</span> still needed to cover costs
-          </p>
-        </div>
+        {/* Remaining Amount - Only show when goal not met */}
+        {displayDonationTotal < GOAL_AMOUNT && (
+          <div className="text-center p-3 bg-blue-50 rounded-lg">
+            <p className="text-sm text-gray-700">
+              <span className="font-medium">${Math.max(0, GOAL_AMOUNT - displayDonationTotal)}</span> still needed to cover costs
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
