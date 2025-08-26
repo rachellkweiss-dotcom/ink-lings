@@ -108,8 +108,8 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Ink-lings <noreply@inklingsjournal.live>',
-        to: 'rachell.k.weiss@gmail.com', // Send to you
+        from: 'Ink-lings <noreply@inklingsprompts.com>',
+        to: 'support@inklingsprompts.com', // Send to you
         subject: `🗑️ Account Deletion Request - ${userEmail}`,
         html: deletionRequestEmail,
       }),
