@@ -308,7 +308,7 @@ export function InkLingsApp() {
           
           if (existingRotation) {
             // User already has preferences - update with new categories
-            const updateData = {
+            const updateData: Record<string, any> = {
               next_category_to_send: userPreferences.categories[0] // Reset to first category
             };
             
@@ -318,8 +318,8 @@ export function InkLingsApp() {
               const categoryKey = category.replace(/-/g, '_') + '_current_count';
               if (existingRotation.hasOwnProperty(categoryKey)) {
                 // Only update if count is 0 (new category) or doesn't exist
-                if ((existingRotation as any)[categoryKey] === 0 || (existingRotation as any)[categoryKey] === null) {
-                  (updateData as any)[categoryKey] = 1;
+                if (existingRotation[categoryKey] === 0 || existingRotation[categoryKey] === null) {
+                  updateData[categoryKey] = 1;
                 }
                 // If count > 0, leave it unchanged (preserve progress)
                 // This handles re-added categories continuing from where they left off
@@ -340,7 +340,7 @@ export function InkLingsApp() {
             
           } else {
             // New user - create initial record
-            const baseRecord = {
+            const baseRecord: Record<string, any> = {
               uid: user.id,
               next_category_to_send: userPreferences.categories[0],
               work_craft_current_count: 0,
@@ -367,7 +367,7 @@ export function InkLingsApp() {
             userPreferences.categories.forEach(category => {
               const categoryKey = category.replace(/-/g, '_') + '_current_count';
               if (baseRecord.hasOwnProperty(categoryKey)) {
-                (baseRecord as any)[categoryKey] = 1;
+                baseRecord[categoryKey] = 1;
               }
             });
             
@@ -572,8 +572,6 @@ export function InkLingsApp() {
     }
   };
 
-
-
   // Render welcome screen
   if (appPhase === 'welcome') {
     return <WelcomeHero onGetStarted={handleGetStarted} />;
@@ -680,15 +678,6 @@ export function InkLingsApp() {
               </div>
             </div>
           )}
-
-          {/* Stop Notifications Modal */}
-          <StopNotificationsModal
-            isOpen={showStopModal}
-            onClose={() => setShowStopModal(false)}
-            onPauseNotifications={handlePauseNotifications}
-            onDeleteAccount={handleDeleteAccount}
-            isNewUser={!userPreferences?.notification_days?.length}
-          />
         </div>
       </div>
     );
@@ -739,11 +728,20 @@ export function InkLingsApp() {
             onBackToAccount={() => setAppPhase('account')}
           />
         </div>
-        
-
       </div>
     );
   }
 
-  return null;
+  return (
+    <>
+      {/* Stop Notifications Modal */}
+      <StopNotificationsModal
+        isOpen={showStopModal}
+        onClose={() => setShowStopModal(false)}
+        onPauseNotifications={handlePauseNotifications}
+        onDeleteAccount={handleDeleteAccount}
+        isNewUser={!userPreferences?.notification_days?.length}
+      />
+    </>
+  );
 }

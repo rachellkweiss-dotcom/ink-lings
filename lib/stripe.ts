@@ -5,14 +5,16 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-07-30.basil',
 });
 
-// Donation product IDs (REPLACE THESE with your actual Stripe product IDs)
+// Donation product IDs (Live mode)
 export const DONATION_PRODUCTS = {
-  COFFEE_JOURNALING: 'prod_SvNgQyxt71h8az', // $5 one-time - replace with real ID
+  TIP_JAR: 'prod_Sw59teK5QnVEnG', // Tip jar product
+  COFFEE_JOURNALING: 'prod_Sw5896ssG1Cu0F', // Coffee + Journal product
 };
 
-// Donation amounts
+// Donation amounts (in cents)
 export const DONATION_AMOUNTS = {
-  COFFEE_JOURNALING: 500, // $5.00 in cents
+  TIP_JAR: 500, // $5.00 tip jar amount
+  COFFEE_JOURNALING: 500, // $5.00 coffee + journal amount
 };
 
 // Create a checkout session for one-time donations
@@ -29,7 +31,7 @@ export async function createDonationCheckoutSession(
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `Ink-lings ${donationType}`,
+              name: donationType === 'TIP_JAR' ? 'Ink-lings Tip Jar' : 'Ink-lings Coffee + Journal',
               description: 'Thank you for supporting Ink-lings!',
               images: [`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/ink_links_logo_final_final.png`], // Your logo
             },
