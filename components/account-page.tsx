@@ -12,6 +12,7 @@ interface AccountPageProps {
   onEditPreferences: () => void;
   onViewHistory: () => void;
   onSignOut: () => void;
+  onStopNotifications: () => void;
   userFirstName?: string;
   userPreferences?: UserPreferences | null;
 }
@@ -20,6 +21,7 @@ export function AccountPage({
   onEditPreferences, 
   onViewHistory, 
   onSignOut,
+  onStopNotifications,
   userFirstName,
   userPreferences 
 }: AccountPageProps) {
@@ -73,6 +75,17 @@ export function AccountPage({
           </div>
         )}
 
+        {/* Notifications Paused Flag - Check if notification_days is empty */}
+        {userPreferences?.notification_days && userPreferences.notification_days.length === 0 && (
+          <div className="max-w-2xl mx-auto mb-6">
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
+              <p className="text-orange-800 font-medium">
+                ⏸️ Notifications currently paused, edit your Current Preferences to start the ink flowing again
+              </p>
+            </div>
+          </div>
+        )}
+
         {userPreferences?.deletionRequested && (
           <div className="max-w-2xl mx-auto mb-6">
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
@@ -85,15 +98,12 @@ export function AccountPage({
 
         {/* Main Tiles */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-2xl mx-auto mb-12">
-          {/* Edit Preferences Tile */}
-          <Card 
-            className="bg-white/90 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-shadow duration-200 cursor-pointer group"
-            onClick={onEditPreferences}
-          >
+          {/* Account Changes Tile */}
+          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
             <CardContent className="p-8 text-center">
               <div className="mb-4">
                 <svg 
-                  className="w-16 h-16 mx-auto text-blue-600 group-hover:text-blue-700 transition-colors duration-200" 
+                  className="w-16 h-16 mx-auto text-blue-600" 
                   fill="none" 
                   stroke="currentColor" 
                   viewBox="0 0 24 24"
@@ -101,23 +111,39 @@ export function AccountPage({
                   <path 
                     strokeLinecap="round" 
                     strokeLinejoin="round" 
-                    strokeWidth={1.5} 
+                    strokeWidth={2} 
                     d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" 
                   />
                   <path 
                     strokeLinecap="round" 
                     strokeLinejoin="round" 
-                    strokeWidth={1.5} 
+                    strokeWidth={2} 
                     d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" 
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                Edit Preferences
+              <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+                Account Changes
               </h2>
-              <p className="text-gray-600 text-sm">
-                Update your categories, schedule, and notifications
-              </p>
+              
+              <div className="space-y-3">
+                <Button 
+                  onClick={onEditPreferences}
+                  className="w-full bg-blue-50/50 hover:bg-blue-100/70 text-gray-800 border-2 border-blue-200 hover:border-blue-300"
+                  size="lg"
+                >
+                  Edit Current Preferences
+                </Button>
+                
+                <Button 
+                  onClick={onStopNotifications}
+                  variant="outline"
+                  className="w-full bg-orange-50/50 hover:bg-orange-100/70 text-orange-800 border-2 border-orange-200 hover:border-orange-300"
+                  size="lg"
+                >
+                  Stop Notifications
+                </Button>
+              </div>
             </CardContent>
           </Card>
 

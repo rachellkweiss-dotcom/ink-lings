@@ -70,7 +70,7 @@ export function DonationTile({ userEmail }: DonationTileProps) {
           <Button
             onClick={() => handleDonation(500, 'coffee_journaling')}
             disabled={isDonating}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200"
+            className="w-full bg-blue-50/50 hover:bg-blue-100/70 text-gray-800 border-2 border-blue-200 hover:border-blue-300 transition-colors duration-200"
             size="sm"
           >
             ☕ Coffee & Journaling - $5

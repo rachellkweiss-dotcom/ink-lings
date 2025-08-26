@@ -686,13 +686,25 @@ export function InkLingsApp() {
   // Render account page
   if (appPhase === 'account') {
     return (
-      <AccountPage 
-        onEditPreferences={handleEditPreferences} 
-        onViewHistory={handleViewHistory} 
-        onSignOut={handleSignOut}
-        userFirstName={user?.user_metadata?.first_name || ''}
-        userPreferences={userPreferences}
-      />
+      <>
+        <AccountPage 
+          onEditPreferences={handleEditPreferences} 
+          onViewHistory={handleViewHistory} 
+          onSignOut={handleSignOut}
+          onStopNotifications={handleStopNotifications}
+          userFirstName={user?.user_metadata?.first_name || ''}
+          userPreferences={userPreferences}
+        />
+        
+        {/* Stop Notifications Modal */}
+        <StopNotificationsModal
+          isOpen={showStopModal}
+          onClose={() => setShowStopModal(false)}
+          onPauseNotifications={handlePauseNotifications}
+          onDeleteAccount={handleDeleteAccount}
+          isNewUser={!userPreferences?.notification_days?.length}
+        />
+      </>
     );
   }
 
@@ -732,16 +744,4 @@ export function InkLingsApp() {
     );
   }
 
-  return (
-    <>
-      {/* Stop Notifications Modal */}
-      <StopNotificationsModal
-        isOpen={showStopModal}
-        onClose={() => setShowStopModal(false)}
-        onPauseNotifications={handlePauseNotifications}
-        onDeleteAccount={handleDeleteAccount}
-        isNewUser={!userPreferences?.notification_days?.length}
-      />
-    </>
-  );
 }
