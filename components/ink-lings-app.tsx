@@ -13,7 +13,7 @@ import { SignUp } from './sign-up';
 import { SignIn } from './sign-in';
 import { AccountPage } from './account-page';
 import { StopNotificationsModal } from './stop-notifications-modal';
-import { UserPreferences } from '@/lib/types';
+import { UserPreferences, UserPromptRotation } from '@/lib/types';
 import { saveUserPreferences, getUserPreferences } from '@/lib/user-preferences';
 import { Button } from './ui/button';
 import { useAuth } from './auth-context';
@@ -308,7 +308,7 @@ export function InkLingsApp() {
           
           if (existingRotation) {
             // User already has preferences - update with new categories
-            const updateData: Record<string, any> = {
+            const updateData: Partial<UserPromptRotation> = {
               next_category_to_send: userPreferences.categories[0] // Reset to first category
             };
             
@@ -340,7 +340,7 @@ export function InkLingsApp() {
             
           } else {
             // New user - create initial record
-            const baseRecord: Record<string, any> = {
+            const baseRecord: UserPromptRotation = {
               uid: user.id,
               next_category_to_send: userPreferences.categories[0],
               work_craft_current_count: 0,
