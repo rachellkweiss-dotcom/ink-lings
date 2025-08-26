@@ -23,17 +23,19 @@ export async function GET() {
     // Get payments only within the rolling annual period
     const payments = await stripe.paymentIntents.list({
       limit: 100, // Get up to 100 payments
-      status: 'succeeded',
       created: {
         gte: startTimestamp,
         lt: endTimestamp
       }
     });
 
-    // Calculate total amount from payments within the period
+    // Filter for successful payments
+    const successfulPayments = payments.data.filter(payment => payment.status === 'succeeded');
+
+    // Calculate total amount from successful payments within the period
     let totalDonations = 0;
     
-    payments.data.forEach(payment => {
+    successfulPayments.forEach(payment => {
       // Convert from cents to dollars and add to total
       totalDonations += payment.amount / 100;
     });
