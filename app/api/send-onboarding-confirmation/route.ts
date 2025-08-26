@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Ink-lings <noreply@inklingsprompts.com>',
+        from: 'Ink-lings <support@inklingsprompts.com>',
         to: userEmail,
         subject: isTestEmail ? '✍️ Test: Your Ink-lings Journal Prompt Sample' : '✍️ Welcome to Ink-lings - Your First Prompt!',
         html: emailHtml,
