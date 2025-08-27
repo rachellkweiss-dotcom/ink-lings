@@ -29,7 +29,7 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+          redirectTo: 'https://inklingsjournal.live/auth/callback'
         }
       })
       

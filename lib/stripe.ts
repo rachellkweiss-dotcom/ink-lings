@@ -33,7 +33,7 @@ export async function createDonationCheckoutSession(
             product_data: {
               name: donationType === 'TIP_JAR' ? 'Ink-lings Tip Jar' : 'Ink-lings Coffee + Journal',
               description: 'Thank you for supporting Ink-lings!',
-              images: [`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/ink_links_logo_final_final.png`], // Your logo
+              images: [`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/ink_links_logo_final_final.png`], // Your logo
             },
             unit_amount: amount,
           },
@@ -41,8 +41,8 @@ export async function createDonationCheckoutSession(
         },
       ],
       mode: 'payment',
-      success_url: 'https://ink-lings-uewn.vercel.app/donation-success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'https://ink-lings-uewn.vercel.app/account',
+              success_url: 'https://inklingsjournal.live/donation-success?session_id={CHECKOUT_SESSION_ID}',
+        cancel_url: 'https://inklingsjournal.live/account',
       customer_email: customerEmail,
       metadata: {
         donationType,

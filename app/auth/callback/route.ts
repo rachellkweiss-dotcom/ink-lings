@@ -8,12 +8,12 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error('OAuth error:', error);
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/auth?error=${error}`);
+          return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=${error}`);
   }
 
   if (!code) {
     console.error('No code received from OAuth provider');
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/auth?error=no_code`);
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=no_code`);
   }
 
   try {
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     if (exchangeError) {
       console.error('Error exchanging code for session:', exchangeError);
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/auth?error=exchange_failed`);
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=exchange_failed`);
     }
 
     if (data.user) {
@@ -43,19 +43,19 @@ export async function GET(request: NextRequest) {
       if (preferences && preferences.notification_email) {
         // User has complete preferences, redirect to account page
         console.log('User has preferences, redirecting to account');
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/?phase=account`);
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/?phase=account`);
       } else {
         // New user or incomplete preferences, redirect to onboarding
         console.log('New user or incomplete preferences, redirecting to onboarding');
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/?phase=onboarding`);
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/?phase=onboarding`);
       }
     }
 
     // Fallback redirect
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/auth`);
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth`);
 
   } catch (error) {
     console.error('Unexpected error in OAuth callback:', error);
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://ink-lings-uewn.vercel.app'}/auth?error=unexpected`);
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=unexpected`);
   }
 }

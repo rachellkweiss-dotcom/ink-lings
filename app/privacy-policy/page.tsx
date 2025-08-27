@@ -97,7 +97,7 @@ export default function PrivacyPolicyPage() {
   
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800 mt-0 mb-4">Contact</h2>
-                <p><strong>Email:</strong> <a href="mailto:support@inklingsprompts.com" className="text-blue-600 underline">support@inklingsprompts.com</a></p>
+                <p><strong>Email:</strong> <a href="mailto:support@inklingsjournal.live" className="text-blue-600 underline">support@inklingsjournal.live</a></p>
               </div>
             </div>
           </div>

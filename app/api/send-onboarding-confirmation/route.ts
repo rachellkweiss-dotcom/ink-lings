@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;" class="container">
                 <tr>
                   <td align="center" style="padding-bottom:32px;">
-                    <img src="https://ink-lings-uewn.vercel.app/ink_lings_email_logo.png" width="160" height="auto" alt="Ink‑lings" style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none;">
+                    <img src="https://inklingsjournal.live/ink_lings_email_logo.png" width="160" height="auto" alt="Ink‑lings" style="display:block; margin:0 auto; border:0; outline:none; text-decoration:none;">
                   </td>
                 </tr>
               </table>
@@ -243,7 +243,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Ink-lings <support@inklingsprompts.com>',
+        from: 'Ink-lings <support@inklingsjournal.live>',
         to: userEmail,
         subject: isTestEmail ? '✍️ Test: Your Ink-lings Journal Prompt Sample' : '✍️ Welcome to Ink-lings - Your First Prompt!',
         html: emailHtml,

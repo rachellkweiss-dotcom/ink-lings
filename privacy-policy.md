@@ -35,7 +35,7 @@
 - **Deleted accounts:** Data removed within 30 days of deletion request
 
 ## Contact
-- **Email:** support@inklingsprompts.com
+- **Email:** support@inklingsjournal.live
 - **For deletion requests:** Use the "Delete Account" feature in the app
 
 ## Changes
