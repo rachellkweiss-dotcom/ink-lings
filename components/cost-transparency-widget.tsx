@@ -8,8 +8,8 @@ export function CostTransparencyWidget() {
   const [isLoading, setIsLoading] = useState(true);
 
   // Annual cost breakdown
-  const ANNUAL_COST = 585; // $585/year total
-  const GOAL_AMOUNT = 585; // Hide widget when $585+ is reached
+  const ANNUAL_COST = 675; // $675/year total
+  const GOAL_AMOUNT = 675; // Hide widget when $675+ is reached
 
   useEffect(() => {
     // Fetch actual donation total from API
@@ -77,15 +77,15 @@ export function CostTransparencyWidget() {
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-600">Website Domain:</span>
-            <span className="font-medium">$45</span>
+            <span className="font-medium">$50</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Coding/Debugging:</span>
-            <span className="font-medium">$240</span>
+            <span className="font-medium">$275</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Data Storage:</span>
-            <span className="font-medium">$300</span>
+            <span className="font-medium">$350</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Dev Time Invested:</span>
