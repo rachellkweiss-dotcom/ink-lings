@@ -80,7 +80,7 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetu
           <CardTitle className="text-xl text-gray-900">Notification Days</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-7 gap-3 mb-6 max-w-md mx-auto">
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2 sm:gap-3 mb-6 max-w-md mx-auto">
             {daysOfWeek.map((day) => (
               <Button
                 key={day.value}
@@ -90,7 +90,7 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetu
                   selectedDays.includes(day.value)
                     ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                } min-w-[60px] text-sm px-2`}
+                } min-w-[50px] sm:min-w-[60px] text-xs sm:text-sm px-1 sm:px-2`}
               >
                 {day.label.slice(0, 3)}
               </Button>
