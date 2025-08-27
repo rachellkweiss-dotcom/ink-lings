@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error('OAuth error:', error);
-          return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=${error}`);
+    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=${error}`);
   }
 
   if (!code) {
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fallback redirect
+    // Fallback redirect - always go to sign-in page
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth`);
 
   } catch (error) {
