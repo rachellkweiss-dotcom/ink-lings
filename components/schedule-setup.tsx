@@ -9,19 +9,12 @@ interface ScheduleSetupProps {
   onNext: (schedule: { days: string[]; time: string; timezone: string }) => void;
   onBack: () => void;
   existingSchedule?: { days: string[]; time: string; timezone: string };
-  onStopNotifications?: () => void;
-  showStopButton?: boolean;
 }
 
-export function ScheduleSetup({ onNext, onBack, existingSchedule, onStopNotifications, showStopButton }: ScheduleSetupProps) {
+export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetupProps) {
   const [selectedDays, setSelectedDays] = useState<string[]>(existingSchedule?.days || []);
   const [selectedTime, setSelectedTime] = useState(existingSchedule?.time || '9:00 AM');
   const [selectedTimezone, setSelectedTimezone] = useState(existingSchedule?.timezone || 'America/New_York');
-
-  // Debug logging
-  console.log('ScheduleSetup - existingSchedule:', existingSchedule);
-  console.log('ScheduleSetup - selectedTime:', selectedTime);
-  console.log('ScheduleSetup - selectedTimezone:', selectedTimezone);
 
   // Ensure page starts at top
   useEffect(() => {
@@ -165,19 +158,6 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule, onStopNotifica
           Next: Review & Complete
         </Button>
       </div>
-
-      {/* Stop Notifications Button - Only show if user has existing preferences */}
-      {showStopButton && onStopNotifications && (
-        <div className="mt-6 text-center">
-          <Button 
-            onClick={onStopNotifications}
-            variant="outline"
-            className="border-orange-300 text-orange-700 hover:bg-orange-50 hover:border-orange-400 px-6 py-2"
-          >
-            Stop Notifications
-          </Button>
-        </div>
-      )}
     </div>
   );
 }

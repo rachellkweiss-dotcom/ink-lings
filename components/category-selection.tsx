@@ -158,26 +158,26 @@ export function CategorySelection({ onNext, onBack, existingSelections = [] }: C
             }`}
             onClick={() => toggleCategory(category.id)}
           >
-            <CardHeader className="pb-2 text-center h-32 flex flex-col justify-center items-center">
-              <div className="flex justify-center mb-2">
+            <CardHeader className="pb-4 text-center h-36 flex flex-col justify-center items-center">
+              <div className="flex justify-center mb-3">
                 <div className="w-16 h-16 text-gray-800 flex items-center justify-center">
                   {getCategoryIcon(category.id)}
                 </div>
               </div>
               <CardTitle className="text-lg text-gray-900 text-center w-full">{category.name}</CardTitle>
             </CardHeader>
-            <CardContent className="pt-0 text-center h-44 flex flex-col justify-between items-center">
+            <CardContent className="pt-0 text-center h-48 flex flex-col justify-between items-center">
               <div className="w-full">
-                <p className="text-sm text-gray-600 mb-2 h-12 flex items-center justify-center text-center">
+                <p className="text-sm text-gray-600 mb-4 h-12 flex items-center justify-center text-center">
                   {category.description}
                 </p>
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-md h-20 flex items-center justify-center">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-md h-20 flex items-center justify-center">
                   <p className="text-sm text-gray-700 text-center font-medium">
                     &ldquo;{category.prompt}&rdquo;
                   </p>
                 </div>
               </div>
-              <div className="flex justify-center mt-2 mb-4">
+              <div className="flex justify-center mt-4 mb-6">
                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
                   selectedCategories.includes(category.id)
                     ? 'bg-cyan-500 border-cyan-500 text-white'

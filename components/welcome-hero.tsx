@@ -40,7 +40,7 @@ export function WelcomeHero({ onGetStarted }: WelcomeHeroProps) {
                 poster="/icon_final_final_white.png"
                 preload="metadata"
               >
-                <source src="/Ink-lings.mp4" type="video/mp4" />
+                <source src="/Ink-lings_welcome_video.mp4" type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
             </div>
