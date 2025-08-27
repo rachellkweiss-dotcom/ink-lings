@@ -1,0 +1,3 @@
+# Exclude requirements folder from Vercel builds
+requirements/
+requirements/**/*
