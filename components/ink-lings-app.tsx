@@ -646,8 +646,6 @@ export function InkLingsApp() {
                 time: userPreferences.notification_time,
                 timezone: userPreferences.timezone
               } : undefined}
-              onStopNotifications={handleStopNotifications}
-              showStopButton={!!userPreferences?.notification_days?.length}
             />
           )}
 
