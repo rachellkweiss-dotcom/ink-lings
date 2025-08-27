@@ -169,7 +169,7 @@ export async function POST(request: NextRequest) {
                         📓 Journal Recommendation:
                       </p>
                       <div style="display:flex; align-items:center; gap:12px;">
-                        <img src="https://m.media-amazon.com/images/I/71QKQfJqHBL._AC_UL320_.jpg" alt="Spiral Notebook" style="width:80px; height:80px; object-fit:cover; border-radius:4px;">
+                        <img src="/notebook_image.jpg" alt="Spiral Notebook" style="width:80px; height:80px; object-fit:cover; border-radius:4px;">
                         <div>
                           <a href="https://amzn.to/45AJUoA" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px; font-weight:500;">
                             Spiral Notebook
@@ -187,7 +187,7 @@ export async function POST(request: NextRequest) {
                         ✒️ Pen Storage:
                       </p>
                       <div style="display:flex; align-items:center; gap:12px;">
-                        <img src="https://m.media-amazon.com/images/I/71QKQfJqHBL._AC_UL320_.jpg" alt="Pen Organizer" style="width:80px; height:80px; object-fit:cover; border-radius:4px;">
+                        <img src="/pen_holder_image.jpg" alt="Pen Organizer" style="width:80px; height:80px; object-fit:cover; border-radius:4px;">
                         <div>
                           <a href="https://amzn.to/47dBYuG" style="color:#007bff !important; text-decoration:none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size:14px; font-weight:500;">
                             Pen Organizer Case

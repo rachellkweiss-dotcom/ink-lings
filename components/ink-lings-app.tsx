@@ -312,30 +312,39 @@ export function InkLingsApp() {
               next_category_to_send: userPreferences.categories[0] // Reset to first category
             };
             
-            // For each NEW category (count = 0), set count to 1
-            // For existing categories (count > 0), leave unchanged
+            console.log('=== ROTATION UPDATE DEBUG ===');
+            console.log('User preferences categories:', userPreferences.categories);
+            console.log('Existing rotation data:', existingRotation);
+            
+            // For each category in user preferences, check and update if needed
             userPreferences.categories.forEach(category => {
               const categoryKey = category.replace(/-/g, '_') + '_current_count';
-              if (existingRotation.hasOwnProperty(categoryKey)) {
-                // Only update if count is 0 (new category) or doesn't exist
-                if (existingRotation[categoryKey] === 0 || existingRotation[categoryKey] === null) {
-                  updateData[categoryKey] = 1;
-                }
-                // If count > 0, leave it unchanged (preserve progress)
-                // This handles re-added categories continuing from where they left off
+              console.log(`Checking category: ${category} -> column: ${categoryKey}`);
+              console.log(`Current value: ${existingRotation[categoryKey]}`);
+              
+              // Check if this category column has a value of 0 and update to 1
+              if (existingRotation[categoryKey] === 0 || existingRotation[categoryKey] === null) {
+                updateData[categoryKey] = 1;
+                console.log(`✅ Updating ${categoryKey} from ${existingRotation[categoryKey]} to 1`);
+              } else {
+                console.log(`⏭️ Leaving ${categoryKey} unchanged at ${existingRotation[categoryKey]}`);
               }
+              // If count > 0, leave it unchanged (preserve progress)
             });
             
+            console.log('Final update data:', updateData);
+            
             // Update existing record
+            console.log('🚀 Executing database update...');
             const { error: updateError } = await supabase
               .from('user_prompt_rotation')
               .update(updateData)
               .eq('uid', user.id);
             
             if (updateError) {
-              console.error('Error updating user_prompt_rotation record:', updateError);
+              console.error('❌ Error updating user_prompt_rotation record:', updateError);
             } else {
-              console.log('User prompt rotation record updated successfully');
+              console.log('✅ User prompt rotation record updated successfully');
             }
             
           } else {
