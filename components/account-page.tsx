@@ -60,9 +60,26 @@ export function AccountPage({
             Welcome to Your Ink-lings Dashboard
           </h1>
           <p className="text-lg text-gray-600">
-                          Choose what you&apos;d like to do today
+            Choose what you&apos;d like to do today
           </p>
         </div>
+
+        {/* Admin Dashboard Link */}
+        {userFirstName === 'Rachell' && (
+          <div className="max-w-2xl mx-auto mb-6">
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4 text-center">
+              <p className="text-purple-800 font-medium mb-3">
+                👑 Admin Access Available
+              </p>
+              <Button
+                onClick={() => window.location.href = '/admin'}
+                className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white"
+              >
+                Access Admin Dashboard
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Status Flags */}
         {userPreferences?.notificationsPaused && (
