@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     if (existingToken) {
       // Token already used - do nothing (prevents double counting)
       console.log(`Token ${token} already used, ignoring duplicate feedback`);
-      return NextResponse.redirect('https://www.inklingsjournal.live/?feedback=already-voted');
+      return NextResponse.redirect('https://www.inklingsjournal.live/feedback-thanks');
     }
 
     // Token doesn't exist - create new row and count the vote
