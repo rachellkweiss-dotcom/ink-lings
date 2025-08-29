@@ -16,6 +16,7 @@ import {
   type UserAnalytics,
   type FeedbackAnalytics
 } from '@/lib/admin-utils';
+import { getRollingAnnualDonations, getLifetimeDonations } from '@/lib/stripe';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -74,52 +75,42 @@ export default function AdminDashboard() {
       setLoadingData(true);
       
       // Load basic stats
-      const { count: userCount } = await supabase
+      // Get total authenticated users from auth.users
+      const { count: userCount } = await supabase.auth.admin.listUsers();
+      
+      // Get users with saved preferences from user_preferences table
+      const { count: preferencesCount } = await supabase
         .from('user_preferences')
         .select('*', { count: 'exact', head: true });
 
-      const { count: promptCount } = await supabase
-        .from('prompt_bank')
-        .select('*', { count: 'exact', head: true });
-
-      // Get feedback count with better error handling
-      let feedbackCount = 0;
+      // Get Stripe donation data
+      let rollingAnnualTotal = 0;
+      let lifetimeTotal = 0;
       try {
-        const { data, error } = await supabase
-          .from('feedback_tokens')
-          .select('id');
-        
-        if (error) {
-          console.error('Feedback count error:', error);
-        } else {
-          feedbackCount = data?.length || 0;
-        }
+        [rollingAnnualTotal, lifetimeTotal] = await Promise.all([
+          getRollingAnnualDonations(),
+          getLifetimeDonations()
+        ]);
       } catch (error) {
-        console.error('Feedback count exception:', error);
+        console.error('Error getting Stripe data:', error);
       }
-
-      // Donations are handled by Stripe, not stored in Supabase
-      const donationTotal = 0; // Will implement Stripe integration later
 
       setStats({
         totalUsers: userCount || 0,
-        totalPrompts: promptCount || 0,
-        totalFeedback: feedbackCount || 0,
-        totalDonations: donationTotal
+        totalPrompts: preferencesCount || 0, // This will show Users with Saved Preferences
+        totalFeedback: rollingAnnualTotal, // Rolling annual donations
+        totalDonations: lifetimeTotal // Lifetime donations
       });
 
       setLastUpdated(new Date().toLocaleString());
 
-      // Load detailed data
-      const [promptPerformance, userAnalytics, feedbackAnalytics] = await Promise.all([
-        getPromptPerformance(),
-        getUserAnalytics(),
-        getFeedbackAnalytics()
-      ]);
-
-      setPromptData(promptPerformance);
-      setUserData(userAnalytics);
-      setFeedbackData(feedbackAnalytics);
+      // Temporarily disable detailed data loading to debug basic stats
+      console.log('Skipping detailed data loading for now to debug basic stats');
+      
+      // Set empty data for now
+      setPromptData([]);
+      setUserData(null);
+      setFeedbackData(null);
     } catch (error) {
       console.error('Error loading stats:', error);
     } finally {
@@ -230,39 +221,39 @@ export default function AdminDashboard() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Prompts</CardTitle>
-              <Badge variant="secondary">Available</Badge>
+              <CardTitle className="text-sm font-medium">Users with Saved Preferences</CardTitle>
+              <Badge variant="secondary">Configured</Badge>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{stats.totalPrompts}</div>
               <p className="text-xs text-muted-foreground">
-                Prompts in bank
+                Users who have set up preferences
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Feedback Received</CardTitle>
-              <Badge variant="secondary">Responses</Badge>
+              <CardTitle className="text-sm font-medium">Rolling Annual Donations</CardTitle>
+              <Badge variant="secondary">Aug-Aug</Badge>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.totalFeedback}</div>
+              <div className="text-2xl font-bold">${stats.totalFeedback}</div>
               <p className="text-xs text-muted-foreground">
-                User feedback
+                Aug to Aug total
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Donations</CardTitle>
-              <Badge variant="secondary">Revenue</Badge>
+              <CardTitle className="text-sm font-medium">Total Lifetime Donations</CardTitle>
+              <Badge variant="secondary">All Time</Badge>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">${stats.totalDonations}</div>
               <p className="text-xs text-muted-foreground">
-                Lifetime donations
+                Lifetime total
               </p>
             </CardContent>
           </Card>
