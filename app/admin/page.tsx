@@ -85,14 +85,14 @@ export default function AdminDashboard() {
       // Get feedback count with better error handling
       let feedbackCount = 0;
       try {
-        const { count, error } = await supabase
+        const { data, error } = await supabase
           .from('feedback_tokens')
-          .select('*', { count: 'exact', head: true });
+          .select('id');
         
         if (error) {
           console.error('Feedback count error:', error);
         } else {
-          feedbackCount = count || 0;
+          feedbackCount = data?.length || 0;
         }
       } catch (error) {
         console.error('Feedback count exception:', error);
