@@ -76,14 +76,18 @@ export default function AdminDashboard() {
       
       // Load basic stats
       // Get total authenticated users from user_preferences (since we can't access auth.users from client)
-      const { count: userCount } = await supabase
+      const { count: userCount, error: userError } = await supabase
         .from('user_preferences')
         .select('*', { count: 'exact', head: true });
       
+      console.log('User count query result:', { userCount, userError });
+      
       // Get users with saved preferences from user_preferences table
-      const { count: preferencesCount } = await supabase
+      const { count: preferencesCount, error: prefError } = await supabase
         .from('user_preferences')
         .select('*', { count: 'exact', head: true });
+      
+      console.log('Preferences count query result:', { preferencesCount, prefError });
 
       // For now, use placeholder donation data until we implement server-side Stripe calls
       const rollingAnnualTotal = 0; // Will implement server-side Stripe integration
@@ -98,13 +102,16 @@ export default function AdminDashboard() {
 
       setLastUpdated(new Date().toLocaleString());
 
-      // Temporarily disable detailed data loading to debug basic stats
-      console.log('Skipping detailed data loading for now to debug basic stats');
-      
-      // Set empty data for now
-      setPromptData([]);
-      setUserData(null);
-      setFeedbackData(null);
+      // Load detailed data
+      const [promptPerformance, userAnalytics, feedbackAnalytics] = await Promise.all([
+        getPromptPerformance(),
+        getUserAnalytics(),
+        getFeedbackAnalytics()
+      ]);
+
+      setPromptData(promptPerformance);
+      setUserData(userAnalytics);
+      setFeedbackData(feedbackAnalytics);
     } catch (error) {
       console.error('Error loading stats:', error);
     } finally {
