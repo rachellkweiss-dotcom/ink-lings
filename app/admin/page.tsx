@@ -16,7 +16,7 @@ import {
   type UserAnalytics,
   type FeedbackAnalytics
 } from '@/lib/admin-utils';
-import { getRollingAnnualDonations, getLifetimeDonations } from '@/lib/stripe';
+
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -75,25 +75,19 @@ export default function AdminDashboard() {
       setLoadingData(true);
       
       // Load basic stats
-      // Get total authenticated users from auth.users
-      const { count: userCount } = await supabase.auth.admin.listUsers();
+      // Get total authenticated users from user_preferences (since we can't access auth.users from client)
+      const { count: userCount } = await supabase
+        .from('user_preferences')
+        .select('*', { count: 'exact', head: true });
       
       // Get users with saved preferences from user_preferences table
       const { count: preferencesCount } = await supabase
         .from('user_preferences')
         .select('*', { count: 'exact', head: true });
 
-      // Get Stripe donation data
-      let rollingAnnualTotal = 0;
-      let lifetimeTotal = 0;
-      try {
-        [rollingAnnualTotal, lifetimeTotal] = await Promise.all([
-          getRollingAnnualDonations(),
-          getLifetimeDonations()
-        ]);
-      } catch (error) {
-        console.error('Error getting Stripe data:', error);
-      }
+      // For now, use placeholder donation data until we implement server-side Stripe calls
+      const rollingAnnualTotal = 0; // Will implement server-side Stripe integration
+      const lifetimeTotal = 0; // Will implement server-side Stripe integration
 
       setStats({
         totalUsers: userCount || 0,
