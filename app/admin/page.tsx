@@ -56,7 +56,7 @@ export default function AdminDashboard() {
         
         // Check both possible email locations for Google OAuth
         const userEmail = user.email || user.user_metadata?.email;
-        const isAdminUser = userEmail === 'rkweiss89@gmail.com';
+        const isAdminUser = userEmail === 'rachell.k.weiss@gmail.com';
         
         console.log('🔍 Admin check - Final email:', userEmail);
         console.log('🔍 Admin check - Is admin:', isAdminUser);
@@ -75,19 +75,25 @@ export default function AdminDashboard() {
       setLoadingData(true);
       
       // Load basic stats
-      // Get total authenticated users from user_preferences (since we can't access auth.users from client)
-      const { count: userCount, error: userError } = await supabase
-        .from('user_preferences')
-        .select('*', { count: 'exact', head: true });
+      // Try to get user count from a different approach
+      let userCount = 0;
+      let preferencesCount = 0;
       
-      console.log('User count query result:', { userCount, userError });
-      
-      // Get users with saved preferences from user_preferences table
-      const { count: preferencesCount, error: prefError } = await supabase
-        .from('user_preferences')
-        .select('*', { count: 'exact', head: true });
-      
-      console.log('Preferences count query result:', { preferencesCount, prefError });
+      try {
+        // Try to get all user_preferences rows to see what we can access
+        const { data: allUsers, error: userError } = await supabase
+          .from('user_preferences')
+          .select('id');
+        
+        console.log('All users query result:', { data: allUsers, error: userError });
+        
+        if (allUsers) {
+          userCount = allUsers.length;
+          preferencesCount = allUsers.length;
+        }
+      } catch (error) {
+        console.error('Error getting user data:', error);
+      }
 
       // For now, use placeholder donation data until we implement server-side Stripe calls
       const rollingAnnualTotal = 0; // Will implement server-side Stripe integration
