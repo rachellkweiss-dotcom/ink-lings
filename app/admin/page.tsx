@@ -82,26 +82,24 @@ export default function AdminDashboard() {
         .from('prompt_bank')
         .select('*', { count: 'exact', head: true });
 
-      const { count: feedbackCount } = await supabase
-        .from('feedback_tokens')
-        .select('*', { count: 'exact', head: true });
-
-      // Get donation data (if you have a donations table)
-      let donationTotal = 0;
+      // Get feedback count with better error handling
+      let feedbackCount = 0;
       try {
-        const { data: donations } = await supabase
-          .from('donations')
-          .select('amount')
-          .eq('status', 'succeeded');
+        const { count, error } = await supabase
+          .from('feedback_tokens')
+          .select('*', { count: 'exact', head: true });
         
-        if (donations) {
-          donationTotal = donations.reduce((sum, donation) => sum + (donation.amount || 0), 0) / 100; // Convert from cents
+        if (error) {
+          console.error('Feedback count error:', error);
+        } else {
+          feedbackCount = count || 0;
         }
-      } catch {
-        console.log('No donations table found, using placeholder data');
-        // Use placeholder data for now
-        donationTotal = 25.50; // Example: $25.50 in donations
+      } catch (error) {
+        console.error('Feedback count exception:', error);
       }
+
+      // Donations are handled by Stripe, not stored in Supabase
+      const donationTotal = 0; // Will implement Stripe integration later
 
       setStats({
         totalUsers: userCount || 0,
