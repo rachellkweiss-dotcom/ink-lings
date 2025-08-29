@@ -1,15 +1,12 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { Suspense } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 
-export default function FeedbackThanksPage() {
-  const router = useRouter();
-
-  const handleReturn = () => {
-    router.push('/');
-  };
+function FeedbackThanksContent() {
+  const searchParams = useSearchParams();
+  const message = searchParams.get('message');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-cyan-900/10 flex items-center justify-center p-4">
@@ -18,17 +15,32 @@ export default function FeedbackThanksPage() {
           <div className="text-6xl mb-6">👏</div>
           
           <h1 className="text-2xl font-bold text-gray-900 mb-6">
-            Thank you for your anonymous feedback!
+            {message === 'already-voted' 
+              ? 'You\'ve already provided feedback for this prompt!' 
+              : 'Thank you for your anonymous feedback!'
+            }
           </h1>
           
-          <Button 
-            onClick={handleReturn}
-            className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-3"
-          >
-            Return to Ink-lings
-          </Button>
+          <p className="text-gray-600 text-sm">
+            You can close this window now.
+          </p>
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function FeedbackThanksPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-cyan-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <FeedbackThanksContent />
+    </Suspense>
   );
 }
