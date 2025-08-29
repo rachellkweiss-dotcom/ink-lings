@@ -86,6 +86,8 @@ export default function AdminDashboard() {
           .select('id');
         
         console.log('All users query result:', { data: allUsers, error: userError });
+        console.log('All users data length:', allUsers?.length);
+        console.log('All users data:', JSON.stringify(allUsers, null, 2));
         
         if (allUsers) {
           userCount = allUsers.length;
@@ -109,15 +111,19 @@ export default function AdminDashboard() {
       setLastUpdated(new Date().toLocaleString());
 
       // Load detailed data
-      const [promptPerformance, userAnalytics, feedbackAnalytics] = await Promise.all([
-        getPromptPerformance(),
-        getUserAnalytics(),
-        getFeedbackAnalytics()
-      ]);
+      try {
+        const [promptPerformance, userAnalytics, feedbackAnalytics] = await Promise.all([
+          getPromptPerformance(),
+          getUserAnalytics(),
+          getFeedbackAnalytics()
+        ]);
 
-      setPromptData(promptPerformance);
-      setUserData(userAnalytics);
-      setFeedbackData(feedbackAnalytics);
+        setPromptData(promptPerformance);
+        setUserData(userAnalytics);
+        setFeedbackData(feedbackAnalytics);
+      } catch (error) {
+        console.error('Error loading detailed data:', error);
+      }
     } catch (error) {
       console.error('Error loading stats:', error);
     } finally {
