@@ -291,8 +291,7 @@ export function InkLingsApp() {
           notification_email: userPreferences.notification_email,
           notification_days: userPreferences.notification_days,
           notification_time: userPreferences.notification_time,
-          timezone: userPreferences.timezone,
-          current_category_index: 0
+          timezone: userPreferences.timezone
         });
         
         console.log('Preferences saved to Supabase:', savedPreferences);

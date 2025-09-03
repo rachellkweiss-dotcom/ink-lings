@@ -22,10 +22,9 @@ export async function POST(request: NextRequest) {
       .from('user_preferences')
       .update({
         notification_days: [],
-        current_category_index: 0,
         last_prompt_sent: null
       })
-              .eq('user_id', userId);
+      .eq('user_id', userId);
 
     if (updateError) {
       console.error('Error pausing notifications:', updateError);

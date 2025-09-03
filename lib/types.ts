@@ -19,7 +19,6 @@ export interface UserPreferences {
   notification_time_utc?: string;
   next_prompt_utc?: string;
   last_prompt_sent?: string;
-  current_category_index?: number;
   // Status flags for UI
   notificationsPaused?: boolean;
   deletionRequested?: boolean;
