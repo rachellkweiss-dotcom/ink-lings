@@ -43,11 +43,11 @@ export async function GET(request: NextRequest) {
       if (preferences && preferences.notification_email) {
         // User has complete preferences, redirect to account page
         console.log('User has preferences, redirecting to account');
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/?phase=account`);
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/account`);
       } else {
         // New user or incomplete preferences, redirect to onboarding
         console.log('New user or incomplete preferences, redirecting to onboarding');
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/?phase=onboarding`);
+        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/onboarding`);
       }
     }
 
