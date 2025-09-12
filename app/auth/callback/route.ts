@@ -6,6 +6,10 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
   const error = searchParams.get('error');
 
+  // Debug: Log all parameters received
+  console.log('🔍 Callback received with URL:', request.url);
+  console.log('🔍 All search params:', Object.fromEntries(searchParams.entries()));
+
   if (error) {
     console.error('OAuth error:', error);
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=${error}`);
