@@ -42,13 +42,14 @@ export async function GET(request: NextRequest) {
       
       // Check if user has preferences
       console.log('🔍 Checking user preferences...');
-      const { data: preferences } = await supabase
+      const { data: preferences, error: prefError } = await supabase
         .from('user_preferences')
         .select('*')
         .eq('user_id', data.user.id)
         .single();
 
       console.log('User preferences:', preferences);
+      console.log('Preferences error:', prefError);
 
       if (preferences && preferences.notification_email) {
         // User has complete preferences, redirect to account page
