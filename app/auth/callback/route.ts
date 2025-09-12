@@ -31,7 +31,14 @@ export async function GET(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    // Use code or hash as fallback
+    const authCode = code || hash;
+    if (!authCode) {
+      console.error('No auth code available');
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=no_code`);
+    }
+
+    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(authCode);
 
     if (exchangeError) {
       console.error('❌ Error exchanging code for session:', exchangeError);
