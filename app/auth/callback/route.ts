@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -16,46 +15,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=no_code`);
   }
 
-  try {
-    // Exchange the code for a session
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
-
-    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-
-    if (exchangeError) {
-      console.error('Error exchanging code for session:', exchangeError);
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=exchange_failed`);
-    }
-
-    if (data.user) {
-      console.log('OAuth successful for user:', data.user.email);
-      
-      // Check if user has preferences
-      const { data: preferences } = await supabase
-        .from('user_preferences')
-        .select('*')
-        .eq('user_id', data.user.id)
-        .single();
-
-      if (preferences && preferences.notification_email) {
-        // User has complete preferences, redirect to account page
-        console.log('User has preferences, redirecting to account');
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/account`);
-      } else {
-        // New user or incomplete preferences, redirect to onboarding
-        console.log('New user or incomplete preferences, redirecting to onboarding');
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/onboarding`);
-      }
-    }
-
-    // Fallback redirect - always go to sign-in page
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth`);
-
-  } catch (error) {
-    console.error('Unexpected error in OAuth callback:', error);
-    return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=unexpected`);
-  }
+  // For PKCE OAuth, we need to let the client handle the session
+  // Redirect to a page that will automatically handle the OAuth session
+  console.log('OAuth code received, redirecting to auth with code');
+  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?code=${encodeURIComponent(code)}`);
 }
