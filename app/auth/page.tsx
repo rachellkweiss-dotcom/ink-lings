@@ -24,18 +24,18 @@ function AuthHandler() {
         console.log('🔄 Processing OAuth code in auth page');
         
         try {
-          console.log('🔄 Exchanging OAuth code for session');
+          // Instead of exchanging the code, check if Supabase has already established the session
+          console.log('🔄 Checking for existing session');
           
-          // Exchange code for session
-          const { data: { session }, error: sessionError } = await supabase.auth.exchangeCodeForSession(code);
+          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
           
           if (sessionError) {
-            console.error('Session exchange error:', sessionError);
+            console.error('Session error:', sessionError);
             return; // Stay on auth page
           }
 
           if (!session?.user) {
-            console.error('No user in session');
+            console.error('No user in session - OAuth may not have completed properly');
             return; // Stay on auth page
           }
 
@@ -44,7 +44,7 @@ function AuthHandler() {
           // Check if user has completed onboarding (has row in user_preferences)
           const { data: preferences, error: preferencesError } = await supabase
             .from('user_preferences')
-            .select('id')
+            .select('id, notification_email')
             .eq('user_id', session.user.id)
             .single();
 
@@ -54,8 +54,8 @@ function AuthHandler() {
             return; // Stay on auth page
           }
 
-          // If user has preferences, they've completed onboarding
-          if (preferences) {
+          // If user has preferences with notification_email, they've completed onboarding
+          if (preferences && preferences.notification_email) {
             console.log('✅ User has completed onboarding, redirecting to account');
             router.push('/account');
           } else {
