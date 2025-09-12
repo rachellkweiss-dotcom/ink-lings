@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { SignIn } from './sign-in'
 import { SignUp } from './sign-up'
@@ -9,6 +10,12 @@ import { Card, CardContent } from '@/components/ui/card'
 
 export function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false)
+  const router = useRouter()
+
+  const handleSignInSuccess = () => {
+    console.log('✅ Sign-in successful, redirecting to account')
+    router.push('/account')
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-cyan-900/10" style={{ fontFamily: 'var(--font-shadows-into-light)' }}>
@@ -62,7 +69,10 @@ export function AuthPage() {
             {isSignUp ? (
               <SignUp onSwitchToSignIn={() => setIsSignUp(false)} />
             ) : (
-              <SignIn onSwitchToSignUp={() => setIsSignUp(true)} />
+              <SignIn 
+                onSignInSuccess={handleSignInSuccess}
+                onSwitchToSignUp={() => setIsSignUp(true)} 
+              />
             )}
           </div>
         </div>
