@@ -18,7 +18,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=no_code`);
   }
 
-  // Redirect to client-side handler with the code
-  console.log('✅ OAuth code received, redirecting to client handler');
-  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth/callback/client?code=${encodeURIComponent(code)}`);
+  // Redirect to account page - let the client-side auth context handle session establishment
+  // and the InkLingsApp component will handle onboarding vs account logic
+  console.log('✅ OAuth code received, redirecting to account');
+  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/account`);
 }
