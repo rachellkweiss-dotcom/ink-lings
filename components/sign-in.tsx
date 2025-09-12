@@ -26,6 +26,9 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
     setError('')
     
     try {
+      console.log('🚀 Starting Google sign-in...')
+      console.log('Redirect URL will be:', `${window.location.origin}/auth/callback`)
+      
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
