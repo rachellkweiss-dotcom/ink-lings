@@ -26,8 +26,12 @@ type OnboardingPhase = 1 | 2 | 3 | 4;
 
 type AuthMode = 'signup' | 'signin';
 
-export function InkLingsApp() {
-  const [appPhase, setAppPhase] = useState<AppPhase>('onboarding');
+interface InkLingsAppProps {
+  initialPhase?: AppPhase;
+}
+
+export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
+  const [appPhase, setAppPhase] = useState<AppPhase>(initialPhase);
   const [onboardingPhase, setOnboardingPhase] = useState<OnboardingPhase>(1);
   const [authMode, setAuthMode] = useState<AuthMode>('signup');
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
