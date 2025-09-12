@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 
 export async function GET(request: NextRequest) {
   console.log('🔍 Auth callback triggered');
@@ -19,7 +18,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=no_code`);
   }
 
-  // Instead of trying to process OAuth server-side, redirect to a client-side handler
-  console.log('🔄 Redirecting to client-side OAuth handler...');
-  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth/callback/client?code=${code}`);
+  // Simple redirect to account page - let the client-side auth context handle the rest
+  console.log('✅ OAuth code received, redirecting to account');
+  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/account`);
 }
