@@ -40,9 +40,14 @@ export async function GET(request: NextRequest) {
     if (data.user) {
       console.log('OAuth successful for user:', data.user.email);
       
-      // Check if user has preferences
+      // Check if user has preferences using service role key for server-side access
       console.log('🔍 Checking user preferences...');
-      const { data: preferences, error: prefError } = await supabase
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      
+      const { data: preferences, error: prefError } = await supabaseAdmin
         .from('user_preferences')
         .select('*')
         .eq('user_id', data.user.id)
