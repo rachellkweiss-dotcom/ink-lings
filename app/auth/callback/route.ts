@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=no_code`);
   }
 
-  // Redirect to OAuth handler to process the code and establish session
-  console.log('✅ OAuth code received, redirecting to OAuth handler');
-  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth/oauth-handler?code=${encodeURIComponent(code)}`);
+  // Redirect to auth page with the code - it will handle OAuth processing
+  console.log('✅ OAuth code received, redirecting to auth page');
+  return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?code=${encodeURIComponent(code)}`);
 }
