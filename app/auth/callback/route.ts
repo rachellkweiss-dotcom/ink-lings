@@ -24,32 +24,27 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log('🔄 Exchanging code for session...');
-    // Exchange the code for a session
+    console.log('🔄 Processing OAuth callback...');
+    
+    // Create Supabase client
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     );
 
-    // Use code or hash as fallback
-    const authCode = code || hash;
-    if (!authCode) {
-      console.error('No auth code available');
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=no_code`);
+    // Use Supabase's built-in OAuth handling
+    const { data, error: authError } = await supabase.auth.getSession();
+
+    if (authError) {
+      console.error('❌ Error getting session:', authError);
+      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=session_failed`);
     }
 
-    const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(authCode);
+    console.log('✅ Session retrieved successfully');
+    console.log('User data:', { id: data.session?.user?.id, email: data.session?.user?.email });
 
-    if (exchangeError) {
-      console.error('❌ Error exchanging code for session:', exchangeError);
-      return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=exchange_failed`);
-    }
-
-    console.log('✅ Session exchange successful');
-    console.log('User data:', { id: data.user?.id, email: data.user?.email });
-
-    if (data.user) {
-      console.log('OAuth successful for user:', data.user.email);
+    if (data.session?.user) {
+      console.log('OAuth successful for user:', data.session.user.email);
       
       // Check if user has preferences using service role key for server-side access
       console.log('🔍 Checking user preferences...');
@@ -61,7 +56,7 @@ export async function GET(request: NextRequest) {
       const { data: preferences, error: prefError } = await supabaseAdmin
         .from('user_preferences')
         .select('*')
-        .eq('user_id', data.user.id)
+        .eq('user_id', data.session.user.id)
         .single();
 
       console.log('User preferences:', preferences);
