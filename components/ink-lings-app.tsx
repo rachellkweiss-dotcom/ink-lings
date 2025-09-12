@@ -27,7 +27,7 @@ type OnboardingPhase = 1 | 2 | 3 | 4;
 type AuthMode = 'signup' | 'signin';
 
 export function InkLingsApp() {
-  const [appPhase, setAppPhase] = useState<AppPhase>('welcome');
+  const [appPhase, setAppPhase] = useState<AppPhase>('onboarding');
   const [onboardingPhase, setOnboardingPhase] = useState<OnboardingPhase>(1);
   const [authMode, setAuthMode] = useState<AuthMode>('signup');
   const [userPreferences, setUserPreferences] = useState<UserPreferences | null>(null);
@@ -79,6 +79,9 @@ export function InkLingsApp() {
           } else {
             setAppPhase('onboarding');
           }
+        } else {
+          // User is not verified, stay in onboarding phase
+          setAppPhase('onboarding');
         }
       }
     };
@@ -224,6 +227,8 @@ export function InkLingsApp() {
   }, [appPhase, onboardingPhase]);
 
   const handleGetStarted = () => {
+    // This function is no longer used since we redirect to /auth
+    // Keeping it for backward compatibility but it won't be called
     setAppPhase('create-account');
     setAuthMode('signup');
   };
@@ -441,12 +446,12 @@ export function InkLingsApp() {
               console.log('Loaded preferences from localStorage:', parsed);
             } catch (error) {
               console.error('Error parsing localStorage preferences:', error);
-              setAppPhase('welcome');
+              window.location.href = '/auth';
               return;
             }
           } else {
             console.log('No preferences found');
-            setAppPhase('welcome');
+            window.location.href = '/auth';
             return;
           }
         }
@@ -459,16 +464,16 @@ export function InkLingsApp() {
             const parsed = JSON.parse(localPreferences);
             setUserPreferences(parsed);
             console.log('Loaded preferences from localStorage fallback:', parsed);
-          } catch (error) {
-            console.error('Error parsing localStorage preferences:', error);
-            setAppPhase('welcome');
+            } catch (error) {
+              console.error('Error parsing localStorage preferences:', error);
+              window.location.href = '/auth';
+              return;
+            }
+          } else {
+            console.log('No preferences found');
+            window.location.href = '/auth';
             return;
           }
-        } else {
-          console.log('No preferences found');
-          setAppPhase('welcome');
-          return;
-        }
       }
     }
     
@@ -493,16 +498,15 @@ export function InkLingsApp() {
       
       // Clear local state
       setUserPreferences(null);
-      setAppPhase('create-account');
-      setAuthMode('signin');
+      // Redirect to auth page instead of setting app phase
+      window.location.href = '/auth';
       
       console.log('✅ User signed out successfully');
     } catch (error) {
       console.error('Error during sign out:', error);
-      // Fallback: still clear local state
+      // Fallback: still clear local state and redirect
       setUserPreferences(null);
-      setAppPhase('create-account');
-      setAuthMode('signin');
+      window.location.href = '/auth';
     }
   };
 
@@ -580,19 +584,8 @@ export function InkLingsApp() {
     }
   };
 
-  // Render welcome screen
-  if (appPhase === 'welcome') {
-    return <WelcomeHero onGetStarted={handleGetStarted} />;
-  }
-
-  // Render create account screen
-  if (appPhase === 'create-account') {
-    if (authMode === 'signup') {
-              return <SignUp onSwitchToSignIn={handleSwitchToSignIn} />;
-    } else {
-      return <SignIn onSignInSuccess={handleSignInSuccess} onSwitchToSignUp={handleSwitchToSignUp} />;
-    }
-  }
+  // Welcome and create-account phases are now handled by /auth route
+  // These phases are no longer rendered here
 
   // Render onboarding flow
   if (appPhase === 'onboarding') {
@@ -629,7 +622,7 @@ export function InkLingsApp() {
           {onboardingPhase === 1 && (
             <CategorySelection 
               onNext={handleCategoriesSelected} 
-              onBack={() => setAppPhase('create-account')}
+              onBack={() => window.location.href = '/auth'}
               existingSelections={userPreferences?.categories}
             />
           )}

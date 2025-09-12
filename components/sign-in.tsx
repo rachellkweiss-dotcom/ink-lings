@@ -68,23 +68,7 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-cyan-900/10" style={{ fontFamily: 'var(--font-shadows-into-light)' }}>
-      <div className="max-w-6xl mx-auto p-8">
-        {/* Logo Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center">
-            <Image
-              src="/ink_links_logo_final_final.png"
-              alt="Ink-lings Logo"
-              width={260}
-              height={104}
-              priority
-              className="h-20 w-auto"
-            />
-          </div>
-        </div>
-
-        <div className="max-w-md mx-auto space-y-6">
+    <div className="space-y-6">
           <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
             <CardHeader className="pb-4">
               <CardTitle className="text-xl text-center text-gray-800">Sign In</CardTitle>
@@ -207,8 +191,6 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
     </div>
   )
 }

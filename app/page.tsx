@@ -1,11 +1,5 @@
-import { InkLingsApp } from '@/components/ink-lings-app';
-import { Toaster } from '@/components/ui/sonner';
+import { redirect } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <>
-      <InkLingsApp />
-      <Toaster />
-    </>
-  );
+  redirect('/auth');
 }
