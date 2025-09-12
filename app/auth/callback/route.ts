@@ -9,13 +9,17 @@ export async function GET(request: NextRequest) {
 
   console.log('Callback params:', { code: code ? 'present' : 'missing', error });
 
+  // Check for hash parameters (Supabase often uses hash instead of query params)
+  const hash = request.url.split('#')[1];
+  console.log('Hash parameters:', hash);
+
   if (error) {
     console.error('OAuth error:', error);
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=${error}`);
   }
 
-  if (!code) {
-    console.error('No code received from OAuth provider');
+  if (!code && !hash) {
+    console.error('No code or hash received from OAuth provider');
     return NextResponse.redirect(`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/auth?error=no_code`);
   }
 
