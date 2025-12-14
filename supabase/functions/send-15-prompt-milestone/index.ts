@@ -11,6 +11,10 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Allow public access (for external cron jobs)
+  // No authentication required - function uses service role key internally
+  console.log('🔓 Function accessed - allowing public access for cron jobs')
+
   try {
     console.log('🚀 15-Prompt Milestone Email Edge Function starting...')
     
