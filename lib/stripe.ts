@@ -113,7 +113,11 @@ export async function createDonationCheckoutSession(
           price_data: {
             currency: 'usd',
             product_data: {
-              name: donationType === 'TIP_JAR' ? 'Ink-lings Tip Jar' : 'Ink-lings Coffee + Journal',
+              name: donationType === 'custom_donation' || donationType === 'one-time' 
+                ? 'Ink-lings Tip Jar' 
+                : donationType === 'coffee_journaling' 
+                ? 'Ink-lings Coffee + Journal'
+                : 'Ink-lings Donation',
               description: 'Thank you for supporting Ink-lings!',
               images: [`${process.env.NEXT_PUBLIC_BASE_URL || 'https://inklingsjournal.live'}/ink_links_logo_final_final.png`], // Your logo
             },

@@ -23,8 +23,8 @@ export const userPromptHistorySchema = z.object({
 // Donation session validation
 export const donationSessionSchema = z.object({
   amount: z.number().positive('Amount must be positive').max(100000, 'Amount too large'),
-  donationType: z.enum(['one-time', 'monthly'], {
-    message: 'Donation type must be one-time or monthly',
+  donationType: z.enum(['one-time', 'monthly', 'coffee_journaling', 'custom_donation'], {
+    message: 'Donation type must be one-time, monthly, coffee_journaling, or custom_donation',
   }),
   customerEmail: emailSchema,
 });

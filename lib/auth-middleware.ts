@@ -61,6 +61,14 @@ export async function authenticateRequest(
     });
 
     // Get the user from the session (reads from cookies automatically)
+    // Try getSession first (works better with cookies), then fall back to getUser
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (!sessionError && session?.user) {
+      return { user: session.user, error: null };
+    }
+    
+    // Fallback to getUser if getSession didn't work
     const { data: { user }, error } = await supabase.auth.getUser();
 
     if (!error && user) {
