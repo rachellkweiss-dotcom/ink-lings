@@ -1,0 +1,8 @@
+{
+  "name": "send-support-inklings",
+  "schedule": "0 9 * * *",
+  "timezone": "UTC"
+}
+
+
+
