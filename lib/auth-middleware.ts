@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import type { User } from '@supabase/supabase-js';
 
 /**
  * Authentication middleware for API routes
@@ -16,7 +17,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
  */
 export async function authenticateRequest(
   request: NextRequest
-): Promise<{ user: any; error: null } | { user: null; error: NextResponse }> {
+): Promise<{ user: User; error: null } | { user: null; error: NextResponse }> {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -91,23 +92,28 @@ export async function authenticateRequest(
  */
 export async function authenticateRequestFromCookie(
   request: NextRequest
-): Promise<{ user: any; error: null } | { user: null; error: NextResponse }> {
+): Promise<{ user: User; error: null } | { user: null; error: NextResponse }> {
   try {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
     
-    const supabase = createClient(supabaseUrl, supabaseAnonKey);
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value;
+        },
+        set() {
+          // No-op for read-only operations
+        },
+        remove() {
+          // No-op for read-only operations
+        },
+      },
+    });
 
     // Get the session from cookies
     const cookieHeader = request.headers.get('cookie');
     if (cookieHeader) {
-      // Extract the access token from cookies if present
-      const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
-        const [key, value] = cookie.trim().split('=');
-        acc[key] = value;
-        return acc;
-      }, {} as Record<string, string>);
-
       // Try to get session using the cookie
       const { data: { session }, error } = await supabase.auth.getSession();
       
