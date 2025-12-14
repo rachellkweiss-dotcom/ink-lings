@@ -23,8 +23,14 @@ function AuthHandler() {
         
         try {
           // Verify the email
+          const tokenValue = tokenHash ?? token ?? undefined;
+          if (!tokenValue) {
+            console.error('No token or token_hash provided');
+            return;
+          }
+          
           const { data, error } = await supabase.auth.verifyOtp({
-            token_hash: tokenHash || token,
+            token_hash: tokenValue,
             type: 'signup'
           });
 
