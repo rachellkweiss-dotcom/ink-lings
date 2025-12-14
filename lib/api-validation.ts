@@ -24,7 +24,7 @@ export const userPromptHistorySchema = z.object({
 export const donationSessionSchema = z.object({
   amount: z.number().positive('Amount must be positive').max(100000, 'Amount too large'),
   donationType: z.enum(['one-time', 'monthly'], {
-    errorMap: () => ({ message: 'Donation type must be one-time or monthly' }),
+    message: 'Donation type must be one-time or monthly',
   }),
   customerEmail: emailSchema,
 });
@@ -33,7 +33,7 @@ export const donationSessionSchema = z.object({
 export const feedbackSchema = z.object({
   token: z.string().min(1, 'Token is required').max(255, 'Token too long'),
   type: z.enum(['up', 'down'], {
-    errorMap: () => ({ message: 'Type must be up or down' }),
+    message: 'Type must be up or down',
   }),
   promptId: z.string().uuid('Invalid prompt ID format'),
 });
@@ -56,7 +56,7 @@ export async function validateRequestBody<T>(
         error: new Response(
           JSON.stringify({
             error: 'Validation failed',
-            details: error.errors,
+            details: error.issues,
           }),
           { status: 400, headers: { 'Content-Type': 'application/json' } }
         ),
@@ -90,7 +90,7 @@ export function validateQueryParams<T>(
         error: new Response(
           JSON.stringify({
             error: 'Validation failed',
-            details: error.errors,
+            details: error.issues,
           }),
           { status: 400, headers: { 'Content-Type': 'application/json' } }
         ),
