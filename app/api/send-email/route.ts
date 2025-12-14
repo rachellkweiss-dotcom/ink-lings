@@ -3,8 +3,6 @@ import { NextRequest } from "next/server";
 import { authenticateRequest } from "@/lib/auth-middleware";
 import { validateRequestBody, sendEmailSchema } from "@/lib/api-validation";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: NextRequest) {
   try {
     // Authenticate the request
@@ -34,6 +32,9 @@ export async function POST(req: NextRequest) {
         { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
+
+    // Create Resend client inside the function to avoid build-time errors
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
     // Send email
     const { data, error } = await resend.emails.send({
