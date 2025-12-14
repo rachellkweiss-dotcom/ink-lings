@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { authenticateRequest } from '@/lib/auth-middleware';
+import { validateQueryParams, userPromptHistorySchema } from '@/lib/api-validation';
 
 // Create a service role client that bypasses RLS for reading user data
 const supabaseServiceRole = createClient(
@@ -9,22 +11,33 @@ const supabaseServiceRole = createClient(
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('=== user-prompt-history API called ===');
+    // Authenticate the request
+    const authResult = await authenticateRequest(request);
+    if (authResult.error) {
+      return authResult.error;
+    }
+
+    const authenticatedUser = authResult.user;
+
+    // Validate query parameters
     const { searchParams } = new URL(request.url);
-    const userId = searchParams.get('userId');
+    const validationResult = validateQueryParams(searchParams, userPromptHistorySchema);
     
-    console.log('User ID:', userId);
-    
-    if (!userId) {
+    if (validationResult.error) {
+      return validationResult.error;
+    }
+
+    const { userId } = validationResult.data;
+
+    // Verify that the authenticated user is requesting their own data
+    if (userId !== authenticatedUser.id) {
       return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
+        { error: 'Forbidden - You can only access your own prompt history' },
+        { status: 403 }
       );
     }
 
     // Get user's prompt history with category names
-    console.log('Querying prompt_history table for user:', userId);
-    
     const { data: promptHistory, error } = await supabaseServiceRole
       .from('prompt_history')
       .select(`
@@ -38,8 +51,6 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId)
       .order('sent_at', { ascending: false }); // Most recent first
 
-    console.log('Query result:', { promptHistory, error });
-
     if (error) {
       console.error('Error fetching prompt history:', error);
       return NextResponse.json(
@@ -48,13 +59,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // For now, use category IDs directly since we don't have the journal_categories table
-    // In production, this would fetch category names from a proper categories table
-    
     // Enhance prompt history with category IDs and format dates
-    const enhancedHistory = promptHistory.map(prompt => ({
+    const enhancedHistory = (promptHistory || []).map(prompt => ({
       id: prompt.id,
-      category: prompt.category_id, // Use category ID for now
+      category: prompt.category_id,
       promptText: prompt.prompt_text,
       promptNumber: prompt.prompt_number,
       sentAt: prompt.sent_at,

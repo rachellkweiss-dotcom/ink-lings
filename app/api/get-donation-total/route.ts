@@ -1,7 +1,14 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
+import { rateLimit } from '@/lib/rate-limit';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  // Rate limiting: 30 requests per minute per IP (more lenient since it's just reading data)
+  const rateLimitResponse = rateLimit(request, 30, 60000);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     // Calculate rolling annual period (August 22 - August 22)
     const now = new Date();
