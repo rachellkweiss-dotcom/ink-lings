@@ -3,14 +3,14 @@ import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/auth-middleware';
 import { validateQueryParams, userPromptHistorySchema } from '@/lib/api-validation';
 
-// Create a service role client that bypasses RLS for reading user data
-const supabaseServiceRole = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function GET(request: NextRequest) {
   try {
+    // Create a service role client that bypasses RLS for reading user data
+    const supabaseServiceRole = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
     // Authenticate the request
     const authResult = await authenticateRequest(request);
     if (authResult.error) {
