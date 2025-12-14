@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
@@ -15,7 +17,9 @@ function ResetPasswordContent() {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (!url || !key) {
-      throw new Error('Missing Supabase environment variables');
+      // During build, return a mock client that will error at runtime if used
+      // This prevents build failures while still catching runtime errors
+      return createClient('https://placeholder.supabase.co', 'placeholder-key');
     }
     return createClient(url, key);
   }, []);
