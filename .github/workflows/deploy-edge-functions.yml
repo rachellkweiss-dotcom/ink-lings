@@ -1,0 +1,46 @@
+name: Deploy Supabase Edge Functions
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'supabase/functions/**'
+      - '.github/workflows/deploy-edge-functions.yml'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  deploy-functions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy Edge Functions
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          # Authenticate with Supabase
+          echo "${{ secrets.SUPABASE_ACCESS_TOKEN }}" | supabase login --token -
+          
+          # Deploy all functions (no linking needed when using access token)
+          echo "Deploying check-set-preferences..."
+          supabase functions deploy check-set-preferences --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} || echo "⚠️ Failed to deploy check-set-preferences"
+          
+          echo "Deploying send-15-prompt-milestone..."
+          supabase functions deploy send-15-prompt-milestone --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} || echo "⚠️ Failed to deploy send-15-prompt-milestone"
+          
+          echo "Deploying send-support-inklings..."
+          supabase functions deploy send-support-inklings --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} || echo "⚠️ Failed to deploy send-support-inklings"
+          
+          echo "Deploying send-support-inklings-test..."
+          supabase functions deploy send-support-inklings-test --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} || echo "⚠️ Failed to deploy send-support-inklings-test"
+          
+          echo "✅ Deployment complete!"
+
