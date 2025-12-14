@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { rateLimit } from '@/lib/rate-limit';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -7,6 +8,12 @@ const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabaseServiceRole = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 export async function GET(request: NextRequest) {
+  // Rate limiting: 20 requests per minute per IP
+  const rateLimitResponse = rateLimit(request, 20, 60000);
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
