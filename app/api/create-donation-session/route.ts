@@ -1,18 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createDonationCheckoutSession } from '@/lib/stripe';
+import { authenticateRequest } from '@/lib/auth-middleware';
+import { validateRequestBody, donationSessionSchema } from '@/lib/api-validation';
 
 export async function POST(request: NextRequest) {
   try {
-    const { amount, donationType, customerEmail } = await request.json();
+    // Authenticate the request
+    const authResult = await authenticateRequest(request);
+    if (authResult.error) {
+      return authResult.error;
+    }
 
-    if (!customerEmail) {
+    // Validate request body
+    const validationResult = await validateRequestBody(request, donationSessionSchema);
+    if (validationResult.error) {
+      return validationResult.error;
+    }
+
+    const { amount, donationType, customerEmail } = validationResult.data;
+
+    // Verify that the authenticated user's email matches the donation email
+    // (optional: you might want to allow donations for others)
+    if (authResult.user.email !== customerEmail) {
       return NextResponse.json(
-        { error: 'Customer email is required' },
-        { status: 400 }
+        { error: 'Email mismatch - donation email must match your account email' },
+        { status: 403 }
       );
     }
 
-    // Create one-time donation
+    // Create donation session
     const session = await createDonationCheckoutSession(amount, customerEmail, donationType);
 
     return NextResponse.json({

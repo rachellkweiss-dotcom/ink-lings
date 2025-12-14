@@ -1,8 +1,26 @@
 import Stripe from 'stripe';
 
-// Initialize Stripe with your secret key
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-07-30.basil',
+// Lazy-initialized Stripe client to avoid build-time errors
+let stripeInstance: Stripe | null = null;
+
+function getStripe(): Stripe {
+  if (!stripeInstance) {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey) {
+      throw new Error('STRIPE_SECRET_KEY is not set');
+    }
+    stripeInstance = new Stripe(apiKey, {
+      apiVersion: '2025-07-30.basil',
+    });
+  }
+  return stripeInstance;
+}
+
+// Export a getter function instead of the instance directly
+export const stripe = new Proxy({} as Stripe, {
+  get(_target, prop) {
+    return getStripe()[prop as keyof Stripe];
+  }
 });
 
 // Donation product IDs (Live mode)

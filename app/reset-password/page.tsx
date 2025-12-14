@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+export const dynamic = 'force-dynamic';
+
+import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@supabase/supabase-js';
 import { Button } from '@/components/ui/button';
@@ -9,12 +11,18 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 function ResetPasswordContent() {
+  // Create Supabase client inside component to avoid build-time errors
+  const supabase = useMemo(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) {
+      // During build, return a mock client that will error at runtime if used
+      // This prevents build failures while still catching runtime errors
+      return createClient('https://placeholder.supabase.co', 'placeholder-key');
+    }
+    return createClient(url, key);
+  }, []);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);

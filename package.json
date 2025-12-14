@@ -6,7 +6,17 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "security:scan": "snyk test",
+    "security:monitor": "snyk monitor",
+    "security:audit": "npm audit",
+    "supabase:deploy:all": "npm run supabase:deploy:check-set-preferences && npm run supabase:deploy:send-15-milestone && npm run supabase:deploy:send-support && npm run supabase:deploy:send-support-test",
+    "supabase:deploy:check-set-preferences": "supabase functions deploy check-set-preferences",
+    "supabase:deploy:send-15-milestone": "supabase functions deploy send-15-prompt-milestone",
+    "supabase:deploy:send-support": "supabase functions deploy send-support-inklings",
+    "supabase:deploy:send-support-test": "supabase functions deploy send-support-inklings-test",
+    "supabase:functions:list": "supabase functions list",
+    "supabase:functions:logs": "supabase functions logs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -25,6 +35,7 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@stripe/stripe-js": "^7.8.0",
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.56.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -49,6 +60,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "^15.5.9",
+    "eslint-plugin-security": "^3.0.1",
+    "snyk": "^1.1301.1",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.7",
     "typescript": "^5"
