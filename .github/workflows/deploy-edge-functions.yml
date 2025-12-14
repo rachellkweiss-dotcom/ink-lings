@@ -26,21 +26,25 @@ jobs:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
         run: |
-          # Authenticate with Supabase
-          echo "${{ secrets.SUPABASE_ACCESS_TOKEN }}" | supabase login --token -
+          # Verify token format (first few chars only for debugging)
+          TOKEN_PREFIX=$(echo "$SUPABASE_ACCESS_TOKEN" | cut -c1-4)
+          echo "Token starts with: $TOKEN_PREFIX"
           
-          # Deploy all functions (no linking needed when using access token)
+          # Authenticate with Supabase using environment variable
+          supabase login --token "$SUPABASE_ACCESS_TOKEN"
+          
+          # Deploy all functions
           echo "Deploying check-set-preferences..."
-          supabase functions deploy check-set-preferences --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} || echo "⚠️ Failed to deploy check-set-preferences"
+          supabase functions deploy check-set-preferences --project-ref $SUPABASE_PROJECT_ID || echo "⚠️ Failed to deploy check-set-preferences"
           
           echo "Deploying send-15-prompt-milestone..."
-          supabase functions deploy send-15-prompt-milestone --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} || echo "⚠️ Failed to deploy send-15-prompt-milestone"
+          supabase functions deploy send-15-prompt-milestone --project-ref $SUPABASE_PROJECT_ID || echo "⚠️ Failed to deploy send-15-prompt-milestone"
           
           echo "Deploying send-support-inklings..."
-          supabase functions deploy send-support-inklings --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} || echo "⚠️ Failed to deploy send-support-inklings"
+          supabase functions deploy send-support-inklings --project-ref $SUPABASE_PROJECT_ID || echo "⚠️ Failed to deploy send-support-inklings"
           
-          echo "Deploying send-support-inklings-test..."
-          supabase functions deploy send-support-inklings-test --project-ref ${{ secrets.SUPABASE_PROJECT_ID }} || echo "⚠️ Failed to deploy send-support-inklings-test"
+          echo "Deploying cleanup-prompts..."
+          supabase functions deploy cleanup-prompts --project-ref $SUPABASE_PROJECT_ID || echo "⚠️ Failed to deploy cleanup-prompts"
           
           echo "✅ Deployment complete!"
 
