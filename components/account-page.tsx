@@ -14,6 +14,7 @@ interface AccountPageProps {
   onSignOut: () => void;
   onStopNotifications: () => void;
   userFirstName?: string;
+  userEmail?: string;
   userPreferences?: UserPreferences | null;
 }
 
@@ -23,6 +24,7 @@ export function AccountPage({
   onSignOut,
   onStopNotifications,
   userFirstName,
+  userEmail,
   userPreferences 
 }: AccountPageProps) {
   // Ensure page starts at top
@@ -216,7 +218,7 @@ export function AccountPage({
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             {/* Donation Tile - 60% width (3/5 columns) */}
             <div className="lg:col-span-3">
-              <DonationTile userEmail={userFirstName ? `${userFirstName}@example.com` : 'user@example.com'} />
+              <DonationTile userEmail={userEmail || 'user@example.com'} />
             </div>
             
             {/* Cost Transparency Widget - 40% width (2/5 columns) */}
