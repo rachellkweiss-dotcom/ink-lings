@@ -696,6 +696,7 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
           onSignOut={handleSignOut}
           onStopNotifications={handleStopNotifications}
           userFirstName={user?.user_metadata?.first_name || ''}
+          userEmail={user?.email || ''}
           userPreferences={userPreferences}
         />
         

@@ -42,8 +42,8 @@ export function JournalHistory({ userId, onBackToAccount }: JournalHistoryProps)
     const fetchPromptHistory = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/user-prompt-history?userId=${userId}`);
-        const result = await response.json();
+        const { authenticatedFetchJson } = await import('@/lib/api-client');
+        const result = await authenticatedFetchJson<{ success: boolean; data: PromptHistoryItem[] }>(`/api/user-prompt-history?userId=${userId}`);
         
         if (result.success) {
           // Filter to only show prompts from the last 90 days
