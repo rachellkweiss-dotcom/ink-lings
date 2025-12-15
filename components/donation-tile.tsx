@@ -18,11 +18,10 @@ export function DonationTile({ userEmail }: DonationTileProps) {
   const handleDonation = async (amount: number, donationType: string) => {
     setIsDonating(true);
     try {
-      const response = await fetch('/api/create-donation-session', {
+      console.log('Creating donation session:', { amount, donationType, customerEmail: userEmail });
+      const { authenticatedFetchJson } = await import('@/lib/api-client');
+      const result = await authenticatedFetchJson<{ success: boolean; url?: string; error?: string }>('/api/create-donation-session', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           amount,
           donationType,
@@ -30,30 +29,32 @@ export function DonationTile({ userEmail }: DonationTileProps) {
         }),
       });
 
-      const result = await response.json();
+      console.log('Donation session result:', result);
 
       if (result.success && result.url) {
         // Redirect to Stripe Checkout
         window.location.href = result.url;
       } else {
-        console.error('Failed to create donation session:', result.error);
-        alert('Something went wrong. Please try again.');
+        const errorMsg = result.error || 'Unknown error';
+        console.error('Failed to create donation session:', errorMsg);
+        alert(`Failed to create donation: ${errorMsg}`);
       }
     } catch (error) {
       console.error('Donation error:', error);
-      alert('Something went wrong. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+      alert(errorMessage);
     } finally {
       setIsDonating(false);
     }
   };
 
-  const handleCustomDonation = () => {
+  const handleCustomDonation = async () => {
     const amount = parseFloat(customAmount);
-    if (amount >= 1) {
-      handleDonation(Math.round(amount * 100), 'custom_donation');
-    } else {
-      alert('Please enter an amount of $1 or more.');
+    if (isNaN(amount) || amount < 1) {
+      alert('Please enter a valid amount of $1 or more.');
+      return;
     }
+    await handleDonation(Math.round(amount * 100), 'custom_donation');
   };
 
   return (
