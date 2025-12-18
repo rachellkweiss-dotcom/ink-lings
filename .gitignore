@@ -47,3 +47,6 @@ supabase/cron-jobs/update-cron-secrets/*.secret.sql
 .env.local
 .env.production
 .env.*.local
+
+# Supabase temp files
+supabase/.temp/

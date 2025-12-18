@@ -26,7 +26,7 @@ Since `pg_cron` is enabled, you can set up the cron job directly via SQL:
 
 2. **Update the migration file**:
    - Open `supabase/migrations/20250127000000_enable_pg_cron_and_setup_cleanup.sql`
-   - Replace `YOUR-PROJECT-REF` with your actual project reference ID
+   - Replace `plbesopwfipvxqqzendc` with your actual project reference ID
 
 3. **Run the migration**:
    ```bash
