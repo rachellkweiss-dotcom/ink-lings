@@ -21,24 +21,51 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders });
   }
 
+  // Only allow POST requests (GET requests are likely bots/monitors)
+  if (req.method !== 'POST') {
+    console.warn(`❌ Invalid method: ${req.method}. Only POST requests are allowed.`);
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Method not allowed',
+      message: 'This function only accepts POST requests'
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 405
+    });
+  }
+
   // SECURITY: Require secret token for authentication
+  // This function MUST have SEND_PROMPTS_CRON_SECRET set in Supabase Dashboard
   const expectedToken = Deno.env.get('SEND_PROMPTS_CRON_SECRET');
   
-  if (expectedToken) {
-    const providedToken = req.headers.get('x-cron-secret') || req.headers.get('authorization')?.replace('Bearer ', '');
-    
-    if (providedToken !== expectedToken) {
-      console.warn('❌ Unauthorized access attempt');
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Unauthorized'
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 401
-      });
-    }
-    console.log('✅ Function accessed - secret token validated');
+  if (!expectedToken) {
+    console.error('❌ SEND_PROMPTS_CRON_SECRET is not configured');
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Server configuration error',
+      message: 'This function requires authentication but no secret is configured'
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500
+    });
   }
+  
+  // Validate the provided token
+  const providedToken = req.headers.get('x-cron-secret') || req.headers.get('authorization')?.replace('Bearer ', '');
+  
+  if (!providedToken || providedToken !== expectedToken) {
+    console.warn('❌ Unauthorized access attempt - invalid or missing secret token');
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Unauthorized',
+      message: 'Valid secret token required'
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 401
+    });
+  }
+  
+  console.log('✅ Function accessed - secret token validated');
 
   try {
     const supabase = createClient(
@@ -63,7 +90,13 @@ serve(async (req) => {
       });
     }
 
-    console.log(`🚀 Starting catch-up prompts for ${CATCHUP_USER_IDS.length} users...`);
+    // Deduplicate user IDs to prevent sending multiple emails to the same user
+    const uniqueUserIds = [...new Set(CATCHUP_USER_IDS)];
+    if (uniqueUserIds.length !== CATCHUP_USER_IDS.length) {
+      console.log(`⚠️ Duplicate user IDs detected. Deduplicated from ${CATCHUP_USER_IDS.length} to ${uniqueUserIds.length} users.`);
+    }
+
+    console.log(`🚀 Starting catch-up prompts for ${uniqueUserIds.length} users...`);
 
     // Get these specific users
     const { data: users, error: usersError } = await supabase
@@ -77,7 +110,7 @@ serve(async (req) => {
         categories,
         notification_time_utc
       `)
-      .in('user_id', CATCHUP_USER_IDS);
+      .in('user_id', uniqueUserIds);
 
     if (usersError) {
       throw new Error(`Error fetching users: ${usersError.message}`);
@@ -111,6 +144,35 @@ serve(async (req) => {
       }
       try {
         console.log(`\n📧 Processing user: ${user.user_id} (${user.notification_email})`);
+
+        // SAFEGUARD: Check if user already received a prompt today
+        // This prevents duplicate sends if the function is called multiple times
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStart = today.toISOString();
+        const todayEnd = new Date(today);
+        todayEnd.setHours(23, 59, 59, 999);
+        const todayEndISO = todayEnd.toISOString();
+
+        const { data: recentPrompts, error: recentError } = await supabase
+          .from('prompt_history')
+          .select('id, sent_at')
+          .eq('user_id', user.user_id)
+          .gte('sent_at', todayStart)
+          .lte('sent_at', todayEndISO);
+
+        if (recentError) {
+          console.error(`⚠️ Error checking recent prompts:`, recentError);
+        } else if (recentPrompts && recentPrompts.length > 0) {
+          console.log(`⏭️ Skipping user ${user.user_id}: Already received ${recentPrompts.length} prompt(s) today (most recent: ${recentPrompts[0].sent_at})`);
+          results.push({ 
+            user_id: user.user_id, 
+            email: user.notification_email, 
+            status: 'skipped', 
+            message: `Already received ${recentPrompts.length} prompt(s) today` 
+          });
+          continue;
+        }
 
         // Get user's prompt rotation data
         const { data: rotationData, error: rotationError } = await supabase
