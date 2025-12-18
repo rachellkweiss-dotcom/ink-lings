@@ -1,0 +1,6 @@
+{
+  "name": "cleanup-old-prompts",
+  "schedule": "0 2 * * *",
+  "timezone": "UTC"
+}
+
