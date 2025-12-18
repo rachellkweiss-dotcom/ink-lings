@@ -37,3 +37,13 @@ next-env.d.ts
 
 # Requirements folder (contains edge function code)
 requirements/
+
+# Supabase secrets and sensitive config
+# Note: Template SQL files with placeholders are safe to commit
+# Only ignore files that contain actual secrets (use .secret.sql extension)
+supabase/cron-jobs/update-cron-secrets/*.secret.sql
+*.secret.*
+.env
+.env.local
+.env.production
+.env.*.local
