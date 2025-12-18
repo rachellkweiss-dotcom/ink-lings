@@ -11,9 +11,33 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  // Allow public access (for external cron jobs)
-  // No authentication required - function uses service role key internally
-  console.log('🔓 Function accessed - allowing public access for cron jobs')
+  // SECURITY: Require secret token for authentication
+  // - If SEND_15_MILESTONE_CRON_SECRET is set: requires matching token
+  // - If SEND_15_MILESTONE_CRON_SECRET is NOT set: allows all requests (for testing/development)
+  const expectedToken = Deno.env.get('SEND_15_MILESTONE_CRON_SECRET');
+  
+  if (expectedToken) {
+    // Secret token is configured - require authentication
+    const providedToken = req.headers.get('x-cron-secret') || req.headers.get('authorization')?.replace('Bearer ', '');
+    
+    if (providedToken !== expectedToken) {
+      console.warn('❌ Unauthorized access attempt - invalid or missing secret token');
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Unauthorized'
+      }), {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        },
+        status: 401
+      });
+    }
+    console.log('✅ Function accessed - secret token validated');
+  } else {
+    // No secret token configured - allow access (for Supabase cron or testing)
+    console.log('⚠️ Function accessed - no secret required (SEND_15_MILESTONE_CRON_SECRET not set)');
+  }
 
   try {
     console.log('🚀 15-Prompt Milestone Email Edge Function starting...')
