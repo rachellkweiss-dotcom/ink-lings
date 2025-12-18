@@ -11,6 +11,34 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // SECURITY: Require secret token for authentication
+  // - If CHECK_SET_PREFERENCES_CRON_SECRET is set: requires matching token
+  // - If CHECK_SET_PREFERENCES_CRON_SECRET is NOT set: allows all requests (for testing/development)
+  const expectedToken = Deno.env.get('CHECK_SET_PREFERENCES_CRON_SECRET');
+  
+  if (expectedToken) {
+    // Secret token is configured - require authentication
+    const providedToken = req.headers.get('x-cron-secret') || req.headers.get('authorization')?.replace('Bearer ', '');
+    
+    if (providedToken !== expectedToken) {
+      console.warn('❌ Unauthorized access attempt - invalid or missing secret token');
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Unauthorized'
+      }), {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json'
+        },
+        status: 401
+      });
+    }
+    console.log('✅ Function accessed - secret token validated');
+  } else {
+    // No secret token configured - allow access (for Supabase cron or testing)
+    console.log('⚠️ Function accessed - no secret required (CHECK_SET_PREFERENCES_CRON_SECRET not set)');
+  }
+
   try {
     console.log('🚀 Set Preferences Email Edge Function starting...')
     
