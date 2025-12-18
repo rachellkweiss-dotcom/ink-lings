@@ -33,32 +33,37 @@ serve(async (req) => {
   }
 
   // SECURITY: Require secret token for authentication
-  // - If SEND_SUPPORT_CRON_SECRET is set: requires matching token
-  // - If SEND_SUPPORT_CRON_SECRET is NOT set: allows all requests (for testing/development)
+  // This function MUST have SEND_SUPPORT_CRON_SECRET set in Supabase Dashboard
   const expectedToken = Deno.env.get('SEND_SUPPORT_CRON_SECRET');
   
-  if (expectedToken) {
-    // Secret token is configured - require authentication
-    const providedToken = req.headers.get('x-cron-secret') || req.headers.get('authorization')?.replace('Bearer ', '');
-    
-    if (providedToken !== expectedToken) {
-      console.warn('❌ Unauthorized access attempt - invalid or missing secret token');
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Unauthorized'
-      }), {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        },
-        status: 401
-      });
-    }
-    console.log('✅ Function accessed - secret token validated');
-  } else {
-    // No secret token configured - allow access (for Supabase cron or testing)
-    console.log('⚠️ Function accessed - no secret required (SEND_SUPPORT_CRON_SECRET not set)');
+  if (!expectedToken) {
+    console.error('❌ SEND_SUPPORT_CRON_SECRET is not configured');
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Server configuration error',
+      message: 'This function requires authentication but no secret is configured'
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500
+    });
   }
+  
+  // Validate the provided token
+  const providedToken = req.headers.get('x-cron-secret') || req.headers.get('authorization')?.replace('Bearer ', '');
+  
+  if (!providedToken || providedToken !== expectedToken) {
+    console.warn('❌ Unauthorized access attempt - invalid or missing secret token');
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'Unauthorized',
+      message: 'Valid secret token required'
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 401
+    });
+  }
+  
+  console.log('✅ Function accessed - secret token validated');
 
   try {
     console.log('=== Support Ink-lings Email Cron Job Started ===')
