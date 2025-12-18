@@ -1,12 +1,29 @@
-# Send Catch-Up Prompts to 5 Users
+# Send Catch-Up Prompts Function
 
-## Users Who Missed Prompts During Downtime
+## Overview
 
-1. **hellerozalina@gmail.com** - 8:00 AM Europe/London (scheduled for 12/18 08:00 UTC)
-2. **schottnathan@gmail.com** - 6:00 AM America/New_York (scheduled for 12/18 11:00 UTC)
-3. **cristinabartolacci94@gmail.com** - 7:00 AM America/New_York (scheduled for 12/18 12:00 UTC)
-4. **lighthouseskrapbooker@hotmail.com** - 6:00 AM America/Chicago (scheduled for 12/18 12:00 UTC)
-5. **rkweiss89@gmail.com** - 6:00 AM America/Chicago (scheduled for 12/18 12:00 UTC)
+This function sends catch-up prompts to users who missed their scheduled prompts (e.g., during downtime or system issues).
+
+## Setup: Configure User IDs
+
+**Before using this function, you must edit the function code to specify which users need catch-up prompts:**
+
+1. Open `supabase/functions/send-catchup-prompts/index.ts`
+2. Find the `CATCHUP_USER_IDS` array at the top of the file
+3. Replace the placeholder with actual user IDs:
+
+```typescript
+const CATCHUP_USER_IDS: string[] = [
+  'user-id-1',  // email@example.com
+  'user-id-2',  // email2@example.com
+];
+```
+
+4. Deploy the updated function: `supabase functions deploy send-catchup-prompts`
+
+### Finding Users Who Missed Prompts
+
+Use the `find_missed_prompts_downtime.sql` query to identify users who missed prompts during a specific time period.
 
 ## How to Send Catch-Up Prompts
 
@@ -36,23 +53,42 @@ supabase functions invoke send-catchup-prompts \
 
 ## What the Function Does
 
-1. ✅ Sends prompts to the 5 users who missed them during downtime
+1. ✅ Sends prompts to users specified in `CATCHUP_USER_IDS` array
 2. ✅ Uses the same email template as regular prompts
 3. ✅ Records prompts in `prompt_history` table
 4. ✅ Updates `user_prompt_rotation` for next prompt
-5. ✅ Returns a summary of results
+5. ✅ **Rate limiting**: 1 second delay between emails to avoid Resend API limits (2 req/sec)
+6. ✅ Returns a summary of results
+
+## Rate Limiting
+
+The function includes built-in rate limiting:
+- **1 second delay** between each email
+- Keeps requests well under Resend's 2 requests/second limit
+- Prevents API rate limit errors
 
 ## Expected Response
 
+### Success Response
 ```json
 {
   "success": true,
-  "emailsSent": 5,
+  "emailsSent": 2,
   "errors": 0,
   "results": [
     { "user_id": "...", "email": "...", "status": "success" },
     ...
   ]
+}
+```
+
+### Error: No Users Configured
+If you haven't set up user IDs, you'll get:
+```json
+{
+  "success": false,
+  "message": "No user IDs configured. Please edit CATCHUP_USER_IDS array in the function code.",
+  "instructions": "Add user IDs to the CATCHUP_USER_IDS array at the top of the function file."
 }
 ```
 

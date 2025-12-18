@@ -6,10 +6,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// List of user IDs who missed prompts during downtime
-// Only the remaining user who didn't get their email due to rate limit
-const CATCHUP_USER_IDS = [
-  'e0ee0bac-18ce-43f9-bc6c-9fa6966f7085'   // lighthouseskrapbooker@hotmail.com (rate limit error)
+// List of user IDs who need catch-up prompts
+// TO USE: Replace the placeholder below with actual user IDs who missed prompts
+// Example format: 'user-id-1', 'user-id-2', 'user-id-3'
+// 
+// To find users who missed prompts, use the find_missed_prompts_downtime.sql query
+const CATCHUP_USER_IDS: string[] = [
+  // 'PLACEHOLDER_USER_ID_1',  // email@example.com
+  // 'PLACEHOLDER_USER_ID_2',  // email2@example.com
 ];
 
 serve(async (req) => {
@@ -47,6 +51,18 @@ serve(async (req) => {
       throw new Error('Missing RESEND_API_KEY');
     }
 
+    // Check if any user IDs are configured
+    if (!CATCHUP_USER_IDS || CATCHUP_USER_IDS.length === 0) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'No user IDs configured. Please edit CATCHUP_USER_IDS array in the function code.',
+        instructions: 'Add user IDs to the CATCHUP_USER_IDS array at the top of the function file. See SEND_CATCHUP_PROMPTS.md for instructions.'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 400
+      });
+    }
+
     console.log(`🚀 Starting catch-up prompts for ${CATCHUP_USER_IDS.length} users...`);
 
     // Get these specific users
@@ -82,13 +98,16 @@ serve(async (req) => {
     const results: any[] = [];
 
     // Process each user (bypassing day/time checks since this is catch-up)
-    // Add delay between emails to avoid Resend rate limits (2 requests per second)
+    // RATE LIMITING: Resend API allows 2 requests per second
+    // We use 1 second delay between emails to stay safely under the limit
     for (let i = 0; i < users.length; i++) {
       const user = users[i];
       
-      // Add 600ms delay between emails (allows ~1.6 requests/second, under the 2/sec limit)
+      // Add 1 second delay between emails to avoid Resend rate limits
+      // This ensures we stay well under the 2 requests/second limit
       if (i > 0) {
-        await new Promise(resolve => setTimeout(resolve, 600));
+        console.log(`⏳ Rate limiting: waiting 1 second before next email...`);
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
       try {
         console.log(`\n📧 Processing user: ${user.user_id} (${user.notification_email})`);
