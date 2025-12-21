@@ -1,27 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { authenticateRequest } from '@/lib/auth-middleware';
 
 export async function POST(request: NextRequest) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    const resendApiKey = process.env.RESEND_API_KEY!;
-    const supabaseServiceRole = createClient(supabaseUrl, supabaseServiceRoleKey);
-    const { userId, userEmail, userFirstName, registrationMethod } = await request.json();
+    // SECURITY: Authenticate the request first
+    const authResult = await authenticateRequest(request);
+    if (authResult.error) {
+      return authResult.error;
+    }
 
-    if (!userId || !userEmail) {
+    const authenticatedUser = authResult.user;
+    const userId = authenticatedUser.id; // Use authenticated user ID, not from body
+    const userEmail = authenticatedUser.email || ''; // Use authenticated email
+
+    // Get optional metadata from body (if provided, but verify it matches authenticated user)
+    const body = await request.json().catch(() => ({}));
+    const userFirstName = body.userFirstName || '';
+    const registrationMethod = body.registrationMethod || 'email';
+
+    // Verify the email matches (if provided in body, it must match authenticated user)
+    if (body.userEmail && body.userEmail !== userEmail) {
       return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
+        { error: 'Email mismatch - request email must match your account email' },
+        { status: 403 }
       );
     }
 
-    // First, automatically pause their notifications
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+    const resendApiKey = process.env.RESEND_API_KEY;
+    const isProduction = process.env.NODE_ENV === 'production';
+    const supabaseServiceRole = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+    // First, automatically pause their notifications by clearing schedule
+    // Only clear notification_days - this effectively pauses notifications
     const { error: pauseError } = await supabaseServiceRole
       .from('user_preferences')
       .update({
-        notification_days: [],
-        last_prompt_sent: null
+        notification_days: [] // text[] - empty array (pauses notifications)
       })
       .eq('user_id', userId);
 
@@ -97,30 +114,56 @@ export async function POST(request: NextRequest) {
       </html>
     `;
 
-    // Send the email via Resend
-    const emailResponse = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: 'Ink-lings <support@inklingsjournal.live>',
-        to: 'support@inklingsjournal.live', // Send to you
-        subject: `🗑️ Account Deletion Request - ${userEmail}`,
-        html: deletionRequestEmail,
-      }),
-    });
+    // Send the email via Resend (non-prod can skip if key missing)
+    if (!resendApiKey) {
+      const msg = 'RESEND_API_KEY missing; skipping deletion email in non-production environment';
+      if (isProduction) {
+        console.error('Email service not configured for production');
+        return NextResponse.json(
+          { error: 'Failed to send deletion request' },
+          { status: 500 }
+        );
+      } else {
+        console.warn(msg);
+      }
+    } else {
+      const emailResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Ink-lings <support@inklingsjournal.live>',
+          to: 'support@inklingsjournal.live', // Send to you
+          subject: `🗑️ Account Deletion Request - ${userEmail}`,
+          html: deletionRequestEmail,
+        }),
+      });
 
-    if (!emailResponse.ok) {
-      console.error('Failed to send deletion request email');
-      return NextResponse.json(
-        { error: 'Failed to send deletion request' },
-        { status: 500 }
-      );
+      if (!emailResponse.ok) {
+        console.error('Failed to send deletion request email');
+        return NextResponse.json(
+          { error: 'Failed to send deletion request' },
+          { status: 500 }
+        );
+      }
     }
 
-    console.log(`Account deletion request sent for user: ${userId}`);
+    // Log the action for audit trail
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
+               request.headers.get('x-real-ip') || 
+               'unknown';
+    
+    console.log(JSON.stringify({
+      timestamp: new Date().toISOString(),
+      action: 'account_deletion_requested',
+      userId: userId,
+      userEmail: userEmail,
+      ip: ip,
+      userAgent: request.headers.get('user-agent') || 'unknown',
+      registrationMethod: registrationMethod
+    }));
 
     return NextResponse.json({ 
       success: true, 
