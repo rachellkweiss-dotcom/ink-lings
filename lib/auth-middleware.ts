@@ -35,6 +35,8 @@ export async function authenticateRequest(
       if (!error && user) {
         return { user, error: null };
       }
+      // If Bearer token fails, silently fall through to cookie-based auth
+      // (Don't return error here - let cookie auth try)
     }
 
     // Method 2: Cookie-based authentication (for browser requests)
