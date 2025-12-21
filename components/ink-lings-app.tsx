@@ -534,10 +534,21 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
     if (!user?.id) return;
     
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        alert('Please sign in again to pause notifications.');
+        return;
+      }
+
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      headers['Authorization'] = `Bearer ${accessToken}`;
+
+      // No need to send userId - server uses authenticated user ID
       const response = await fetch('/api/pause-notifications', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id })
+        headers,
+        body: JSON.stringify({}) // Empty body - auth handled by cookies
       });
 
       if (response.ok) {
@@ -560,13 +571,25 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
     if (!user?.id) return;
     
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) {
+        alert('Please sign in again to delete your account.');
+        return;
+      }
+
+      const headers: Record<string, string> = { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
+      };
+
       // Send deletion request instead of deleting immediately
+      // userId and userEmail are now taken from authenticated session
       const response = await fetch('/api/request-account-deletion', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ 
-          userId: user.id,
-          userEmail: user.email,
+          // Optional metadata - email/userId verified against authenticated user
           userFirstName: user.user_metadata?.first_name,
           registrationMethod: user.app_metadata?.provider || 'email'
         })
@@ -576,8 +599,18 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
         // Close modal and redirect to account page with deletion status
         setShowStopModal(false);
         setAppPhase('account');
-        // Set a flag to show deletion initiated status
-        setUserPreferences(prev => prev ? { ...prev, deletionRequested: true } : null);
+        // Clear notification prefs locally and flag deletion requested
+        setUserPreferences(prev => prev ? { 
+          ...prev, 
+          notification_days: [],
+          notification_time: '',
+          timezone: '',
+          notification_email: '',
+          notificationsPaused: true,
+          deletionRequested: true
+        } : null);
+        // Clear localStorage backup of preferences to avoid stale UI
+        localStorage.removeItem('ink-lings-preferences');
       } else {
         console.error('Failed to submit deletion request');
         alert('Failed to submit deletion request. Please try again or contact support.');
