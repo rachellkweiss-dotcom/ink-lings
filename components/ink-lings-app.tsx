@@ -534,21 +534,13 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
     if (!user?.id) return;
     
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = session?.access_token;
-      if (!accessToken) {
-        alert('Please sign in again to pause notifications.');
-        return;
-      }
-
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-      headers['Authorization'] = `Bearer ${accessToken}`;
-
-      // No need to send userId - server uses authenticated user ID
+      // Use cookie-based authentication (credentials: 'include' sends cookies automatically)
+      // No need for Bearer token - server reads session from cookies
       const response = await fetch('/api/pause-notifications', {
         method: 'POST',
-        headers,
-        body: JSON.stringify({}) // Empty body - auth handled by cookies
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies for authentication
+        body: JSON.stringify({}) // Empty body - auth handled by session cookies
       });
 
       if (response.ok) {
@@ -571,23 +563,12 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
     if (!user?.id) return;
     
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const accessToken = session?.access_token;
-      if (!accessToken) {
-        alert('Please sign in again to delete your account.');
-        return;
-      }
-
-      const headers: Record<string, string> = { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`
-      };
-
-      // Send deletion request instead of deleting immediately
-      // userId and userEmail are now taken from authenticated session
+      // Use cookie-based authentication (credentials: 'include' sends cookies automatically)
+      // No need for Bearer token - server reads session from cookies
       const response = await fetch('/api/request-account-deletion', {
         method: 'POST',
-        headers,
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies for authentication
         body: JSON.stringify({ 
           // Optional metadata - email/userId verified against authenticated user
           userFirstName: user.user_metadata?.first_name,
