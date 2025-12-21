@@ -47,7 +47,7 @@
     "react-hook-form": "^7.62.0",
     "resend": "^6.6.0",
     "sonner": "^2.0.7",
-    "stripe": "^18.4.0",
+    "stripe": "^20.1.0",
     "supabase": "^2.34.3",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.0.17"
