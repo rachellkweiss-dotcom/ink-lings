@@ -24,10 +24,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       console.log('🔍 Initial session check:', session ? 'session found' : 'no session');
       if (session?.user) {
         console.log('👤 User found:', session.user.email);
+        // SECURITY: Refresh cookies on app load if session exists
+        // This ensures API routes can read the session from cookies
+        if (session.access_token && session.refresh_token) {
+          try {
+            await fetch('/api/auth/refresh-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              body: JSON.stringify({ 
+                accessToken: session.access_token,
+                refreshToken: session.refresh_token 
+              }),
+            })
+          } catch (refreshError) {
+            console.warn('Failed to refresh session cookies on load:', refreshError)
+          }
+        }
       }
       setSession(session)
       setUser(session?.user ?? null)
@@ -51,11 +68,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
     if (error) throw error
+    
+    // SECURITY: Send full session to server to set secure cookies
+    // The client-side Supabase stores session in localStorage, but API routes need cookies
+    if (data.session) {
+      try {
+        await fetch('/api/auth/refresh-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ 
+            accessToken: data.session.access_token,
+            refreshToken: data.session.refresh_token 
+          }),
+        })
+      } catch (refreshError) {
+        console.warn('Failed to refresh session cookies:', refreshError)
+        // Continue anyway - middleware will handle it on next request
+      }
+    }
   }
 
   const signUp = async (email: string, password: string, metadata?: { data: { first_name?: string; last_name?: string; full_name?: string } }) => {
