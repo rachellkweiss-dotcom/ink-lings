@@ -43,11 +43,22 @@ export async function authenticateRequest(
     // Create a server-side Supabase client that reads cookies from the request
     const response = NextResponse.next();
     
+    // Debug: Log cookie information (only in production for debugging)
+    const cookieHeader = request.headers.get('cookie');
+    const allCookies = request.cookies.getAll();
+    console.log('[AUTH DEBUG] Cookie header present:', !!cookieHeader);
+    console.log('[AUTH DEBUG] Total cookies:', allCookies.length);
+    console.log('[AUTH DEBUG] Cookie names:', allCookies.map(c => c.name));
+    
     const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         get(name: string) {
           // Read cookie from the incoming request
-          return request.cookies.get(name)?.value;
+          const value = request.cookies.get(name)?.value;
+          if (value) {
+            console.log(`[AUTH DEBUG] Found cookie: ${name}`);
+          }
+          return value;
         },
         set(name: string, value: string, options: CookieOptions) {
           // SECURITY: Explicitly set secure cookie attributes
@@ -80,16 +91,31 @@ export async function authenticateRequest(
     // Try getSession first (works better with cookies), then fall back to getUser
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
+    console.log('[AUTH DEBUG] getSession result:', { 
+      hasSession: !!session, 
+      hasUser: !!session?.user,
+      error: sessionError?.message 
+    });
+    
     if (!sessionError && session?.user) {
+      console.log('[AUTH DEBUG] Authentication successful via getSession');
       return { user: session.user, error: null };
     }
     
     // Fallback to getUser if getSession didn't work
     const { data: { user }, error } = await supabase.auth.getUser();
+    
+    console.log('[AUTH DEBUG] getUser result:', { 
+      hasUser: !!user,
+      error: error?.message 
+    });
 
     if (!error && user) {
+      console.log('[AUTH DEBUG] Authentication successful via getUser');
       return { user, error: null };
     }
+    
+    console.log('[AUTH DEBUG] Authentication failed - no valid session or user');
 
     // No valid authentication found
     return {
