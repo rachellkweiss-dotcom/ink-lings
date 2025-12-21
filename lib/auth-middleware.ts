@@ -48,14 +48,28 @@ export async function authenticateRequest(
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          // Set cookie in the response (for session refresh)
-          request.cookies.set({ name, value, ...options });
-          response.cookies.set({ name, value, ...options });
+          // SECURITY: Explicitly set secure cookie attributes
+          const secureOptions: CookieOptions = {
+            ...options,
+            httpOnly: true,  // Prevent JavaScript access (XSS protection)
+            secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
+            sameSite: 'lax',  // CSRF protection
+            path: '/',
+          };
+          request.cookies.set({ name, value, ...secureOptions });
+          response.cookies.set({ name, value, ...secureOptions });
         },
         remove(name: string, options: CookieOptions) {
-          // Remove cookie from response
-          request.cookies.set({ name, value: '', ...options });
-          response.cookies.set({ name, value: '', ...options });
+          // SECURITY: Use secure options when removing cookies too
+          const secureOptions: CookieOptions = {
+            ...options,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+          };
+          request.cookies.set({ name, value: '', ...secureOptions });
+          response.cookies.set({ name, value: '', ...secureOptions });
         },
       },
     });
@@ -110,11 +124,27 @@ export async function authenticateRequestFromCookie(
         get(name: string) {
           return request.cookies.get(name)?.value;
         },
-        set() {
-          // No-op for read-only operations
+        set(name: string, value: string, options: CookieOptions) {
+          // SECURITY: Explicitly set secure cookie attributes
+          const secureOptions: CookieOptions = {
+            ...options,
+            httpOnly: true,  // Prevent JavaScript access (XSS protection)
+            secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
+            sameSite: 'lax',  // CSRF protection
+            path: '/',
+          };
+          request.cookies.set({ name, value, ...secureOptions });
         },
-        remove() {
-          // No-op for read-only operations
+        remove(name: string, options: CookieOptions) {
+          // SECURITY: Use secure options when removing cookies too
+          const secureOptions: CookieOptions = {
+            ...options,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+          };
+          request.cookies.set({ name, value: '', ...secureOptions });
         },
       },
     });
