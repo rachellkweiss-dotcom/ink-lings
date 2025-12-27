@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { rateLimit } from '@/lib/rate-limit';
+import { logSuccess, logFailure } from '@/lib/audit-log';
 
 /**
  * API route to refresh session cookies with secure flags
@@ -7,6 +9,11 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr';
  */
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Rate limiting - 10 requests per minute
+    const rateLimitResult = rateLimit(request, 10, 60 * 1000);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
@@ -79,18 +86,26 @@ export async function POST(request: NextRequest) {
         refresh_token: refreshToken,
       });
       if (error) {
+        logFailure(request, 'session_refresh_failed', undefined, undefined, error.message);
         console.error('Failed to set session from tokens:', error);
       } else {
+        logSuccess(request, 'session_refreshed', undefined, undefined);
         console.log('[REFRESH SESSION] Successfully set session cookies');
       }
     } else {
       // Try to refresh from existing cookies
-      await supabase.auth.getUser();
+      const { data: { user }, error: getUserError } = await supabase.auth.getUser();
+      if (getUserError) {
+        logFailure(request, 'session_refresh_failed', undefined, undefined, getUserError.message);
+      } else if (user) {
+        logSuccess(request, 'session_refreshed', user.id, user.email);
+      }
     }
 
     return response;
   } catch (error) {
-    console.error('Error refreshing session:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logFailure(request, 'session_refresh_failed', undefined, undefined, errorMessage);
     return NextResponse.json(
       { success: false, error: 'Failed to refresh session' },
       { status: 500 }
