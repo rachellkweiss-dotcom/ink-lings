@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/auth-middleware';
+import { rateLimit } from '@/lib/rate-limit';
+import { logSuccess, logFailure } from '@/lib/audit-log';
 
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Rate limiting - 10 requests per minute
+    const rateLimitResult = rateLimit(request, 10, 60 * 1000);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+    
     // SECURITY: Authenticate the request first
     const authResult = await authenticateRequest(request);
     if (authResult.error) {
@@ -27,7 +35,7 @@ export async function POST(request: NextRequest) {
       .eq('user_id', userId);
 
     if (updateError) {
-      console.error('Error pausing notifications:', updateError);
+      logFailure(request, 'notifications_pause_failed', userId, authenticatedUser.email, updateError.message);
       return NextResponse.json(
         { error: 'Failed to pause notifications' },
         { status: 500 }
@@ -38,18 +46,7 @@ export async function POST(request: NextRequest) {
     // This makes pausing fully reversible
 
     // Log the action for audit trail
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-               request.headers.get('x-real-ip') || 
-               'unknown';
-    
-    console.log(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      action: 'notifications_paused',
-      userId: userId,
-      userEmail: authenticatedUser.email,
-      ip: ip,
-      userAgent: request.headers.get('user-agent') || 'unknown'
-    }));
+    logSuccess(request, 'notifications_paused', userId, authenticatedUser.email);
 
     return NextResponse.json({ 
       success: true, 
@@ -57,7 +54,8 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error in pause notifications:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logFailure(request, 'notifications_pause_failed', undefined, undefined, errorMessage);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

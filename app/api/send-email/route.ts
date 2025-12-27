@@ -2,9 +2,16 @@ import { Resend } from "resend";
 import { NextRequest } from "next/server";
 import { authenticateRequest } from "@/lib/auth-middleware";
 import { validateRequestBody, sendEmailSchema } from "@/lib/api-validation";
+import { rateLimit } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: Rate limiting - 20 requests per minute
+    const rateLimitResult = rateLimit(req, 20, 60 * 1000);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+    
     // Authenticate the request
     const authResult = await authenticateRequest(req);
     if (authResult.error) {

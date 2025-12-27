@@ -1,9 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/auth-middleware';
+import { rateLimit } from '@/lib/rate-limit';
+import { logSuccess, logFailure } from '@/lib/audit-log';
 
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Rate limiting - 5 requests per 15 minutes
+    const rateLimitResult = rateLimit(request, 5, 15 * 60 * 1000);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+    
     // SECURITY: Authenticate the request first
     const authResult = await authenticateRequest(request);
     if (authResult.error) {
@@ -18,18 +26,7 @@ export async function POST(request: NextRequest) {
     const supabaseServiceRole = createClient(supabaseUrl, supabaseServiceRoleKey);
 
     // Log the action for audit trail
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-               request.headers.get('x-real-ip') || 
-               'unknown';
-    
-    console.log(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      action: 'account_deletion_started',
-      userId: userId,
-      userEmail: authenticatedUser.email,
-      ip: ip,
-      userAgent: request.headers.get('user-agent') || 'unknown'
-    }));
+    logSuccess(request, 'account_deletion_started', userId, authenticatedUser.email);
 
     // 1. Delete prompt history
     const { error: historyError } = await supabaseServiceRole
@@ -73,14 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log successful deletion
-    console.log(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      action: 'account_deletion_completed',
-      userId: userId,
-      userEmail: authenticatedUser.email,
-      ip: ip,
-      success: true
-    }));
+    logSuccess(request, 'account_deletion_completed', userId, authenticatedUser.email);
 
     return NextResponse.json({ 
       success: true, 
@@ -88,7 +78,8 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error in delete account:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logFailure(request, 'account_deletion_failed', undefined, undefined, errorMessage);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
