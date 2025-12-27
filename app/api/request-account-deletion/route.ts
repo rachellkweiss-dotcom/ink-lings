@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/auth-middleware';
+import { logSuccess, logFailure } from '@/lib/audit-log';
 
 export async function POST(request: NextRequest) {
   try {
@@ -151,19 +152,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Log the action for audit trail
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-               request.headers.get('x-real-ip') || 
-               'unknown';
-    
-    console.log(JSON.stringify({
-      timestamp: new Date().toISOString(),
-      action: 'account_deletion_requested',
-      userId: userId,
-      userEmail: userEmail,
-      ip: ip,
-      userAgent: request.headers.get('user-agent') || 'unknown',
-      registrationMethod: registrationMethod
-    }));
+    logSuccess(request, 'account_deletion_requested', userId, userEmail, {
+      registrationMethod,
+      userFirstName
+    });
 
     return NextResponse.json({ 
       success: true, 
@@ -171,7 +163,8 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error in account deletion request:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logFailure(request, 'account_deletion_request_failed', undefined, undefined, errorMessage);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

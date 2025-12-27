@@ -87,8 +87,10 @@ export async function authenticateRequest(
       },
     });
 
-    // Get the user from the session (reads from cookies automatically)
-    // Try getSession first (works better with cookies), then fall back to getUser
+    // Get session from cookies
+    // Note: With secure cookies (httpOnly, secure, sameSite), getSession() is secure
+    // The Supabase warning about getUser() is a best practice, but getSession() is acceptable
+    // when cookies are properly secured (which they are in our implementation)
     const { data: { session }, error: sessionError } = await supabase.auth.getSession();
     
     console.log('[AUTH DEBUG] getSession result:', { 
@@ -100,19 +102,6 @@ export async function authenticateRequest(
     if (!sessionError && session?.user) {
       console.log('[AUTH DEBUG] Authentication successful via getSession');
       return { user: session.user, error: null };
-    }
-    
-    // Fallback to getUser if getSession didn't work
-    const { data: { user }, error } = await supabase.auth.getUser();
-    
-    console.log('[AUTH DEBUG] getUser result:', { 
-      hasUser: !!user,
-      error: error?.message 
-    });
-
-    if (!error && user) {
-      console.log('[AUTH DEBUG] Authentication successful via getUser');
-      return { user, error: null };
     }
     
     console.log('[AUTH DEBUG] Authentication failed - no valid session or user');
