@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/auth-middleware';
 import { validateQueryParams, userPromptHistorySchema } from '@/lib/api-validation';
+import { rateLimit } from '@/lib/rate-limit';
+import { logSuccess, logFailure } from '@/lib/audit-log';
 
 export async function GET(request: NextRequest) {
   try {
+    // SECURITY: Rate limiting - 20 requests per minute
+    const rateLimitResult = rateLimit(request, 20, 60 * 1000);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
     // Create a service role client that bypasses RLS for reading user data
     const supabaseServiceRole = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -69,6 +76,11 @@ export async function GET(request: NextRequest) {
       emailSentTo: prompt.email_sent_to
     }));
 
+    // Log successful data access
+    logSuccess(request, 'user_prompt_history_accessed', userId, authenticatedUser.email, {
+      totalPrompts: enhancedHistory.length
+    });
+
     return NextResponse.json({
       success: true,
       data: enhancedHistory,
@@ -76,7 +88,8 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error in user-prompt-history API:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logFailure(request, 'user_prompt_history_failed', undefined, undefined, errorMessage);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

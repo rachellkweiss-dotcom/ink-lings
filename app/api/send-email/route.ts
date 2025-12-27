@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { authenticateRequest } from "@/lib/auth-middleware";
 import { validateRequestBody, sendEmailSchema } from "@/lib/api-validation";
 import { rateLimit } from "@/lib/rate-limit";
+import { logSuccess, logFailure } from "@/lib/audit-log";
 
 export async function POST(req: NextRequest) {
   try {
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
+      logFailure(req, 'email_send_failed', authResult.user.id, authResult.user.email, error.message);
       console.error('Resend API error:', error);
       return new Response(
         JSON.stringify({ error: "Failed to send email" }),
@@ -60,9 +62,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Log successful email send
+    logSuccess(req, 'email_sent', authResult.user.id, authResult.user.email, {
+      recipientEmail: email,
+      subject,
+      emailId: data?.id
+    });
+
     return Response.json({ ok: true, id: data?.id });
   } catch (err: unknown) {
-    console.error('Unexpected error in send-email API:', err);
+    const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+    logFailure(req, 'email_send_failed', undefined, undefined, errorMessage);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }

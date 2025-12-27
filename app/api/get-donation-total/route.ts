@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { rateLimit } from '@/lib/rate-limit';
+import { logSuccess, logFailure } from '@/lib/audit-log';
 
 export async function GET(request: NextRequest) {
   // Rate limiting: 30 requests per minute per IP (more lenient since it's just reading data)
@@ -47,12 +48,20 @@ export async function GET(request: NextRequest) {
       totalDonations += payment.amount / 100;
     });
 
+    // Log successful data access (public endpoint, no user ID)
+    logSuccess(request, 'donation_total_accessed', undefined, undefined, {
+      total: totalDonations,
+      period: `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`
+    });
+
     return NextResponse.json({
       success: true,
       total: totalDonations,
       message: `Rolling annual donation total (${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}) retrieved from Stripe`
     });
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logFailure(request, 'donation_total_access_failed', undefined, undefined, errorMessage);
     console.error('Error getting donation total from Stripe:', error);
     
     // Fallback to 0 if Stripe fails
