@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createDonationCheckoutSession } from '@/lib/stripe';
 import { authenticateRequest } from '@/lib/auth-middleware';
 import { validateRequestBody, donationSessionSchema } from '@/lib/api-validation';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Rate limiting - 10 requests per minute
+    const rateLimitResult = rateLimit(request, 10, 60 * 1000);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+    
     // Authenticate the request
     const authResult = await authenticateRequest(request);
     if (authResult.error) {
