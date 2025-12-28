@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { toast } from 'sonner';
+import { GratitudeEnrollmentBanner } from './gratitude-enrollment-banner';
 
 interface NotificationSetupProps {
   onNext: (email: string) => void;
@@ -20,10 +21,28 @@ export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail,
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
   const [showSkipConfirm, setShowSkipConfirm] = useState(false);
+  const [gratitudeEnrolled, setGratitudeEnrolled] = useState<boolean>(false);
 
   // Ensure page starts at top
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  // Check gratitude enrollment status
+  useEffect(() => {
+    const checkGratitudeStatus = async () => {
+      try {
+        const response = await fetch('/api/gratitude-challenge/status');
+        if (response.ok) {
+          const data = await response.json();
+          setGratitudeEnrolled(data.enrolled && data.active);
+        }
+      } catch (error) {
+        console.error('Error checking gratitude status:', error);
+      }
+    };
+
+    checkGratitudeStatus();
   }, []);
 
   // Initialize email with existing email, account email, or empty
@@ -125,6 +144,8 @@ export function NotificationSetup({ onNext, onBack, userFirstName, accountEmail,
           We default sending your prompts to your Ink-lings account email. If this is the right address, test it now. If you want to use a different email, enter the new delivery email and test.
         </p>
       </div>
+
+      {gratitudeEnrolled && <GratitudeEnrollmentBanner />}
 
       <Card className="mb-8">
         <CardHeader>

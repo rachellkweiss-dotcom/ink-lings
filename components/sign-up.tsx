@@ -90,11 +90,11 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
   if (isVerificationSent) {
     return (
       <div className="space-y-6">
-            <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+            <Card className="bg-white/90 backdrop-blur-sm border-2 border-blue-600 dark:border-blue-500 shadow-lg">
               <CardHeader className="pb-4">
-                <div className="text-green-600 text-sm bg-green-50 p-4 rounded-md border border-green-200">
-                  <CardTitle className="text-xl text-center text-green-800 mb-2">✓ Account Created Successfully!</CardTitle>
-                  <CardDescription className="text-center text-green-700">
+                <div className="text-green-600 text-base bg-green-50 p-4 rounded-md border border-green-200">
+                  <CardTitle className="text-2xl text-center text-green-800 mb-2">✓ Account Created Successfully!</CardTitle>
+                  <CardDescription className="text-center text-green-700 text-base">
                     Please click the verification link we sent to {email} to continue to onboarding.
                   </CardDescription>
                 </div>
@@ -102,7 +102,7 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
               <CardContent className="space-y-4">
                 <div className="text-center space-y-4">
                   
-                  <div className="text-gray-600 text-sm">
+                  <div className="text-gray-600 text-base">
                     <p>Didn&apos;t receive the email?</p>
                     <p>Check your spam folder or contact support if you need help.</p>
                   </div>
@@ -115,17 +115,17 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
 
   return (
     <div className="space-y-6">
-          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-white/90 backdrop-blur-sm border-2 border-blue-600 dark:border-blue-500 shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="text-xl text-center text-gray-800">Create Your Account</CardTitle>
-              <CardDescription className="text-center text-gray-600">
+              <CardTitle className="text-3xl text-center text-gray-800 font-bold">Create Your Account</CardTitle>
+              <CardDescription className="text-center text-base text-gray-600">
                 Sign up to save your journaling preferences and get personalized prompts
               </CardDescription>
             </CardHeader>
             <CardContent>
               {/* Google Sign-In Button - First and Prominent */}
               <div className="text-center mb-6">
-                <p className="text-sm text-gray-600 mb-4">Quick sign up with</p>
+                <p className="text-base text-gray-600 mb-4">Quick sign up with</p>
                 
                 <Button
                   type="button"
@@ -148,7 +148,7 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-gray-300" />
                 </div>
-                <div className="relative flex justify-center text-sm">
+                <div className="relative flex justify-center text-base">
                   <span className="px-2 bg-white text-gray-500">Or create account with email</span>
                 </div>
               </div>
@@ -156,7 +156,7 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-gray-700 font-medium">First Name</Label>
+                    <Label htmlFor="firstName" className="text-gray-700 font-medium text-base">First Name</Label>
                     <Input
                       id="firstName"
                       type="text"
@@ -170,7 +170,7 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-gray-700 font-medium">Last Name</Label>
+                    <Label htmlFor="lastName" className="text-gray-700 font-medium text-base">Last Name</Label>
                     <Input
                       id="lastName"
                       type="text"
@@ -185,7 +185,7 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
+                  <Label htmlFor="email" className="text-gray-700 font-medium text-base">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -199,7 +199,7 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+                  <Label htmlFor="password" className="text-gray-700 font-medium text-base">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -214,7 +214,7 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword" className="text-gray-700 font-medium">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" className="text-gray-700 font-medium text-base">Confirm Password</Label>
                   <Input
                     id="confirmPassword"
                     type="password"
@@ -228,7 +228,7 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
                 </div>
 
                 {error && (
-                  <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md border border-red-200">
+                  <div className="text-red-500 text-base bg-red-50 p-3 rounded-md border border-red-200">
                     {error}
                   </div>
                 )}
@@ -242,7 +242,7 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
                 </Button>
 
                 {/* Terms Agreement */}
-                <p className="text-xs text-gray-500 text-center mt-4">
+                <p className="text-sm text-gray-500 text-center mt-4">
                   By creating an account, you agree to our{' '}
                   <a 
                     href="/privacy-policy" 
@@ -267,10 +267,10 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
           </Card>
 
           {/* Sign In Option */}
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-md">
+          <Card className="bg-white/80 backdrop-blur-sm border-2 border-blue-600 dark:border-blue-500 shadow-md">
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-base text-gray-600 mb-3">
                   Already have an account?
                 </p>
                 <Button

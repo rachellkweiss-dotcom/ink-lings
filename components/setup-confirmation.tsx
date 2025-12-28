@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { journalCategories } from '../lib/categories';
+import { GratitudeEnrollmentBanner } from './gratitude-enrollment-banner';
 
 interface SetupConfirmationProps {
   selectedCategories: string[];
@@ -27,12 +28,34 @@ export function SetupConfirmation({
 
   onComplete
 }: SetupConfirmationProps) {
+  const [gratitudeEnrolled, setGratitudeEnrolled] = useState<boolean>(false);
+
   // Ensure page starts at top
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
+  // Check gratitude enrollment status
+  useEffect(() => {
+    const checkGratitudeStatus = async () => {
+      try {
+        const response = await fetch('/api/gratitude-challenge/status');
+        if (response.ok) {
+          const data = await response.json();
+          setGratitudeEnrolled(data.enrolled && data.active);
+        }
+      } catch (error) {
+        console.error('Error checking gratitude status:', error);
+      }
+    };
+
+    checkGratitudeStatus();
+  }, []);
+
   const getCategoryName = (id: string) => {
+    if (id === '2026-gratitude') {
+      return '2026 Gratitude';
+    }
     const category = journalCategories.find(cat => cat.id === id);
     return category ? category.name : id;
   };
@@ -73,6 +96,8 @@ export function SetupConfirmation({
         </p>
       </div>
 
+      {gratitudeEnrolled && <GratitudeEnrollmentBanner />}
+
       <div className="space-y-6 mb-8">
         {/* Selected Categories */}
         <Card>
@@ -89,6 +114,14 @@ export function SetupConfirmation({
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
+              {gratitudeEnrolled && (
+                <Badge 
+                  key="2026-gratitude"
+                  className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-1"
+                >
+                  2026 Gratitude
+                </Badge>
+              )}
               {selectedCategories.map((categoryId) => (
                 <Badge 
                   key={categoryId}

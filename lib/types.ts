@@ -34,7 +34,7 @@ export interface JournalEntry {
 }
 
 export interface UserPromptRotation {
-  uid: string;
+  user_id: string;
   next_category_to_send: string;
   work_craft_current_count: number;
   community_society_current_count: number;

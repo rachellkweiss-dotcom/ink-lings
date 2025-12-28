@@ -18,18 +18,24 @@ $$ LANGUAGE plpgsql;
 GRANT EXECUTE ON FUNCTION add_user_to_email_milestones() TO "service_role";
 
 -- Step 3: Create trigger on auth.users table
+DROP TRIGGER IF EXISTS trigger_add_user_to_email_milestones ON auth.users;
 CREATE TRIGGER trigger_add_user_to_email_milestones
     AFTER INSERT ON auth.users
     FOR EACH ROW
     EXECUTE FUNCTION add_user_to_email_milestones();
 
--- Step 4: Backfill existing users who aren't in email_milestones table
-INSERT INTO "public"."email_milestones" (user_id)
-SELECT au.id
-FROM auth.users au
-LEFT JOIN "public"."email_milestones" em ON au.id = em.user_id
-WHERE em.user_id IS NULL
-ON CONFLICT (user_id) DO NOTHING;
+-- Step 4: Backfill existing users who aren't in email_milestones table (only if table exists)
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'email_milestones') THEN
+        INSERT INTO "public"."email_milestones" (user_id)
+        SELECT au.id
+        FROM auth.users au
+        LEFT JOIN "public"."email_milestones" em ON au.id = em.user_id
+        WHERE em.user_id IS NULL
+        ON CONFLICT (user_id) DO NOTHING;
+    END IF;
+END $$;
 
 -- Step 5: Add comment to document the function
 COMMENT ON FUNCTION add_user_to_email_milestones() IS 'Automatically adds new users to email_milestones table for tracking milestone emails';
