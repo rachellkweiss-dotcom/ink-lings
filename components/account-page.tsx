@@ -173,7 +173,7 @@ export function AccountPage({
                     </div>
                     <div className="flex-1">
                       <p className="text-base font-semibold text-gray-900">
-                        ✨ You're enrolled in the 2026 Gratitude Challenge!
+                        ✨ You&apos;re enrolled in the 2026 Gratitude Challenge!
                       </p>
                       <p className="text-sm text-gray-700 mt-1">
                         These prompts will arrive daily, separate from your regular journal prompt schedule.
