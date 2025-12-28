@@ -46,5 +46,8 @@ jobs:
           echo "Deploying cleanup-prompts..."
           supabase functions deploy cleanup-prompts --project-ref $SUPABASE_PROJECT_ID || echo "⚠️ Failed to deploy cleanup-prompts"
           
+          echo "Deploying send-gratitude-prompts..."
+          supabase functions deploy send-gratitude-prompts --project-ref $SUPABASE_PROJECT_ID || echo "⚠️ Failed to deploy send-gratitude-prompts"
+          
           echo "✅ Deployment complete!"
 

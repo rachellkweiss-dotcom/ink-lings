@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { GratitudeEnrollmentBanner } from './gratitude-enrollment-banner';
 
 interface ScheduleSetupProps {
   onNext: (schedule: { days: string[]; time: string; timezone: string }) => void;
@@ -15,10 +16,28 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetu
   const [selectedDays, setSelectedDays] = useState<string[]>(existingSchedule?.days || []);
   const [selectedTime, setSelectedTime] = useState(existingSchedule?.time || '9:00 AM');
   const [selectedTimezone, setSelectedTimezone] = useState(existingSchedule?.timezone || 'America/New_York');
+  const [gratitudeEnrolled, setGratitudeEnrolled] = useState<boolean>(false);
 
   // Ensure page starts at top
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
+  // Check gratitude enrollment status
+  useEffect(() => {
+    const checkGratitudeStatus = async () => {
+      try {
+        const response = await fetch('/api/gratitude-challenge/status');
+        if (response.ok) {
+          const data = await response.json();
+          setGratitudeEnrolled(data.enrolled && data.active);
+        }
+      } catch (error) {
+        console.error('Error checking gratitude status:', error);
+      }
+    };
+
+    checkGratitudeStatus();
   }, []);
 
   const daysOfWeek = [
@@ -74,6 +93,8 @@ export function ScheduleSetup({ onNext, onBack, existingSchedule }: ScheduleSetu
           Pick when you&apos;d like to receive your journal prompts. Choose the days and time that work best for your routine.
         </p>
       </div>
+
+      {gratitudeEnrolled && <GratitudeEnrollmentBanner />}
 
       <Card className="mb-8">
         <CardHeader>

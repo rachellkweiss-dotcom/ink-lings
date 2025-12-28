@@ -72,17 +72,17 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
 
   return (
     <div className="space-y-6">
-          <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+          <Card className="bg-white/90 backdrop-blur-sm border-2 border-blue-600 dark:border-blue-500 shadow-lg">
             <CardHeader className="pb-4">
-              <CardTitle className="text-xl text-center text-gray-800">Sign In</CardTitle>
-              <CardDescription className="text-center text-gray-600">
+              <CardTitle className="text-3xl text-center text-gray-800 font-bold">Sign In</CardTitle>
+              <CardDescription className="text-center text-base text-gray-600">
                 Welcome back! Sign in to access your journaling preferences
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
+                  <Label htmlFor="email" className="text-gray-700 font-medium text-base">Email</Label>
                   <Input
                     id="email"
                     type="email"
@@ -96,7 +96,7 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+                  <Label htmlFor="password" className="text-gray-700 font-medium text-base">Password</Label>
                   <Input
                     id="password"
                     type="password"
@@ -111,7 +111,7 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
                 </div>
 
                 {error && (
-                  <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md border border-red-200">
+                  <div className="text-red-500 text-base bg-red-50 p-3 rounded-md border border-red-200">
                     {error}
                   </div>
                 )}
@@ -125,7 +125,7 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
                 </Button>
 
                 {/* Terms Agreement */}
-                <p className="text-xs text-gray-500 text-center mt-4">
+                <p className="text-sm text-gray-500 text-center mt-4">
                   By signing in, you agree to our{' '}
                   <a 
                     href="/privacy-policy" 
@@ -152,7 +152,7 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-gray-300" />
                 </div>
-                <div className="relative flex justify-center text-sm">
+                <div className="relative flex justify-center text-base">
                   <span className="px-2 bg-white text-gray-500">Or continue with</span>
                 </div>
               </div>
@@ -178,10 +178,10 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
 
 
           {/* Sign Up Option */}
-          <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-md">
+          <Card className="bg-white/80 backdrop-blur-sm border-2 border-blue-600 dark:border-blue-500 shadow-md">
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-sm text-gray-600 mb-3">
+                <p className="text-base text-gray-600 mb-3">
                   Don&apos;t have an account?
                 </p>
                 <Button

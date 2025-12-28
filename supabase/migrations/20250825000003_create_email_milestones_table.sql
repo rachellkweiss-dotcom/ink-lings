@@ -18,6 +18,7 @@ CREATE INDEX IF NOT EXISTS "idx_email_milestones_user_id" ON "public"."email_mil
 ALTER TABLE "public"."email_milestones" ENABLE ROW LEVEL SECURITY;
 
 -- Create policy to allow service role to manage email milestones
+DROP POLICY IF EXISTS "Service role can manage email milestones" ON "public"."email_milestones";
 CREATE POLICY "Service role can manage email milestones" ON "public"."email_milestones"
     FOR ALL USING (true);
 
@@ -41,6 +42,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create trigger to automatically update updated_at
+DROP TRIGGER IF EXISTS trigger_update_email_milestones_updated_at ON "public"."email_milestones";
 CREATE TRIGGER trigger_update_email_milestones_updated_at
     BEFORE UPDATE ON "public"."email_milestones"
     FOR EACH ROW

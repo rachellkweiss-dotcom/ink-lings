@@ -308,24 +308,47 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
         // Create user_prompt_rotation record for simplified prompt management
         try {
           // First check if user already has a rotation record
-          const { data: existingRotation } = await supabase
+          // Using .maybeSingle() to avoid errors if record doesn't exist
+          // and to work around PostgREST cache issues
+          let existingRotation = null;
+          let hasCacheIssue = false;
+          
+          const { data: rotationData, error: checkError } = await supabase
             .from('user_prompt_rotation')
             .select('*')
-            .eq('uid', user.id)
-            .single();
+            .eq('user_id', user.id)
+            .maybeSingle();
           
-          if (existingRotation) {
-            // User already has preferences - update with new categories
-            const updateData: Partial<UserPromptRotation> = {
-              next_category_to_send: userPreferences.categories[0] // Reset to first category
-            };
+          // If there's an error about uid column, it's a PostgREST cache issue
+          // In that case, we'll skip the check and go straight to insert/update
+          if (checkError && (checkError.message?.includes('uid') || checkError.code === 'PGRST204')) {
+            console.warn('PostgREST cache issue detected (uid column error), will try insert/update approach');
+            hasCacheIssue = true;
+          } else if (checkError) {
+            console.error('Error checking for existing rotation:', checkError);
+          } else {
+            existingRotation = rotationData;
+          }
+          
+          if (existingRotation && !hasCacheIssue) {
+            // Filter out 2026-gratitude from categories (it has its own separate system)
+            const regularCategories = userPreferences.categories.filter(cat => cat !== '2026-gratitude');
             
-            console.log('=== ROTATION UPDATE DEBUG ===');
-            console.log('User preferences categories:', userPreferences.categories);
-            console.log('Existing rotation data:', existingRotation);
-            
-            // For each category in user preferences, check and update if needed
-            userPreferences.categories.forEach(category => {
+            if (regularCategories.length === 0) {
+              console.log('No regular categories to update in rotation (only gratitude challenge selected)');
+            } else {
+              // User already has preferences - update with new categories
+              const updateData: Partial<UserPromptRotation> = {
+                next_category_to_send: regularCategories[0] // Reset to first category
+              };
+              
+              console.log('=== ROTATION UPDATE DEBUG ===');
+              console.log('User preferences categories:', userPreferences.categories);
+              console.log('Regular categories (excluding gratitude):', regularCategories);
+              console.log('Existing rotation data:', existingRotation);
+              
+              // For each category in user preferences, check and update if needed
+              regularCategories.forEach(category => {
               const categoryKey = category.replace(/-/g, '_') + '_current_count';
               console.log(`Checking category: ${category} -> column: ${categoryKey}`);
               console.log(`Current value: ${existingRotation[categoryKey]}`);
@@ -337,29 +360,46 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
               } else {
                 console.log(`⏭️ Leaving ${categoryKey} unchanged at ${existingRotation[categoryKey]}`);
               }
-              // If count > 0, leave it unchanged (preserve progress)
-            });
+                // If count > 0, leave it unchanged (preserve progress)
+              });
+              
+              console.log('Final update data:', updateData);
+              
+              // Update existing record
+              console.log('🚀 Executing database update...');
+              const { error: updateError } = await supabase
+                .from('user_prompt_rotation')
+                .update(updateData)
+                .eq('user_id', user.id);
             
-            console.log('Final update data:', updateData);
-            
-            // Update existing record
-            console.log('🚀 Executing database update...');
-            const { error: updateError } = await supabase
-              .from('user_prompt_rotation')
-              .update(updateData)
-              .eq('uid', user.id);
-            
-            if (updateError) {
-              console.error('❌ Error updating user_prompt_rotation record:', updateError);
-            } else {
-              console.log('✅ User prompt rotation record updated successfully');
+              if (updateError) {
+                console.error('❌ Error updating user_prompt_rotation record:', updateError);
+                console.error('Error details:', {
+                  message: updateError.message,
+                  details: updateError.details,
+                  hint: updateError.hint,
+                  code: updateError.code
+                });
+                console.error('Update data that failed:', updateData);
+              } else {
+                console.log('✅ User prompt rotation record updated successfully');
+              }
             }
             
-          } else {
-            // New user - create initial record
-            const baseRecord: UserPromptRotation = {
-              uid: user.id,
-              next_category_to_send: userPreferences.categories[0],
+          }
+          
+          // If no existing rotation OR cache issue detected, create/update the record
+          if (!existingRotation || hasCacheIssue) {
+            // Filter out 2026-gratitude from categories (it has its own separate system)
+            const regularCategories = userPreferences.categories.filter(cat => cat !== '2026-gratitude');
+            
+            if (regularCategories.length === 0) {
+              console.log('No regular categories to create rotation for (only gratitude challenge selected)');
+            } else {
+              // New user or cache issue - create/update initial record
+              const baseRecord: UserPromptRotation = {
+                user_id: user.id,
+                next_category_to_send: regularCategories[0],
               work_craft_current_count: 0,
               community_society_current_count: 0,
               creativity_arts_current_count: 0,
@@ -380,22 +420,88 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
               wildcard_surreal_current_count: 0
             };
             
-            // Set enrolled categories to 1
-            userPreferences.categories.forEach(category => {
-              const categoryKey = category.replace(/-/g, '_') + '_current_count';
-              if (baseRecord.hasOwnProperty(categoryKey)) {
-                baseRecord[categoryKey] = 1;
+              // Set enrolled categories to 1 (only regular categories, not gratitude)
+              regularCategories.forEach(category => {
+                const categoryKey = category.replace(/-/g, '_') + '_current_count';
+                if (baseRecord.hasOwnProperty(categoryKey)) {
+                  baseRecord[categoryKey] = 1;
+                }
+              });
+              
+              // If cache issue detected, use RPC function to bypass PostgREST
+              if (hasCacheIssue) {
+                console.log('Using RPC function to bypass PostgREST cache issue...');
+                const { error: rpcError, data: rpcData } = await supabase.rpc('upsert_user_prompt_rotation', {
+                  p_user_id: user.id,
+                  p_next_category_to_send: baseRecord.next_category_to_send,
+                  p_work_craft_current_count: baseRecord.work_craft_current_count,
+                  p_community_society_current_count: baseRecord.community_society_current_count,
+                  p_creativity_arts_current_count: baseRecord.creativity_arts_current_count,
+                  p_future_aspirations_current_count: baseRecord.future_aspirations_current_count,
+                  p_gratitude_joy_current_count: baseRecord.gratitude_joy_current_count,
+                  p_health_body_current_count: baseRecord.health_body_current_count,
+                  p_learning_growth_current_count: baseRecord.learning_growth_current_count,
+                  p_memory_past_current_count: baseRecord.memory_past_current_count,
+                  p_money_life_admin_current_count: baseRecord.money_life_admin_current_count,
+                  p_nature_senses_current_count: baseRecord.nature_senses_current_count,
+                  p_personal_reflection_current_count: baseRecord.personal_reflection_current_count,
+                  p_philosophy_values_current_count: baseRecord.philosophy_values_current_count,
+                  p_playful_whimsical_current_count: baseRecord.playful_whimsical_current_count,
+                  p_relationships_current_count: baseRecord.relationships_current_count,
+                  p_risk_adventure_current_count: baseRecord.risk_adventure_current_count,
+                  p_tech_media_current_count: baseRecord.tech_media_current_count,
+                  p_travel_place_current_count: baseRecord.travel_place_current_count,
+                  p_wildcard_surreal_current_count: baseRecord.wildcard_surreal_current_count
+                });
+                
+                if (rpcError) {
+                  console.error('Error calling RPC function:', rpcError);
+                } else {
+                  console.log('User prompt rotation record created/updated via RPC:', rpcData);
+                }
+              } else {
+                // Try insert first, if it fails due to conflict, then update
+                const { error: insertError, data: insertedData } = await supabase
+                  .from('user_prompt_rotation')
+                  .insert(baseRecord)
+                  .select();
+                
+                if (insertError) {
+                  // If it's a unique constraint violation, try update instead
+                  if (insertError.code === '23505' || insertError.message?.includes('duplicate')) {
+                    console.log('Record already exists, updating instead...');
+                    const { error: updateError, data: updatedData } = await supabase
+                      .from('user_prompt_rotation')
+                      .update(baseRecord)
+                      .eq('user_id', user.id)
+                      .select();
+                    
+                    if (updateError) {
+                      console.error('Error updating user_prompt_rotation record:', updateError);
+                      console.error('Error details:', {
+                        message: updateError.message,
+                        details: updateError.details,
+                        hint: updateError.hint,
+                        code: updateError.code
+                      });
+                      console.error('Record that failed to update:', baseRecord);
+                    } else {
+                      console.log('User prompt rotation record updated successfully:', updatedData);
+                    }
+                  } else {
+                    console.error('Error creating user_prompt_rotation record:', insertError);
+                    console.error('Error details:', {
+                      message: insertError.message,
+                      details: insertError.details,
+                      hint: insertError.hint,
+                      code: insertError.code
+                    });
+                    console.error('Record that failed to insert:', baseRecord);
+                  }
+                } else {
+                  console.log('User prompt rotation record created successfully:', insertedData);
+                }
               }
-            });
-            
-            const { error: createError } = await supabase
-              .from('user_prompt_rotation')
-              .insert(baseRecord);
-            
-            if (createError) {
-              console.error('Error creating user_prompt_rotation record:', createError);
-            } else {
-              console.log('User prompt rotation record created successfully');
             }
           }
           

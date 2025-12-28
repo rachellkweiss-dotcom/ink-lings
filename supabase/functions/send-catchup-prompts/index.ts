@@ -178,7 +178,7 @@ serve(async (req) => {
         const { data: rotationData, error: rotationError } = await supabase
           .from('user_prompt_rotation')
           .select('*')
-          .eq('uid', user.user_id)
+          .eq('user_id', user.user_id)
           .single();
 
         if (rotationError || !rotationData) {
@@ -410,7 +410,7 @@ serve(async (req) => {
             [categoryCountColumnForUpdate]: currentPromptCount + 1,
             next_category_to_send: nextCategory
           })
-          .eq('uid', user.user_id);
+          .eq('user_id', user.user_id);
 
         emailsSent++;
         results.push({ user_id: user.user_id, email: user.notification_email, status: 'success' });
