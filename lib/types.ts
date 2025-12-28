@@ -19,6 +19,9 @@ export interface UserPreferences {
   notification_time_utc?: string;
   next_prompt_utc?: string;
   last_prompt_sent?: string;
+  // Gratitude enrollment token (for email-based enrollment)
+  gratitude_2026_token?: string | null;
+  gratitude_2026_expires?: string | null;
   // Status flags for UI
   notificationsPaused?: boolean;
   deletionRequested?: boolean;

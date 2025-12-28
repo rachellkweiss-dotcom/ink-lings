@@ -2,10 +2,23 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
-export default function GratitudeChallengePage() {
+function GratitudeChallengeContent() {
+  const searchParams = useSearchParams();
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('enrolled') === 'true') {
+      setShowSuccess(true);
+      // Scroll to top to show success message
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [searchParams]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-amber-50 to-orange-50 dark:from-blue-900/10 dark:via-amber-900/10 dark:to-orange-900/10" style={{ fontFamily: 'var(--font-shadows-into-light)' }}>
       {/* Header */}
@@ -29,6 +42,36 @@ export default function GratitudeChallengePage() {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-8 pb-12">
+        {/* Success Message */}
+        {showSuccess && (
+          <Card className="bg-green-50 dark:bg-green-900/30 border-2 border-green-500 shadow-lg mb-8">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-3">
+                <svg className="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h3 className="text-xl font-bold text-green-800 dark:text-green-200 mb-1">
+                    You're enrolled!
+                  </h3>
+                  <p className="text-green-700 dark:text-green-300">
+                    Welcome to the 2026 Gratitude Challenge! Starting January 1st, you'll receive daily gratitude prompts at 11:00 AM EST.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowSuccess(false)}
+                  className="ml-auto text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200"
+                  aria-label="Dismiss"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+        
         {/* Hero and How to Join Section - Combined */}
         <Card className="bg-gradient-to-br from-blue-100 via-amber-100 to-orange-100 dark:from-blue-900/30 dark:via-amber-900/30 dark:to-orange-900/30 border-2 border-blue-600 dark:border-blue-500 shadow-2xl mb-8">
           <CardContent className="p-8 md:p-12">
@@ -158,6 +201,20 @@ export default function GratitudeChallengePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function GratitudeChallengePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-amber-50 to-orange-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-gray-600">Loading...</p>
+        </div>
+      </div>
+    }>
+      <GratitudeChallengeContent />
+    </Suspense>
   );
 }
 
