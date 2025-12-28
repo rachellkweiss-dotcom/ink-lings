@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { toast } from 'sonner';
 
 import { journalCategories, JournalCategory } from '../lib/categories';
 
@@ -14,23 +15,112 @@ interface CategorySelectionProps {
 
 export function CategorySelection({ onNext, onBack, existingSelections = [] }: CategorySelectionProps) {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(existingSelections);
+  const [gratitudeEnrolled, setGratitudeEnrolled] = useState<boolean>(false);
+  const [isLoadingGratitude, setIsLoadingGratitude] = useState<boolean>(true);
 
   // Ensure page starts at top
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
 
-  const toggleCategory = (categoryId: string) => {
-    setSelectedCategories(prev => 
-      prev.includes(categoryId) 
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
+  // Check gratitude enrollment status on load
+  useEffect(() => {
+    const checkGratitudeStatus = async () => {
+      try {
+        const response = await fetch('/api/gratitude-challenge/status');
+        if (response.ok) {
+          const data = await response.json();
+          setGratitudeEnrolled(data.enrolled && data.active);
+          // If enrolled and active, add to selected categories for UI
+          if (data.enrolled && data.active) {
+            setSelectedCategories(prev => 
+              prev.includes('2026-gratitude') ? prev : [...prev, '2026-gratitude']
+            );
+          } else {
+            // If enrolled but inactive, remove from selected categories
+            setSelectedCategories(prev => prev.filter(id => id !== '2026-gratitude'));
+          }
+        }
+      } catch (error) {
+        console.error('Error checking gratitude status:', error);
+      } finally {
+        setIsLoadingGratitude(false);
+      }
+    };
+
+    checkGratitudeStatus();
+  }, []);
+
+  const toggleCategory = async (categoryId: string) => {
+    // Handle 2026 Gratitude separately
+    if (categoryId === '2026-gratitude') {
+      // Check if currently enrolled (either in state or selected)
+      const isCurrentlySelected = selectedCategories.includes('2026-gratitude') || gratitudeEnrolled;
+      
+      try {
+        if (isCurrentlySelected) {
+          // Deactivate enrollment
+          const response = await fetch('/api/gratitude-challenge/deactivate', {
+            method: 'POST'
+          });
+          
+          if (response.ok) {
+            setGratitudeEnrolled(false);
+            setSelectedCategories(prev => prev.filter(id => id !== '2026-gratitude'));
+            toast.success('Gratitude challenge notifications stopped');
+          } else {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            console.error('Failed to deactivate gratitude enrollment:', errorData);
+            toast.error(`Failed to stop: ${errorData.error || 'Unknown error'}`);
+          }
+        } else {
+          // Enroll or re-enroll in gratitude challenge (this will reactivate if record exists)
+          const response = await fetch('/api/gratitude-challenge/enroll', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            })
+          });
+          
+          if (response.ok) {
+            const data = await response.json();
+            setGratitudeEnrolled(true);
+            setSelectedCategories(prev => 
+              prev.includes('2026-gratitude') ? prev : [...prev, '2026-gratitude']
+            );
+            // The enroll endpoint handles both new enrollment and reactivation
+            // If we got here, it means enrollment/reactivation was successful
+            toast.success('Enrolled in Gratitude Challenge!');
+          } else {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            console.error('Failed to enroll in gratitude challenge:', errorData);
+            toast.error(`Failed to enroll: ${errorData.error || 'Unknown error'}`);
+          }
+        }
+      } catch (error) {
+        console.error('Error toggling gratitude enrollment:', error);
+        toast.error('An error occurred. Please try again.');
+      }
+    } else {
+      // Regular category toggle
+      setSelectedCategories(prev => 
+        prev.includes(categoryId) 
+          ? prev.filter(id => id !== categoryId)
+          : [...prev, categoryId]
+      );
+    }
   };
 
   const handleNext = () => {
-    if (selectedCategories.length > 0) {
-      onNext(selectedCategories);
+    // Filter out '2026-gratitude' from categories before passing to onNext
+    // (it's handled separately via the gratitude_2026_participants table)
+    const regularCategories = selectedCategories.filter(id => id !== '2026-gratitude');
+    
+    if (regularCategories.length > 0 || gratitudeEnrolled) {
+      onNext(regularCategories);
     }
   };
 
@@ -145,6 +235,67 @@ export function CategorySelection({ onNext, onBack, existingSelections = [] }: C
         </p>
       </div>
 
+      {/* 2026 Gratitude Challenge - Featured at Top */}
+      <div className="mb-8">
+        <Card 
+          className={`transition-all duration-200 hover:shadow-lg border-2 ${
+            isLoadingGratitude 
+              ? 'cursor-wait opacity-50' 
+              : 'cursor-pointer'
+          } ${
+            (selectedCategories.includes('2026-gratitude') || gratitudeEnrolled)
+              ? 'ring-2 ring-orange-500 bg-gradient-to-br from-blue-100 via-orange-100 to-amber-100 border-orange-500'
+              : 'bg-gradient-to-br from-blue-50 via-orange-50 to-amber-50 border-blue-300 hover:border-orange-400'
+          }`}
+          onClick={() => {
+            if (!isLoadingGratitude) {
+              toggleCategory('2026-gratitude');
+            }
+          }}
+        >
+          <CardHeader className="pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 text-gray-800 flex items-center justify-center">
+                  <svg className="w-full h-full" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                </div>
+                <CardTitle className="text-2xl text-gray-900">2026 Gratitude</CardTitle>
+              </div>
+              <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-colors ${
+                (selectedCategories.includes('2026-gratitude') || gratitudeEnrolled)
+                  ? 'bg-orange-500 border-orange-500 text-white'
+                  : 'border-gray-300'
+              }`}>
+                {(selectedCategories.includes('2026-gratitude') || gratitudeEnrolled) && (
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-base text-gray-700 mb-4">
+              Join the year-long gratitude challenge with daily prompts designed to help you reflect on moments, people, and experiences that bring joy to your life.
+            </p>
+            {(selectedCategories.includes('2026-gratitude') || gratitudeEnrolled) && (
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-md">
+                <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+                  The 2026 Gratitude Challenge delivers daily prompts. Other categories will follow your selected schedule.
+                </p>
+              </div>
+            )}
+            <div className="bg-gradient-to-r from-blue-100 to-orange-100 dark:from-blue-900/20 dark:to-orange-900/20 p-4 rounded-md">
+              <p className="text-sm text-gray-700 text-center font-medium">
+                &ldquo;What moment required less energy than usual?&rdquo;
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {journalCategories
           .sort((a, b) => a.name.localeCompare(b.name))
@@ -205,7 +356,7 @@ export function CategorySelection({ onNext, onBack, existingSelections = [] }: C
         </Button>
         <Button 
           onClick={handleNext}
-          disabled={selectedCategories.length === 0}
+          disabled={selectedCategories.filter(id => id !== '2026-gratitude').length === 0 && !gratitudeEnrolled}
           className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-3"
         >
           Next: Set Up Notifications

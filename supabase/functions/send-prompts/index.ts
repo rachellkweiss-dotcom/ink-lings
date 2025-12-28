@@ -51,6 +51,22 @@ serve(async (req) => {
   console.log('✅ Function accessed - secret token validated');
 
   try {
+    // TEST MODE: Check if test email is requested
+    let testEmail = null;
+    let testCategory = 'personal-reflection';
+    
+    try {
+      const body = await req.json();
+      testEmail = body.testEmail || null;
+      testCategory = body.testCategory || 'personal-reflection';
+    } catch {
+      // Body might be empty or not JSON, that's fine
+    }
+    
+    if (testEmail) {
+      console.log(`🧪 TEST MODE: Sending test email to ${testEmail} with category ${testCategory}`);
+    }
+    
     console.log('🔧 Creating Supabase client...');
     
     // Create Supabase client - Supabase provides these automatically
@@ -91,6 +107,109 @@ serve(async (req) => {
 
     if (usersError) {
       throw new Error(`Error fetching users: ${usersError.message}`);
+    }
+
+    // TEST MODE: If testEmail is provided, send test email and return
+    if (testEmail) {
+      console.log(`🧪 TEST MODE: Sending test email to ${testEmail}`);
+      
+      // Get a test prompt from the specified category
+      const cleanCategoryId = testCategory.replace(/[^a-zA-Z0-9-]/g, '');
+      const { data: testPrompt, error: promptError } = await supabase
+        .from('prompt_bank')
+        .select('*')
+        .eq('category_id', cleanCategoryId)
+        .eq('prompt_number', 1)
+        .eq('is_active', true)
+        .single();
+
+      if (promptError || !testPrompt) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: `Could not find test prompt for category: ${testCategory}`,
+          details: promptError
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        });
+      }
+
+      // Generate test email HTML (same format as regular prompts)
+      const feedbackToken = crypto.randomUUID();
+      const categoryName = testPrompt.category_name || testCategory;
+      const now = new Date();
+      const formattedDate = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()}`;
+      const feedbackUrl = `https://inklingsjournal.live/feedback-thanks?token=${feedbackToken}`;
+
+      const emailHtml = `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Your Ink-lings Prompt - TEST</title>
+</head>
+<body style="margin:0; padding:20px; background:#f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <div style="max-width:600px; margin:0 auto; background:#ffffff; padding:32px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+    <h1 style="color:#1e293b; margin-top:0;">🧪 TEST EMAIL</h1>
+    <p style="color:#64748b; font-size:14px; margin-bottom:24px;">This is a test email from the send-prompts function.</p>
+    
+    <div style="background:#f1f5f9; padding:20px; border-radius:8px; margin:24px 0;">
+      <p style="color:#475569; font-size:12px; margin:0 0 8px; text-transform:uppercase; letter-spacing:0.5px;">Category</p>
+      <p style="color:#1e293b; font-size:18px; font-weight:600; margin:0;">${categoryName}</p>
+    </div>
+    
+    <div style="margin:24px 0;">
+      <p style="color:#475569; font-size:12px; margin:0 0 8px; text-transform:uppercase; letter-spacing:0.5px;">Your Prompt for ${formattedDate}</p>
+      <p style="color:#1e293b; font-size:20px; line-height:1.6; margin:0;">${testPrompt.prompt_text}</p>
+    </div>
+    
+    <div style="margin-top:32px; padding-top:24px; border-top:1px solid #e2e8f0;">
+      <p style="color:#64748b; font-size:12px; margin:0;">This is a test email. In production, users would see a feedback link here.</p>
+    </div>
+  </div>
+</body>
+</html>`;
+
+      // Send test email
+      const resendResponse = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'Ink-lings <support@inklingsjournal.live>',
+          to: testEmail,
+          subject: `🧪 TEST: Your Ink-lings Prompt - ${categoryName}`,
+          html: emailHtml,
+        })
+      });
+
+      if (resendResponse.ok) {
+        const result = await resendResponse.json();
+        return new Response(JSON.stringify({
+          success: true,
+          testMode: true,
+          message: `Test email sent successfully to ${testEmail}`,
+          category: testCategory,
+          prompt: testPrompt.prompt_text,
+          emailId: result.id
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200
+        });
+      } else {
+        const errorText = await resendResponse.text();
+        return new Response(JSON.stringify({
+          success: false,
+          testMode: true,
+          error: 'Failed to send test email',
+          details: errorText
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
+        });
+      }
     }
 
     if (!users || users.length === 0) {
@@ -192,7 +311,7 @@ serve(async (req) => {
           const { data: rotationData, error: rotationError } = await supabase
             .from('user_prompt_rotation')
             .select('*')
-            .eq('uid', user.user_id)
+            .eq('user_id', user.user_id)
             .single();
 
           if (rotationError && rotationError.code !== 'PGRST116') {
@@ -465,7 +584,7 @@ serve(async (req) => {
                 [categoryCountColumnForUpdate]: currentPromptCount + 1,
                 next_category_to_send: nextCategory
               })
-              .eq('uid', user.user_id);
+              .eq('user_id', user.user_id);
 
             if (updateError) {
               console.error(`❌ Failed to update rotation for user ${user.user_id}:`, updateError);
