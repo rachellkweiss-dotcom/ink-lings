@@ -1,12 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { authenticateRequest } from '@/lib/auth-middleware';
+import { rateLimit } from '@/lib/rate-limit';
+import { logSuccess, logFailure } from '@/lib/audit-log';
 
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Rate limiting - 10 requests per minute
+    const rateLimitResult = rateLimit(request, 10, 60 * 1000);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+    
+    // SECURITY: Authenticate the request
+    const authResult = await authenticateRequest(request);
+    if (authResult.error) {
+      return authResult.error;
+    }
+
+    const authenticatedUser = authResult.user;
+    const authenticatedUserId = authenticatedUser.id; // Use authenticated user ID, not from body
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     const supabaseServiceRole = createClient(supabaseUrl, supabaseServiceRoleKey);
-    const { userId, userEmail, userFirstName, selectedCategories, isTestEmail } = await request.json();
+    const { userEmail, userFirstName, selectedCategories, isTestEmail } = await request.json();
+    
+    // SECURITY: Verify that the authenticated user's email matches the request email
+    // (unless it's a test email)
+    if (!isTestEmail && authenticatedUser.email !== userEmail) {
+      logFailure(request, 'onboarding_confirmation_email_mismatch', authenticatedUserId, authenticatedUser.email, 'Email mismatch');
+      return NextResponse.json(
+        { error: 'Email mismatch - request email must match your account email' },
+        { status: 403 }
+      );
+    }
+    
+    // Use authenticated user ID instead of from body
+    const userId = authenticatedUserId;
 
     if (!userEmail || !userFirstName) {
       return NextResponse.json(
@@ -276,6 +307,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Log successful action
+    logSuccess(request, 'onboarding_confirmation_email_sent', userId, userEmail, {
+      isTestEmail,
+      categoryName
+    });
+
     return NextResponse.json({ 
       success: true, 
       message: isTestEmail ? 'Test email sent successfully' : 'Onboarding confirmation email sent successfully',
@@ -284,7 +321,8 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error sending onboarding confirmation email:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logFailure(request, 'onboarding_confirmation_email_failed', undefined, undefined, errorMessage);
     return NextResponse.json(
       { error: 'Failed to send onboarding confirmation email' },
       { status: 500 }
