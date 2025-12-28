@@ -160,7 +160,7 @@ export async function GET(request: NextRequest) {
       .eq('user_id', userId);
 
     logSuccess(request, 'gratitude_enrollment_created_email', userId, userPrefs.notification_email);
-    return NextResponse.redirect('https://www.inklingsjournal.live/gratitude-challenge?enrolled=true');
+    return NextResponse.redirect('https://www.inklingsjournal.live/gratitude-challenge/enrolled');
 
   } catch (error) {
     console.error('Error in gratitude email enrollment:', error);
