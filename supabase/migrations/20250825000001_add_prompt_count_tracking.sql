@@ -1,9 +1,19 @@
 -- Migration: Add prompt count tracking to user_preferences
 -- This migration adds automatic counting of prompts sent to each user
 
--- Step 1: Add the total_prompts_sent_count column to user_preferences table
-ALTER TABLE "public"."user_preferences" 
-ADD COLUMN "total_prompts_sent_count" integer DEFAULT 0;
+-- Step 1: Add the total_prompts_sent_count column to user_preferences table (if it doesn't exist)
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_schema = 'public' 
+        AND table_name = 'user_preferences' 
+        AND column_name = 'total_prompts_sent_count'
+    ) THEN
+        ALTER TABLE "public"."user_preferences" 
+        ADD COLUMN "total_prompts_sent_count" integer DEFAULT 0;
+    END IF;
+END $$;
 
 -- Step 2: Create a function to update the prompt count
 CREATE OR REPLACE FUNCTION update_user_prompt_count()
@@ -22,6 +32,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Step 3: Create a trigger that calls the function when a new row is inserted into prompt_history
+DROP TRIGGER IF EXISTS trigger_update_prompt_count ON "public"."prompt_history";
 CREATE TRIGGER trigger_update_prompt_count
     AFTER INSERT ON "public"."prompt_history"
     FOR EACH ROW
