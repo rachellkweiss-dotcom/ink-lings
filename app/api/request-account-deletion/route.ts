@@ -2,9 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { authenticateRequest } from '@/lib/auth-middleware';
 import { logSuccess, logFailure } from '@/lib/audit-log';
+import { rateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: NextRequest) {
   try {
+    // SECURITY: Rate limiting - 5 requests per 15 minutes
+    const rateLimitResult = rateLimit(request, 5, 15 * 60 * 1000);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+    
     // SECURITY: Authenticate the request first
     const authResult = await authenticateRequest(request);
     if (authResult.error) {

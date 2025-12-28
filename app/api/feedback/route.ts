@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { rateLimit } from '@/lib/rate-limit';
+import { logSuccess, logFailure } from '@/lib/audit-log';
 
 export async function GET(request: NextRequest) {
   // Rate limiting: 20 requests per minute per IP
@@ -63,9 +64,16 @@ export async function GET(request: NextRequest) {
       });
 
     if (insertError) {
+      logFailure(request, 'feedback_submission_failed', undefined, undefined, insertError.message);
       console.error('Error inserting feedback token:', insertError);
       return NextResponse.redirect('https://www.inklingsjournal.live/?error=feedback-error');
     }
+    
+    // Log successful feedback submission (public endpoint, no user ID)
+    logSuccess(request, 'feedback_submitted', undefined, undefined, {
+      feedbackType: type,
+      promptId
+    });
 
     // Update prompt counts in prompt_bank
     const updateColumn = type === 'up' ? 'thumbs_up_count' : 'thumbs_down_count';
@@ -101,6 +109,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect('https://www.inklingsjournal.live/feedback-thanks');
 
   } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    logFailure(request, 'feedback_submission_failed', undefined, undefined, errorMessage);
     console.error('Unexpected error in feedback endpoint:', error);
     return NextResponse.redirect('https://www.inklingsjournal.live/?error=feedback-error');
   }
