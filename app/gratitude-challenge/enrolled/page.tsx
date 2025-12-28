@@ -54,10 +54,10 @@ export default function GratitudeChallengeEnrolledPage() {
               </svg>
               <div>
                 <h3 className="text-xl font-bold text-green-800 dark:text-green-200 mb-1">
-                  You're enrolled!
+                  You&apos;re enrolled!
                 </h3>
                 <p className="text-green-700 dark:text-green-300">
-                  Welcome to the 2026 Gratitude Challenge! Starting January 1st, you'll receive daily gratitude prompts separate from your normal ink-lings schedule.
+                  Welcome to the 2026 Gratitude Challenge! Starting January 1st, you&apos;ll receive daily gratitude prompts separate from your normal ink-lings schedule.
                 </p>
               </div>
             </div>
