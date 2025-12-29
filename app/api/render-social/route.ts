@@ -174,6 +174,8 @@ export async function POST(request: NextRequest) {
         textAlign: (el.textAlign || 'left') as 'left' | 'center' | 'right',
         fontWeight: String(el.fontWeight || 'normal'),
         maxWidth: el.maxWidth ? (typeof el.maxWidth === 'string' ? parseInt(el.maxWidth, 10) : el.maxWidth as number) : undefined,
+        lineHeight: el.lineHeight ? (typeof el.lineHeight === 'string' ? parseFloat(el.lineHeight) : el.lineHeight as number) : undefined,
+        letterSpacing: el.letterSpacing ? String(el.letterSpacing) : undefined,
       };
     });
 
@@ -332,7 +334,8 @@ export async function POST(request: NextRequest) {
           word-wrap: break-word;
           overflow-wrap: break-word;
           word-break: break-word;
-          line-height: ${element.fontSize * 1.2}px;
+          line-height: ${(element as { lineHeight?: number }).lineHeight ? `${(element as { lineHeight?: number }).lineHeight}` : `${element.fontSize * 1.2}px`};
+          letter-spacing: ${(element as { letterSpacing?: string }).letterSpacing || '0em'};
         `.trim().replace(/\s+/g, ' ');
       } else if (maxWidth) {
         // For left/right aligned text with maxWidth: use fixed width
@@ -353,7 +356,8 @@ export async function POST(request: NextRequest) {
           word-wrap: break-word;
           overflow-wrap: break-word;
           word-break: break-word;
-          line-height: ${element.fontSize * 1.2}px;
+          line-height: ${(element as { lineHeight?: number }).lineHeight ? `${(element as { lineHeight?: number }).lineHeight}` : `${element.fontSize * 1.2}px`};
+          letter-spacing: ${(element as { letterSpacing?: string }).letterSpacing || '0em'};
         `.trim().replace(/\s+/g, ' ');
       } else {
         // No maxWidth - use transform for alignment without width constraint
@@ -377,7 +381,8 @@ export async function POST(request: NextRequest) {
           text-align: ${textAlign};
           font-weight: ${element.fontWeight || 'normal'};
           white-space: nowrap;
-          line-height: ${element.fontSize * 1.2}px;
+          line-height: ${(element as { lineHeight?: number }).lineHeight ? `${(element as { lineHeight?: number }).lineHeight}` : `${element.fontSize * 1.2}px`};
+          letter-spacing: ${(element as { letterSpacing?: string }).letterSpacing || '0em'};
         `.trim().replace(/\s+/g, ' ');
       }
       
