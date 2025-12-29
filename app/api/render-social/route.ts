@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { chromium } from 'playwright';
-import { validateRequestBody, renderSocialSchema } from '@/lib/api-validation';
+import { renderSocialSchema } from '@/lib/api-validation';
 import { rateLimit } from '@/lib/rate-limit';
+import { z } from 'zod';
 
 /**
  * API endpoint to render social media images
@@ -86,13 +87,101 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Validate request body
-    const validationResult = await validateRequestBody(request, renderSocialSchema);
-    if (validationResult.error) {
-      return validationResult.error;
+    // Get raw body to transform Airtable format
+    let rawBody: any;
+    try {
+      rawBody = await request.json();
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Invalid JSON in request body' },
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
+    // Transform Airtable format to expected format
+    // Airtable attachment fields come as arrays: [{url: "..."}]
+    let backgroundImage: string;
+    if (Array.isArray(rawBody.backgroundImage)) {
+      // Extract URL from first attachment
+      backgroundImage = rawBody.backgroundImage[0]?.url || rawBody.backgroundImage[0] || '';
+    } else if (typeof rawBody.backgroundImage === 'object' && rawBody.backgroundImage?.url) {
+      backgroundImage = rawBody.backgroundImage.url;
+    } else {
+      backgroundImage = String(rawBody.backgroundImage || '');
     }
 
-    const { backgroundImage, width, height, textElements } = validationResult.data;
+    // Transform textElements if needed
+    const transformedTextElements = (rawBody.textElements || []).map((element: any) => ({
+      text: String(element.text || ''),
+      x: typeof element.x === 'string' ? parseInt(element.x, 10) : (typeof element.x === 'number' ? element.x : 0),
+      y: typeof element.y === 'string' ? parseInt(element.y, 10) : (typeof element.y === 'number' ? element.y : 0),
+      fontFamily: Array.isArray(element.fontFamily) 
+        ? String(element.fontFamily[0] || 'Arial')
+        : String(element.fontFamily || 'Arial'),
+      fontSize: typeof element.fontSize === 'string' ? parseInt(element.fontSize, 10) : (typeof element.fontSize === 'number' ? element.fontSize : 24),
+      color: String(element.color || '#000000'),
+      textAlign: (element.textAlign || 'left') as 'left' | 'center' | 'right',
+      fontWeight: String(element.fontWeight || 'normal'),
+      maxWidth: element.maxWidth ? (typeof element.maxWidth === 'string' ? parseInt(element.maxWidth, 10) : element.maxWidth) : undefined,
+    }));
+
+    // Create transformed body for validation
+    const transformedBody = {
+      backgroundImage,
+      width: typeof rawBody.width === 'string' ? parseInt(rawBody.width, 10) : (typeof rawBody.width === 'number' ? rawBody.width : 1080),
+      height: typeof rawBody.height === 'string' ? parseInt(rawBody.height, 10) : (typeof rawBody.height === 'number' ? rawBody.height : 1080),
+      textElements: transformedTextElements,
+    };
+
+    // Validate transformed body using Zod directly
+    let validatedBgImage: string;
+    let width: number;
+    let height: number;
+    let textElements: Array<{
+      text: string;
+      x: number;
+      y: number;
+      fontFamily: string;
+      fontSize: number;
+      color: string;
+      textAlign?: 'left' | 'center' | 'right';
+      fontWeight?: string;
+      maxWidth?: number;
+    }>;
+    
+    try {
+      const validated = renderSocialSchema.parse(transformedBody);
+      validatedBgImage = validated.backgroundImage;
+      width = validated.width;
+      height = validated.height;
+      textElements = validated.textElements;
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          {
+            error: 'Validation failed',
+            details: error.issues,
+          },
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        );
+      }
+      return NextResponse.json(
+        { 
+          error: 'Validation failed', 
+          message: error instanceof Error ? error.message : 'Unknown validation error'
+        },
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
 
     // Launch browser with serverless-friendly settings
     const browser = await chromium.launch({
@@ -115,7 +204,7 @@ export async function POST(request: NextRequest) {
       await page.setViewportSize({ width, height });
 
       // Generate HTML with background image and text elements
-      const html = generateHTML(backgroundImage, width, height, textElements);
+      const html = generateHTML(validatedBgImage, width, height, textElements);
       
       // Set content and wait for fonts/images to load
       await page.setContent(html, { waitUntil: 'networkidle' });
