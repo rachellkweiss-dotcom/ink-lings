@@ -271,46 +271,52 @@ export async function POST(request: NextRequest) {
     }
     
     // Build HTML with background image and text elements
+    // Best practice: For absolute positioning with max-width and centering:
+    // 1. Set fixed width (not just max-width) when wrapping is needed
+    // 2. Calculate left position based on alignment (avoid transform conflicts)
+    // 3. Use text-align for text alignment inside the container
+    // 4. Use white-space: normal to allow wrapping
     const textElementsHTML = textElements.map((element) => {
       const textAlign = element.textAlign || 'left';
-      const left = element.x;
-      let transform = '';
-      let widthStyle = '';
+      const maxWidth = element.maxWidth ? Number(element.maxWidth) : null;
       
-      // Handle text alignment for absolutely positioned elements
-      if (textAlign === 'center') {
-        transform = 'transform: translateX(-50%);';
-        // For center, x is the center point
-      } else if (textAlign === 'right') {
-        transform = 'transform: translateX(-100%);';
-        // For right, x is the right edge
+      // Calculate left position and width based on alignment
+      let left = element.x;
+      let width = '';
+      
+      if (maxWidth) {
+        // When maxWidth is set, use fixed width for proper wrapping
+        if (textAlign === 'center') {
+          // Center: position left edge at (x - maxWidth/2)
+          left = element.x - (maxWidth / 2);
+          width = `width: ${maxWidth}px;`;
+        } else if (textAlign === 'right') {
+          // Right: position right edge at x, so left = x - width
+          left = element.x - maxWidth;
+          width = `width: ${maxWidth}px;`;
+        } else {
+          // Left: position left edge at x
+          width = `width: ${maxWidth}px;`;
+        }
       }
-      
-      if (element.maxWidth) {
-        widthStyle = `width: ${element.maxWidth}px;`;
-      }
-      
-      // For centered text with maxWidth, use left as-is (transform handles centering)
-      const adjustedLeft = left;
       
       const style = `
         position: absolute;
         left: ${left}px;
         top: ${element.y}px;
+        ${width}
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
         font-family: ${element.fontFamily}, sans-serif;
         font-size: ${element.fontSize}px;
         color: ${element.color};
         text-align: ${textAlign};
         font-weight: ${element.fontWeight || 'normal'};
-        ${widthStyle}
-        ${transform}
-        margin: 0;
-        padding: 0;
-        white-space: ${element.maxWidth ? 'normal' : 'nowrap'};
+        white-space: ${maxWidth ? 'normal' : 'nowrap'};
         word-wrap: break-word;
         overflow-wrap: break-word;
         word-break: break-word;
-        hyphens: auto;
         line-height: ${element.fontSize * 1.2}px;
       `.trim().replace(/\s+/g, ' ');
 
