@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { renderSocialSchema } from '@/lib/api-validation';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
+import axios from 'axios';
 
 /**
  * API endpoint to render social media images
@@ -191,110 +192,183 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Dynamically import sharp to avoid build-time issues
-    const sharp = (await import('sharp')).default;
+    // Use HTML/CSS to Image API for reliable text rendering
+    // This avoids native dependency issues and provides consistent results
+    
+    // Build HTML with background image and text elements
+    const textElementsHTML = textElements.map((element) => {
+      const style = `
+        position: absolute;
+        left: ${element.x}px;
+        top: ${element.y}px;
+        font-family: ${element.fontFamily}, sans-serif;
+        font-size: ${element.fontSize}px;
+        color: ${element.color};
+        text-align: ${element.textAlign || 'left'};
+        font-weight: ${element.fontWeight || 'normal'};
+        ${element.maxWidth ? `max-width: ${element.maxWidth}px;` : ''}
+        margin: 0;
+        padding: 0;
+        white-space: ${element.maxWidth ? 'normal' : 'nowrap'};
+        word-wrap: ${element.maxWidth ? 'break-word' : 'normal'};
+        line-height: ${element.fontSize * 1.2}px;
+      `.trim().replace(/\s+/g, ' ');
 
-    // Load background image
-    let backgroundBuffer: Buffer;
-    try {
-      if (validatedBgImage.startsWith('data:')) {
-        // Base64 image
-        const base64Data = validatedBgImage.split(',')[1];
-        backgroundBuffer = Buffer.from(base64Data, 'base64');
-      } else {
-        // URL - fetch the image
-        const response = await fetch(validatedBgImage);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch image: ${response.statusText}`);
-        }
-        const arrayBuffer = await response.arrayBuffer();
-        backgroundBuffer = Buffer.from(arrayBuffer);
+      // Escape HTML in text
+      const escapedText = element.text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+
+      return `<div style="${style}">${escapedText}</div>`;
+    }).join('\n');
+
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8">
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              width: ${width}px;
+              height: ${height}px;
+              position: relative;
+              overflow: hidden;
+              background-image: url('${validatedBgImage}');
+              background-size: cover;
+              background-position: center;
+              background-repeat: no-repeat;
+            }
+          </style>
+        </head>
+        <body>
+          ${textElementsHTML}
+        </body>
+      </html>
+    `;
+
+    // Use htmlcsstoimage.com API (free tier: 50 images/month)
+    // Alternative: screenshotapi.net or similar
+    const htmlcsstoimageApiKey = process.env.HTMLCSSTOIMAGE_API_KEY;
+    const htmlcsstoimageUserId = process.env.HTMLCSSTOIMAGE_USER_ID;
+
+    if (!htmlcsstoimageApiKey || !htmlcsstoimageUserId) {
+      // Fallback: Use screenshotapi.net (no API key needed for basic usage)
+      try {
+        const screenshotResponse = await axios.post(
+          'https://screenshotapi.net/api/v1/screenshot',
+          {
+            token: process.env.SCREENSHOTAPI_TOKEN || 'demo', // Get free token at screenshotapi.net
+            url: `data:text/html;base64,${Buffer.from(html).toString('base64')}`,
+            width: width,
+            height: height,
+            output: 'image',
+            file_type: 'png',
+          },
+          {
+            responseType: 'arraybuffer',
+            timeout: 30000,
+          }
+        );
+
+        const base64Image = Buffer.from(screenshotResponse.data, 'binary').toString('base64');
+        const dataUrl = `data:image/png;base64,${base64Image}`;
+
+        return NextResponse.json(
+          {
+            success: true,
+            base64: dataUrl,
+            image: dataUrl,
+            format: 'png',
+            dimensions: { width, height },
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'Access-Control-Allow-Origin': '*',
+            },
+          }
+        );
+      } catch (error) {
+        console.error('Screenshot API error:', error);
+        return NextResponse.json(
+          {
+            error: 'Failed to generate image',
+            message: 'Image generation service unavailable. Please set HTMLCSSTOIMAGE_API_KEY and HTMLCSSTOIMAGE_USER_ID, or SCREENSHOTAPI_TOKEN in environment variables.',
+          },
+          {
+            status: 500,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
       }
-    } catch (error) {
-      console.error('Error loading background image:', error);
-      return NextResponse.json(
-        { 
-          error: 'Failed to load background image',
-          message: error instanceof Error ? error.message : 'Unknown error'
+    }
+
+    // Use htmlcsstoimage.com if API key is provided
+    try {
+      const response = await axios.post(
+        'https://hcti.io/v1/image',
+        {
+          html: html,
+          css: '',
+          google_fonts: textElements.map(e => e.fontFamily).join('|'),
         },
-        { 
-          status: 400,
+        {
+          auth: {
+            username: htmlcsstoimageUserId,
+            password: htmlcsstoimageApiKey,
+          },
+          timeout: 30000,
+        }
+      );
+
+      // Fetch the generated image
+      const imageResponse = await axios.get(response.data.url, {
+        responseType: 'arraybuffer',
+      });
+
+      const base64Image = Buffer.from(imageResponse.data, 'binary').toString('base64');
+      const dataUrl = `data:image/png;base64,${base64Image}`;
+
+      return NextResponse.json(
+        {
+          success: true,
+          base64: dataUrl,
+          image: dataUrl,
+          format: 'png',
+          dimensions: { width, height },
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+          },
+        }
+      );
+    } catch (error) {
+      console.error('HTML/CSS to Image API error:', error);
+      return NextResponse.json(
+        {
+          error: 'Failed to generate image',
+          message: error instanceof Error ? error.message : 'Unknown error',
+        },
+        {
+          status: 500,
           headers: {
             'Content-Type': 'application/json',
           },
         }
       );
     }
-
-    // Create SVG with text elements
-    const textElementsSVG = textElements.map((element) => {
-      // Escape XML in text
-      const escapedText = element.text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&apos;');
-
-      const textAlign = element.textAlign || 'left';
-      let x = element.x;
-      if (textAlign === 'center') {
-        // For center alignment, we'll use text-anchor="middle" and adjust x
-        x = element.x;
-      } else if (textAlign === 'right') {
-        x = element.x;
-      }
-
-      // Handle text wrapping with tspan
-      if (element.maxWidth) {
-        const words = escapedText.split(' ');
-        const lines: string[] = [];
-        let currentLine = '';
-
-        for (const word of words) {
-          const testLine = currentLine ? `${currentLine} ${word}` : word;
-          // Rough estimate: ~0.6 * fontSize per character (approximate)
-          const estimatedWidth = testLine.length * (element.fontSize * 0.6);
-          
-          if (estimatedWidth > element.maxWidth && currentLine) {
-            lines.push(currentLine);
-            currentLine = word;
-          } else {
-            currentLine = testLine;
-          }
-        }
-        if (currentLine) lines.push(currentLine);
-
-        return lines.map((line, index) => {
-          const y = element.y + (index * element.fontSize * 1.2);
-          return `<text x="${x}" y="${y}" font-family="${element.fontFamily}" font-size="${element.fontSize}" fill="${element.color}" font-weight="${element.fontWeight || 'normal'}" text-anchor="${textAlign === 'center' ? 'middle' : textAlign === 'right' ? 'end' : 'start'}">${line}</text>`;
-        }).join('\n');
-      } else {
-        return `<text x="${x}" y="${element.y}" font-family="${element.fontFamily}" font-size="${element.fontSize}" fill="${element.color}" font-weight="${element.fontWeight || 'normal'}" text-anchor="${textAlign === 'center' ? 'middle' : textAlign === 'right' ? 'end' : 'start'}">${escapedText}</text>`;
-      }
-    }).join('\n');
-
-    const svg = `
-      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-        ${textElementsSVG}
-      </svg>
-    `;
-
-    // Composite background image with SVG text overlay
-    const outputBuffer = await sharp(backgroundBuffer)
-      .resize(width, height, { fit: 'cover' })
-      .composite([
-        {
-          input: Buffer.from(svg),
-          top: 0,
-          left: 0,
-        },
-      ])
-      .png()
-      .toBuffer();
-
-    const base64Image = outputBuffer.toString('base64');
-    const dataUrl = `data:image/png;base64,${base64Image}`;
 
     return NextResponse.json(
       {
