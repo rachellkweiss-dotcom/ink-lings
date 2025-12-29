@@ -235,22 +235,82 @@ export async function POST(request: NextRequest) {
     // Use HTML/CSS to Image API for reliable text rendering
     // This avoids native dependency issues and provides consistent results
     
+    // Fetch and convert background image to base64 for embedding
+    let backgroundImageBase64: string;
+    try {
+      let imageBuffer: Buffer;
+      if (validatedBgImage.startsWith('data:')) {
+        // Already base64
+        const base64Data = validatedBgImage.split(',')[1];
+        imageBuffer = Buffer.from(base64Data, 'base64');
+        backgroundImageBase64 = validatedBgImage;
+      } else {
+        // Fetch external image
+        const imageResponse = await axios.get(validatedBgImage, {
+          responseType: 'arraybuffer',
+          timeout: 10000,
+        });
+        imageBuffer = Buffer.from(imageResponse.data);
+        const base64String = imageBuffer.toString('base64');
+        // Determine MIME type from response or default to jpeg
+        const contentType = imageResponse.headers['content-type'] || 'image/jpeg';
+        backgroundImageBase64 = `data:${contentType};base64,${base64String}`;
+      }
+    } catch (error) {
+      console.error('Error fetching background image:', error);
+      return NextResponse.json(
+        {
+          error: 'Failed to load background image',
+          message: error instanceof Error ? error.message : 'Unknown error',
+        },
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+    }
+    
     // Build HTML with background image and text elements
     const textElementsHTML = textElements.map((element) => {
+      const textAlign = element.textAlign || 'left';
+      const left = element.x;
+      let transform = '';
+      let widthStyle = '';
+      
+      // Handle text alignment for absolutely positioned elements
+      if (textAlign === 'center') {
+        transform = 'transform: translateX(-50%);';
+        // For center, x is the center point
+      } else if (textAlign === 'right') {
+        transform = 'transform: translateX(-100%);';
+        // For right, x is the right edge
+      }
+      
+      if (element.maxWidth) {
+        widthStyle = `width: ${element.maxWidth}px;`;
+      }
+      
+      // For centered text with maxWidth, use left as-is (transform handles centering)
+      const adjustedLeft = left;
+      
       const style = `
         position: absolute;
-        left: ${element.x}px;
+        left: ${left}px;
         top: ${element.y}px;
         font-family: ${element.fontFamily}, sans-serif;
         font-size: ${element.fontSize}px;
         color: ${element.color};
-        text-align: ${element.textAlign || 'left'};
+        text-align: ${textAlign};
         font-weight: ${element.fontWeight || 'normal'};
-        ${element.maxWidth ? `max-width: ${element.maxWidth}px;` : ''}
+        ${widthStyle}
+        ${transform}
         margin: 0;
         padding: 0;
         white-space: ${element.maxWidth ? 'normal' : 'nowrap'};
-        word-wrap: ${element.maxWidth ? 'break-word' : 'normal'};
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        hyphens: auto;
         line-height: ${element.fontSize * 1.2}px;
       `.trim().replace(/\s+/g, ' ');
 
@@ -262,29 +322,51 @@ export async function POST(request: NextRequest) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 
-      return `<div style="${style}">${escapedText}</div>`;
+      return `<div class="text-element" style="${style}">${escapedText}</div>`;
     }).join('\n');
 
+    // Get unique font families and create Google Fonts import
+    const uniqueFonts = [...new Set(textElements.map(e => e.fontFamily))];
+    const googleFontsUrl = uniqueFonts
+      .map(font => font.replace(/\s+/g, '+'))
+      .join('|');
+    
     const html = `
       <!DOCTYPE html>
       <html>
         <head>
           <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          ${googleFontsUrl ? `<link href="https://fonts.googleapis.com/css2?family=${googleFontsUrl}:wght@400;700&display=swap" rel="stylesheet">` : ''}
           <style>
             * {
               margin: 0;
               padding: 0;
               box-sizing: border-box;
             }
-            body {
+            html, body {
               width: ${width}px;
               height: ${height}px;
-              position: relative;
+              margin: 0;
+              padding: 0;
               overflow: hidden;
-              background-image: url('${validatedBgImage}');
+            }
+            body {
+              position: relative;
+              background-image: url('${backgroundImageBase64}');
               background-size: cover;
               background-position: center;
               background-repeat: no-repeat;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              text-rendering: optimizeLegibility;
+            }
+            .text-element {
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+              text-rendering: optimizeLegibility;
+              backface-visibility: hidden;
+              transform: translateZ(0);
             }
           </style>
         </head>
@@ -364,7 +446,9 @@ export async function POST(request: NextRequest) {
         {
           html: html,
           css: '',
-          google_fonts: textElements.map(e => e.fontFamily).join('|'),
+          google_fonts: uniqueFonts.join('|'),
+          device_scale_factor: 2, // Higher quality rendering
+          ms_delay: 1000, // Wait for fonts to load
         },
         {
           auth: {
