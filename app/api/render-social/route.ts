@@ -31,7 +31,7 @@ import { z } from 'zod';
  * }
  */
 // Handle CORS preflight
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
@@ -43,7 +43,7 @@ export async function OPTIONS(request: NextRequest) {
 }
 
 // Simple GET handler for testing
-export async function GET(request: NextRequest) {
+export async function GET() {
   return NextResponse.json(
     { 
       message: 'Render Social API is working. Use POST to render images.',
@@ -88,10 +88,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Get raw body to transform Airtable format
-    let rawBody: any;
+    let rawBody: Record<string, unknown>;
     try {
-      rawBody = await request.json();
-    } catch (error) {
+      rawBody = await request.json() as Record<string, unknown>;
+    } catch {
       return NextResponse.json(
         { error: 'Invalid JSON in request body' },
         { 
@@ -106,27 +106,36 @@ export async function POST(request: NextRequest) {
     let backgroundImage: string;
     if (Array.isArray(rawBody.backgroundImage)) {
       // Extract URL from first attachment
-      backgroundImage = rawBody.backgroundImage[0]?.url || rawBody.backgroundImage[0] || '';
-    } else if (typeof rawBody.backgroundImage === 'object' && rawBody.backgroundImage?.url) {
-      backgroundImage = rawBody.backgroundImage.url;
+      const firstItem = rawBody.backgroundImage[0];
+      if (firstItem && typeof firstItem === 'object' && 'url' in firstItem) {
+        backgroundImage = String((firstItem as { url: unknown }).url || firstItem || '');
+      } else {
+        backgroundImage = String(firstItem || '');
+      }
+    } else if (rawBody.backgroundImage && typeof rawBody.backgroundImage === 'object' && 'url' in rawBody.backgroundImage) {
+      backgroundImage = String((rawBody.backgroundImage as { url: unknown }).url || '');
     } else {
       backgroundImage = String(rawBody.backgroundImage || '');
     }
 
     // Transform textElements if needed
-    const transformedTextElements = (rawBody.textElements || []).map((element: any) => ({
-      text: String(element.text || ''),
-      x: typeof element.x === 'string' ? parseInt(element.x, 10) : (typeof element.x === 'number' ? element.x : 0),
-      y: typeof element.y === 'string' ? parseInt(element.y, 10) : (typeof element.y === 'number' ? element.y : 0),
-      fontFamily: Array.isArray(element.fontFamily) 
-        ? String(element.fontFamily[0] || 'Arial')
-        : String(element.fontFamily || 'Arial'),
-      fontSize: typeof element.fontSize === 'string' ? parseInt(element.fontSize, 10) : (typeof element.fontSize === 'number' ? element.fontSize : 24),
-      color: String(element.color || '#000000'),
-      textAlign: (element.textAlign || 'left') as 'left' | 'center' | 'right',
-      fontWeight: String(element.fontWeight || 'normal'),
-      maxWidth: element.maxWidth ? (typeof element.maxWidth === 'string' ? parseInt(element.maxWidth, 10) : element.maxWidth) : undefined,
-    }));
+    const textElementsArray = Array.isArray(rawBody.textElements) ? rawBody.textElements : [];
+    const transformedTextElements = textElementsArray.map((element: unknown) => {
+      const el = element as Record<string, unknown>;
+      return {
+        text: String(el.text || ''),
+        x: typeof el.x === 'string' ? parseInt(el.x, 10) : (typeof el.x === 'number' ? el.x : 0),
+        y: typeof el.y === 'string' ? parseInt(el.y, 10) : (typeof el.y === 'number' ? el.y : 0),
+        fontFamily: Array.isArray(el.fontFamily) 
+          ? String(el.fontFamily[0] || 'Arial')
+          : String(el.fontFamily || 'Arial'),
+        fontSize: typeof el.fontSize === 'string' ? parseInt(el.fontSize, 10) : (typeof el.fontSize === 'number' ? el.fontSize : 24),
+        color: String(el.color || '#000000'),
+        textAlign: (el.textAlign || 'left') as 'left' | 'center' | 'right',
+        fontWeight: String(el.fontWeight || 'normal'),
+        maxWidth: el.maxWidth ? (typeof el.maxWidth === 'string' ? parseInt(el.maxWidth, 10) : el.maxWidth as number) : undefined,
+      };
+    });
 
     // Create transformed body for validation
     const transformedBody = {
