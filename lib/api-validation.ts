@@ -38,6 +38,26 @@ export const feedbackSchema = z.object({
   promptId: z.string().uuid('Invalid prompt ID format'),
 });
 
+// Social media render validation
+export const textElementSchema = z.object({
+  text: z.string().min(1, 'Text is required'),
+  x: z.number().int().min(0, 'X position must be non-negative'),
+  y: z.number().int().min(0, 'Y position must be non-negative'),
+  fontFamily: z.string().min(1, 'Font family is required'),
+  fontSize: z.number().positive('Font size must be positive'),
+  color: z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Color must be a valid hex color'),
+  textAlign: z.enum(['left', 'center', 'right']).optional().default('left'),
+  fontWeight: z.enum(['normal', 'bold', '100', '200', '300', '400', '500', '600', '700', '800', '900']).optional().default('normal'),
+  maxWidth: z.number().positive().optional(), // Optional max width for text wrapping
+});
+
+export const renderSocialSchema = z.object({
+  backgroundImage: z.string().min(1, 'Background image is required'), // URL or base64
+  width: z.number().int().positive().max(5000, 'Width too large'),
+  height: z.number().int().positive().max(5000, 'Height too large'),
+  textElements: z.array(textElementSchema).min(1, 'At least one text element is required'),
+});
+
 /**
  * Validate request body against a schema
  */

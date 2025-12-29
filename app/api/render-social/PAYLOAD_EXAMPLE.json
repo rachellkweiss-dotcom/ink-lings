@@ -1,0 +1,19 @@
+{
+  "backgroundImage": "https://example.com/your-background-image.jpg",
+  "width": 1080,
+  "height": 1080,
+  "textElements": [
+    {
+      "text": "Your text here",
+      "x": 100,
+      "y": 200,
+      "fontFamily": "Arial",
+      "fontSize": 48,
+      "color": "#000000",
+      "textAlign": "center",
+      "fontWeight": "bold",
+      "maxWidth": 800
+    }
+  ]
+}
+
