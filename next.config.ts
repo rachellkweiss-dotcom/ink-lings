@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
     // Don't fail build on TypeScript errors (we want to catch these)
     ignoreBuildErrors: false,
   },
+  // Ensure Sharp is properly bundled for serverless
+  serverComponentsExternalPackages: [],
   async headers() {
     return [
       {
