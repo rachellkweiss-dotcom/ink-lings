@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { chromium } from 'playwright';
+import { createCanvas, loadImage } from '@napi-rs/canvas';
 import { renderSocialSchema } from '@/lib/api-validation';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
@@ -192,66 +192,83 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Launch browser with serverless-friendly settings
-    // For Vercel, we need to use the bundled Chromium path
-    const browser = await chromium.launch({
-      headless: true,
-      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--no-first-run',
-        '--no-zygote',
-        '--disable-gpu',
-        '--single-process', // Important for serverless
-      ],
-    });
+    // Create canvas with specified dimensions
+    const canvas = createCanvas(width, height);
+    const ctx = canvas.getContext('2d');
 
+    // Load and draw background image
     try {
-      const page = await browser.newPage();
-      
-      // Set viewport to match desired dimensions
-      await page.setViewportSize({ width, height });
-
-      // Generate HTML with background image and text elements
-      const html = generateHTML(validatedBgImage, width, height, textElements);
-      
-      // Set content and wait for fonts/images to load
-      await page.setContent(html, { waitUntil: 'networkidle' });
-      
-      // Wait a bit for any fonts to load
-      await page.waitForTimeout(500);
-
-      // Take screenshot
-      const screenshot = await page.screenshot({
-        type: 'png',
-        fullPage: false,
-      });
-
-      // Convert to base64
-      const base64Image = screenshot.toString('base64');
-      const dataUrl = `data:image/png;base64,${base64Image}`;
-
+      const backgroundImg = await loadImage(validatedBgImage);
+      ctx.drawImage(backgroundImg, 0, 0, width, height);
+    } catch (error) {
+      console.error('Error loading background image:', error);
       return NextResponse.json(
-        {
-          success: true,
-          base64: dataUrl, // Also include as 'base64' for Airtable compatibility
-          image: dataUrl,
-          format: 'png',
-          dimensions: { width, height },
+        { 
+          error: 'Failed to load background image',
+          message: error instanceof Error ? error.message : 'Unknown error'
         },
-        {
+        { 
+          status: 400,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
           },
         }
       );
-    } finally {
-      await browser.close();
     }
+
+    // Draw each text element
+    for (const element of textElements) {
+      // Set font properties
+      ctx.font = `${element.fontWeight || 'normal'} ${element.fontSize}px ${element.fontFamily}`;
+      ctx.fillStyle = element.color;
+      ctx.textAlign = element.textAlign || 'left';
+      ctx.textBaseline = 'top';
+
+      // Handle text wrapping if maxWidth is specified
+      if (element.maxWidth) {
+        const words = element.text.split(' ');
+        let line = '';
+        let y = element.y;
+
+        for (let i = 0; i < words.length; i++) {
+          const testLine = line + words[i] + ' ';
+          const metrics = ctx.measureText(testLine);
+          
+          if (metrics.width > element.maxWidth && i > 0) {
+            ctx.fillText(line, element.x, y);
+            line = words[i] + ' ';
+            y += element.fontSize * 1.2; // Line height
+          } else {
+            line = testLine;
+          }
+        }
+        ctx.fillText(line, element.x, y);
+      } else {
+        // Single line text
+        ctx.fillText(element.text, element.x, element.y);
+      }
+    }
+
+    // Export canvas as PNG buffer
+    const buffer = canvas.toBuffer('image/png');
+    const base64Image = buffer.toString('base64');
+    const dataUrl = `data:image/png;base64,${base64Image}`;
+
+    return NextResponse.json(
+      {
+        success: true,
+        base64: dataUrl, // Also include as 'base64' for Airtable compatibility
+        image: dataUrl,
+        format: 'png',
+        dimensions: { width, height },
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+        },
+      }
+    );
   } catch (error) {
     console.error('Error rendering social media image:', error);
     return NextResponse.json(
@@ -269,83 +286,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Generate HTML for rendering
- */
-function generateHTML(
-  backgroundImage: string,
-  width: number,
-  height: number,
-  textElements: Array<{
-    text: string;
-    x: number;
-    y: number;
-    fontFamily: string;
-    fontSize: number;
-    color: string;
-    textAlign?: 'left' | 'center' | 'right';
-    fontWeight?: string;
-    maxWidth?: number;
-  }>
-): string {
-  // Escape HTML in text
-  const escapeHtml = (text: string) => {
-    return text
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  };
-
-  // Generate text element styles
-  const textElementsHTML = textElements.map((element) => {
-    const style = `
-      position: absolute;
-      left: ${element.x}px;
-      top: ${element.y}px;
-      font-family: ${element.fontFamily}, sans-serif;
-      font-size: ${element.fontSize}px;
-      color: ${element.color};
-      text-align: ${element.textAlign || 'left'};
-      font-weight: ${element.fontWeight || 'normal'};
-      ${element.maxWidth ? `max-width: ${element.maxWidth}px;` : ''}
-      margin: 0;
-      padding: 0;
-      white-space: ${element.maxWidth ? 'normal' : 'nowrap'};
-      word-wrap: ${element.maxWidth ? 'break-word' : 'normal'};
-    `.trim();
-
-    return `<div style="${style}">${escapeHtml(element.text)}</div>`;
-  }).join('\n');
-
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <style>
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          body {
-            width: ${width}px;
-            height: ${height}px;
-            position: relative;
-            overflow: hidden;
-            background-image: url('${backgroundImage}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-          }
-        </style>
-      </head>
-      <body>
-        ${textElementsHTML}
-      </body>
-    </html>
-  `;
-}
 

@@ -4,6 +4,5 @@
       "maxDuration": 30,
       "memory": 3008
     }
-  },
-  "buildCommand": "npx playwright install --with-deps chromium && npm run build"
+  }
 }
