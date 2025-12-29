@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createCanvas, loadImage } from '@napi-rs/canvas';
+import sharp from 'sharp';
 import { renderSocialSchema } from '@/lib/api-validation';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
@@ -192,14 +192,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create canvas with specified dimensions
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
-
-    // Load and draw background image
+    // Load background image
+    let backgroundBuffer: Buffer;
     try {
-      const backgroundImg = await loadImage(validatedBgImage);
-      ctx.drawImage(backgroundImg, 0, 0, width, height);
+      if (validatedBgImage.startsWith('data:')) {
+        // Base64 image
+        const base64Data = validatedBgImage.split(',')[1];
+        backgroundBuffer = Buffer.from(base64Data, 'base64');
+      } else {
+        // URL - fetch the image
+        const response = await fetch(validatedBgImage);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${response.statusText}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        backgroundBuffer = Buffer.from(arrayBuffer);
+      }
     } catch (error) {
       console.error('Error loading background image:', error);
       return NextResponse.json(
@@ -216,42 +224,74 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Draw each text element
-    for (const element of textElements) {
-      // Set font properties
-      ctx.font = `${element.fontWeight || 'normal'} ${element.fontSize}px ${element.fontFamily}`;
-      ctx.fillStyle = element.color;
-      ctx.textAlign = element.textAlign || 'left';
-      ctx.textBaseline = 'top';
+    // Create SVG with text elements
+    const textElementsSVG = textElements.map((element) => {
+      // Escape XML in text
+      const escapedText = element.text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
 
-      // Handle text wrapping if maxWidth is specified
+      const textAlign = element.textAlign || 'left';
+      let x = element.x;
+      if (textAlign === 'center') {
+        // For center alignment, we'll use text-anchor="middle" and adjust x
+        x = element.x;
+      } else if (textAlign === 'right') {
+        x = element.x;
+      }
+
+      // Handle text wrapping with tspan
       if (element.maxWidth) {
-        const words = element.text.split(' ');
-        let line = '';
-        let y = element.y;
+        const words = escapedText.split(' ');
+        const lines: string[] = [];
+        let currentLine = '';
 
-        for (let i = 0; i < words.length; i++) {
-          const testLine = line + words[i] + ' ';
-          const metrics = ctx.measureText(testLine);
+        for (const word of words) {
+          const testLine = currentLine ? `${currentLine} ${word}` : word;
+          // Rough estimate: ~0.6 * fontSize per character (approximate)
+          const estimatedWidth = testLine.length * (element.fontSize * 0.6);
           
-          if (metrics.width > element.maxWidth && i > 0) {
-            ctx.fillText(line, element.x, y);
-            line = words[i] + ' ';
-            y += element.fontSize * 1.2; // Line height
+          if (estimatedWidth > element.maxWidth && currentLine) {
+            lines.push(currentLine);
+            currentLine = word;
           } else {
-            line = testLine;
+            currentLine = testLine;
           }
         }
-        ctx.fillText(line, element.x, y);
-      } else {
-        // Single line text
-        ctx.fillText(element.text, element.x, element.y);
-      }
-    }
+        if (currentLine) lines.push(currentLine);
 
-    // Export canvas as PNG buffer
-    const buffer = canvas.toBuffer('image/png');
-    const base64Image = buffer.toString('base64');
+        return lines.map((line, index) => {
+          const y = element.y + (index * element.fontSize * 1.2);
+          return `<text x="${x}" y="${y}" font-family="${element.fontFamily}" font-size="${element.fontSize}" fill="${element.color}" font-weight="${element.fontWeight || 'normal'}" text-anchor="${textAlign === 'center' ? 'middle' : textAlign === 'right' ? 'end' : 'start'}">${line}</text>`;
+        }).join('\n');
+      } else {
+        return `<text x="${x}" y="${element.y}" font-family="${element.fontFamily}" font-size="${element.fontSize}" fill="${element.color}" font-weight="${element.fontWeight || 'normal'}" text-anchor="${textAlign === 'center' ? 'middle' : textAlign === 'right' ? 'end' : 'start'}">${escapedText}</text>`;
+      }
+    }).join('\n');
+
+    const svg = `
+      <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
+        ${textElementsSVG}
+      </svg>
+    `;
+
+    // Composite background image with SVG text overlay
+    const outputBuffer = await sharp(backgroundBuffer)
+      .resize(width, height, { fit: 'cover' })
+      .composite([
+        {
+          input: Buffer.from(svg),
+          top: 0,
+          left: 0,
+        },
+      ])
+      .png()
+      .toBuffer();
+
+    const base64Image = outputBuffer.toString('base64');
     const dataUrl = `data:image/png;base64,${base64Image}`;
 
     return NextResponse.json(
