@@ -193,8 +193,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Launch browser with serverless-friendly settings
+    // For Vercel, we need to use the bundled Chromium path
     const browser = await chromium.launch({
       headless: true,
+      executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH || undefined,
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -203,6 +205,7 @@ export async function POST(request: NextRequest) {
         '--no-first-run',
         '--no-zygote',
         '--disable-gpu',
+        '--single-process', // Important for serverless
       ],
     });
 
