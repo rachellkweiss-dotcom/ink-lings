@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import sharp from 'sharp';
 import { renderSocialSchema } from '@/lib/api-validation';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
@@ -191,6 +190,9 @@ export async function POST(request: NextRequest) {
         }
       );
     }
+
+    // Dynamically import sharp to avoid build-time issues
+    const sharp = (await import('sharp')).default;
 
     // Load background image
     let backgroundBuffer: Buffer;
