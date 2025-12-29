@@ -369,22 +369,6 @@ export async function POST(request: NextRequest) {
         }
       );
     }
-
-    return NextResponse.json(
-      {
-        success: true,
-        base64: dataUrl, // Also include as 'base64' for Airtable compatibility
-        image: dataUrl,
-        format: 'png',
-        dimensions: { width, height },
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
   } catch (error) {
     console.error('Error rendering social media image:', error);
     return NextResponse.json(
