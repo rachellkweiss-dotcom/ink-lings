@@ -300,26 +300,6 @@ export async function POST(request: NextRequest) {
         }
       }
       
-      const style = `
-        position: absolute;
-        left: ${left}px;
-        top: ${element.y}px;
-        ${width}
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: ${element.fontFamily}, sans-serif;
-        font-size: ${element.fontSize}px;
-        color: ${element.color};
-        text-align: ${textAlign};
-        font-weight: ${element.fontWeight || 'normal'};
-        white-space: ${maxWidth ? 'normal' : 'nowrap'};
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-        word-break: break-word;
-        line-height: ${element.fontSize * 1.2}px;
-      `.trim().replace(/\s+/g, ' ');
-
       // Escape HTML in text
       const escapedText = element.text
         .replace(/&/g, '&amp;')
@@ -328,6 +308,79 @@ export async function POST(request: NextRequest) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 
+      // Best practice: Use transform for centering WITH width constraint
+      // The key is: width + transform + box-sizing work together
+      let style = '';
+      
+      if (maxWidth && textAlign === 'center') {
+        // For centered text with maxWidth: use transform + width + box-sizing
+        style = `
+          position: absolute;
+          top: ${element.y}px;
+          left: ${element.x}px;
+          transform: translate(-50%, 0);
+          width: ${maxWidth}px;
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+          font-family: ${element.fontFamily}, sans-serif;
+          font-size: ${element.fontSize}px;
+          color: ${element.color};
+          text-align: center;
+          font-weight: ${element.fontWeight || 'normal'};
+          white-space: normal;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          word-break: break-word;
+          line-height: ${element.fontSize * 1.2}px;
+        `.trim().replace(/\s+/g, ' ');
+      } else if (maxWidth) {
+        // For left/right aligned text with maxWidth: use fixed width
+        style = `
+          position: absolute;
+          left: ${left}px;
+          top: ${element.y}px;
+          width: ${maxWidth}px;
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+          font-family: ${element.fontFamily}, sans-serif;
+          font-size: ${element.fontSize}px;
+          color: ${element.color};
+          text-align: ${textAlign};
+          font-weight: ${element.fontWeight || 'normal'};
+          white-space: normal;
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+          word-break: break-word;
+          line-height: ${element.fontSize * 1.2}px;
+        `.trim().replace(/\s+/g, ' ');
+      } else {
+        // No maxWidth - use transform for alignment without width constraint
+        let transform = '';
+        if (textAlign === 'center') {
+          transform = 'transform: translateX(-50%);';
+        } else if (textAlign === 'right') {
+          transform = 'transform: translateX(-100%);';
+        }
+        
+        style = `
+          position: absolute;
+          left: ${left}px;
+          top: ${element.y}px;
+          ${transform}
+          margin: 0;
+          padding: 0;
+          font-family: ${element.fontFamily}, sans-serif;
+          font-size: ${element.fontSize}px;
+          color: ${element.color};
+          text-align: ${textAlign};
+          font-weight: ${element.fontWeight || 'normal'};
+          white-space: nowrap;
+          line-height: ${element.fontSize * 1.2}px;
+        `.trim().replace(/\s+/g, ' ');
+      }
+      
       return `<div class="text-element" style="${style}">${escapedText}</div>`;
     }).join('\n');
 
@@ -350,7 +403,7 @@ export async function POST(request: NextRequest) {
               padding: 0;
               box-sizing: border-box;
             }
-            html, body {
+            html {
               width: ${width}px;
               height: ${height}px;
               margin: 0;
@@ -358,6 +411,11 @@ export async function POST(request: NextRequest) {
               overflow: hidden;
             }
             body {
+              width: ${width}px;
+              height: ${height}px;
+              margin: 0;
+              padding: 0;
+              overflow: hidden;
               position: relative;
               background-image: url('${backgroundImageBase64}');
               background-size: cover;
@@ -455,6 +513,8 @@ export async function POST(request: NextRequest) {
           google_fonts: uniqueFonts.join('|'),
           device_scale_factor: 2, // Higher quality rendering
           ms_delay: 1000, // Wait for fonts to load
+          viewport_width: width, // Explicit viewport width
+          viewport_height: height, // Explicit viewport height
         },
         {
           auth: {
