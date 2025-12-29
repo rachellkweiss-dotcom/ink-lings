@@ -3,6 +3,46 @@ import { renderSocialSchema } from '@/lib/api-validation';
 import { rateLimit } from '@/lib/rate-limit';
 import { z } from 'zod';
 import axios from 'axios';
+import { v2 as cloudinary } from 'cloudinary';
+
+// Configure Cloudinary
+if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+}
+
+/**
+ * Upload base64 image to Cloudinary and return URL
+ */
+async function uploadToCloudinary(base64Data: string): Promise<string | null> {
+  try {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      console.warn('Cloudinary not configured, skipping upload');
+      return null;
+    }
+
+    // Extract base64 string (remove data:image/png;base64, prefix)
+    const base64String = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(
+      `data:image/png;base64,${base64String}`,
+      {
+        folder: 'ink-lings/social-media',
+        resource_type: 'image',
+        format: 'png',
+      }
+    );
+
+    return result.secure_url;
+  } catch (error) {
+    console.error('Cloudinary upload error:', error);
+    return null;
+  }
+}
 
 /**
  * API endpoint to render social media images
@@ -281,11 +321,15 @@ export async function POST(request: NextRequest) {
         const base64Image = Buffer.from(screenshotResponse.data, 'binary').toString('base64');
         const dataUrl = `data:image/png;base64,${base64Image}`;
 
+        // Upload to Cloudinary and get URL
+        const cloudinaryUrl = await uploadToCloudinary(dataUrl);
+
         return NextResponse.json(
           {
             success: true,
-            base64: dataUrl,
-            image: dataUrl,
+            url: cloudinaryUrl || dataUrl, // Use Cloudinary URL if available, fallback to base64
+            base64: dataUrl, // Always include base64 for backwards compatibility
+            image: cloudinaryUrl || dataUrl,
             format: 'png',
             dimensions: { width, height },
           },
@@ -339,11 +383,15 @@ export async function POST(request: NextRequest) {
       const base64Image = Buffer.from(imageResponse.data, 'binary').toString('base64');
       const dataUrl = `data:image/png;base64,${base64Image}`;
 
+      // Upload to Cloudinary and get URL
+      const cloudinaryUrl = await uploadToCloudinary(dataUrl);
+
       return NextResponse.json(
         {
           success: true,
-          base64: dataUrl,
-          image: dataUrl,
+          url: cloudinaryUrl || dataUrl, // Use Cloudinary URL if available, fallback to base64
+          base64: dataUrl, // Always include base64 for backwards compatibility
+          image: cloudinaryUrl || dataUrl,
           format: 'png',
           dimensions: { width, height },
         },

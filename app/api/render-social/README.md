@@ -14,6 +14,22 @@ Set `RENDER_SOCIAL_WEBHOOK_SECRET` in your environment variables. The webhook sh
 
 If the secret is not set, the endpoint will be publicly accessible (not recommended for production).
 
+## Cloudinary Setup (Optional but Recommended)
+
+To get URLs instead of base64 (better for Airtable), configure Cloudinary:
+
+1. Sign up at https://cloudinary.com (free tier available)
+2. Get your credentials from the dashboard:
+   - Cloud Name
+   - API Key
+   - API Secret
+3. Add to Vercel environment variables:
+   - `CLOUDINARY_CLOUD_NAME`
+   - `CLOUDINARY_API_KEY`
+   - `CLOUDINARY_API_SECRET`
+
+If Cloudinary is not configured, the API will return base64 data URLs instead.
+
 ## Request Body
 
 ```json
@@ -61,7 +77,9 @@ If the secret is not set, the endpoint will be publicly accessible (not recommen
 ```json
 {
   "success": true,
-  "image": "data:image/png;base64,iVBORw0KGgoAAAANS...",
+  "url": "https://res.cloudinary.com/your-account/image/upload/v1234567890/ink-lings/social-media/abc123.png",
+  "base64": "data:image/png;base64,iVBORw0KGgoAAAANS...",
+  "image": "https://res.cloudinary.com/...",
   "format": "png",
   "dimensions": {
     "width": 1080,
@@ -69,6 +87,13 @@ If the secret is not set, the endpoint will be publicly accessible (not recommen
   }
 }
 ```
+
+**Response Fields:**
+- `url`: Cloudinary URL (if configured) - **Use this for Airtable attachment fields**
+- `base64`: Base64 data URL (always included for backwards compatibility)
+- `image`: Same as `url` (for backwards compatibility)
+- `format`: Image format (always "png")
+- `dimensions`: Image dimensions in pixels
 
 ## Airtable Webhook Setup
 
