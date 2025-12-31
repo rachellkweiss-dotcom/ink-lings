@@ -531,24 +531,30 @@ export async function POST(request: NextRequest) {
       );
 
       // Extract usage information from response headers
-      // Axios lowercases header names, so check both cases
+      // Headers are: x-renders-used, x-renders-allowed (not x-renders-limit)
       const allHeaders = response.headers;
-      console.log('HTML/CSS to Image API response headers:', Object.keys(allHeaders));
       
       // Type-safe header access - axios headers can be Record<string, string | string[] | undefined>
-      const rendersUsedHeader = (typeof allHeaders['x-renders-used'] === 'string' ? allHeaders['x-renders-used'] : null) ||
-                                (typeof allHeaders['X-Renders-Used'] === 'string' ? allHeaders['X-Renders-Used'] : null);
-      const rendersLimitHeader = (typeof allHeaders['x-renders-limit'] === 'string' ? allHeaders['x-renders-limit'] : null) ||
-                                 (typeof allHeaders['X-Renders-Limit'] === 'string' ? allHeaders['X-Renders-Limit'] : null);
+      const getHeaderValue = (headerName: string): string | null => {
+        const value = allHeaders[headerName.toLowerCase()];
+        if (typeof value === 'string') {
+          return value;
+        }
+        if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'string') {
+          return value[0];
+        }
+        return null;
+      };
+      
+      const rendersUsedHeader = getHeaderValue('x-renders-used');
+      const rendersAllowedHeader = getHeaderValue('x-renders-allowed'); // This is the limit!
       
       const rendersUsed = rendersUsedHeader 
-        ? parseInt(String(rendersUsedHeader), 10) 
+        ? parseInt(rendersUsedHeader, 10) 
         : null;
-      const rendersLimit = rendersLimitHeader
-        ? parseInt(String(rendersLimitHeader), 10)
+      const rendersLimit = rendersAllowedHeader
+        ? parseInt(rendersAllowedHeader, 10)
         : null;
-      
-      console.log('Usage info extracted:', { rendersUsed, rendersLimit });
 
       // Fetch the generated image
       const imageResponse = await axios.get(response.data.url, {
