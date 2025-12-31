@@ -535,12 +535,11 @@ export async function POST(request: NextRequest) {
       const allHeaders = response.headers;
       console.log('HTML/CSS to Image API response headers:', Object.keys(allHeaders));
       
-      const rendersUsedHeader = allHeaders['x-renders-used'] || 
-                                allHeaders['X-Renders-Used'] ||
-                                (allHeaders as any)['x-renders-used'];
-      const rendersLimitHeader = allHeaders['x-renders-limit'] || 
-                                 allHeaders['X-Renders-Limit'] ||
-                                 (allHeaders as any)['x-renders-limit'];
+      // Type-safe header access - axios headers can be Record<string, string | string[] | undefined>
+      const rendersUsedHeader = (typeof allHeaders['x-renders-used'] === 'string' ? allHeaders['x-renders-used'] : null) ||
+                                (typeof allHeaders['X-Renders-Used'] === 'string' ? allHeaders['X-Renders-Used'] : null);
+      const rendersLimitHeader = (typeof allHeaders['x-renders-limit'] === 'string' ? allHeaders['x-renders-limit'] : null) ||
+                                 (typeof allHeaders['X-Renders-Limit'] === 'string' ? allHeaders['X-Renders-Limit'] : null);
       
       const rendersUsed = rendersUsedHeader 
         ? parseInt(String(rendersUsedHeader), 10) 
