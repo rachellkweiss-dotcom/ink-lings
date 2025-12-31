@@ -530,6 +530,27 @@ export async function POST(request: NextRequest) {
         }
       );
 
+      // Extract usage information from response headers
+      // Axios lowercases header names, so check both cases
+      const allHeaders = response.headers;
+      console.log('HTML/CSS to Image API response headers:', Object.keys(allHeaders));
+      
+      const rendersUsedHeader = allHeaders['x-renders-used'] || 
+                                allHeaders['X-Renders-Used'] ||
+                                (allHeaders as any)['x-renders-used'];
+      const rendersLimitHeader = allHeaders['x-renders-limit'] || 
+                                 allHeaders['X-Renders-Limit'] ||
+                                 (allHeaders as any)['x-renders-limit'];
+      
+      const rendersUsed = rendersUsedHeader 
+        ? parseInt(String(rendersUsedHeader), 10) 
+        : null;
+      const rendersLimit = rendersLimitHeader
+        ? parseInt(String(rendersLimitHeader), 10)
+        : null;
+      
+      console.log('Usage info extracted:', { rendersUsed, rendersLimit });
+
       // Fetch the generated image
       const imageResponse = await axios.get(response.data.url, {
         responseType: 'arraybuffer',
@@ -549,6 +570,11 @@ export async function POST(request: NextRequest) {
           image: cloudinaryUrl || dataUrl,
           format: 'png',
           dimensions: { width, height },
+          usage: rendersUsed !== null && rendersLimit !== null ? {
+            used: rendersUsed,
+            limit: rendersLimit,
+            remaining: rendersLimit - rendersUsed,
+          } : null,
         },
         {
           headers: {
