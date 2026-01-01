@@ -547,6 +547,13 @@ serve(async (req) => {
             emailsSent++;
             console.log(`✅ Email sent to user ${user.user_id}`);
 
+            // Rate limiting: Resend API allows 2 requests per second
+            // Wait 600ms between emails to stay safely under the limit
+            // Only wait if there are more users to process
+            if (emailsSent < users.length) {
+              await new Promise(resolve => setTimeout(resolve, 600));
+            }
+
             // STEP 11: Insert into prompt history
             const { error: historyError } = await supabase
               .from('prompt_history')
@@ -595,10 +602,13 @@ serve(async (req) => {
             }
           } else {
             errors++;
-            console.log(`❌ Failed to send email to user ${user.user_id}`);
+            const errorText = await emailResponse.text();
+            console.error(`❌ Failed to send email to user ${user.user_id}: ${emailResponse.status} ${emailResponse.statusText}`);
+            console.error(`❌ Resend API error response: ${errorText}`);
           }
         } else {
-          console.log(`User ${user.user_id} not ready for prompt yet. Time diff: ${timeDiff} minutes`);
+          const timeDiff = currentHour - storedHour;
+          console.log(`User ${user.user_id} not ready for prompt yet. Stored hour: ${storedHour}, Current hour: ${currentHour}, Time diff: ${timeDiff} hours`);
         }
       } catch (error) {
         errors++;
