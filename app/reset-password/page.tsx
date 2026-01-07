@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,53 +19,25 @@ function ResetPasswordContent() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    async function initializeSession() {
-      // Check for code parameter from Supabase password reset email
-      const code = searchParams.get('code');
-      
-      if (code) {
-        // Exchange the code for a session
-        console.log('🔑 Exchanging recovery code for session...');
-        console.log('Code:', code);
-        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
-        
-        if (exchangeError) {
-          console.error('Error exchanging code:', exchangeError);
-          console.error('Error details:', JSON.stringify(exchangeError, null, 2));
-          setError(`Reset link error: ${exchangeError.message}`);
-          setLoading(false);
-          return;
-        }
-        
-        if (data.session) {
-          console.log('✅ Session established for password reset');
-          setIsAuthenticated(true);
-          setLoading(false);
-          // Remove the code from URL for cleaner UX
-          window.history.replaceState({}, '', '/reset-password');
-          return;
-        }
-      }
-      
-      // No code - check for existing session
+    async function checkSession() {
+      // Session should already be established by /auth/callback
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        // No session and no code - redirect to auth
         setError('No valid session. Please request a new password reset.');
         setLoading(false);
         return;
       }
       
+      console.log('✅ Session found for password reset');
       setIsAuthenticated(true);
       setLoading(false);
     }
     
-    initializeSession();
-  }, [searchParams]);
+    checkSession();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
