@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
 interface SignInProps {
@@ -19,6 +18,11 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('')
+  const [forgotPasswordLoading, setForgotPasswordLoading] = useState(false)
+  const [forgotPasswordMessage, setForgotPasswordMessage] = useState('')
+  const [forgotPasswordError, setForgotPasswordError] = useState('')
   const { signIn } = useAuth()
 
   const handleGoogleSignIn = async () => {
@@ -68,7 +72,97 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
     }
   }
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setForgotPasswordLoading(true)
+    setForgotPasswordError('')
+    setForgotPasswordMessage('')
 
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
+        redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      setForgotPasswordMessage('Check your email for a password reset link. The email will come from Supabase Auth.')
+    } catch (err) {
+      setForgotPasswordError(err instanceof Error ? err.message : 'Failed to send reset email')
+    } finally {
+      setForgotPasswordLoading(false)
+    }
+  }
+
+
+
+  // Forgot Password Form
+  if (showForgotPassword) {
+    return (
+      <div className="space-y-6">
+        <Card className="bg-white/90 backdrop-blur-sm border-2 border-blue-600 dark:border-blue-500 shadow-lg">
+          <CardHeader className="pb-4">
+            <CardTitle className="text-3xl text-center text-gray-800 font-bold">Reset Password</CardTitle>
+            <CardDescription className="text-center text-base text-gray-600">
+              Enter your email and we&apos;ll send you a link to reset your password
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="forgot-email" className="text-gray-700 font-medium text-base">Email</Label>
+                <Input
+                  id="forgot-email"
+                  type="email"
+                  value={forgotPasswordEmail}
+                  onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                  placeholder="your@email.com"
+                  required
+                  className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 font-sans text-base"
+                  style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
+                />
+              </div>
+
+              {forgotPasswordError && (
+                <div className="text-red-500 text-base bg-red-50 p-3 rounded-md border border-red-200">
+                  {forgotPasswordError}
+                </div>
+              )}
+
+              {forgotPasswordMessage && (
+                <div className="text-green-700 text-base bg-green-50 p-3 rounded-md border border-green-200">
+                  {forgotPasswordMessage}
+                </div>
+              )}
+
+              <Button 
+                type="submit" 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5" 
+                disabled={forgotPasswordLoading}
+              >
+                {forgotPasswordLoading ? 'Sending...' : 'Send Reset Link'}
+              </Button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForgotPassword(false)
+                    setForgotPasswordMessage('')
+                    setForgotPasswordError('')
+                  }}
+                  className="text-sm text-blue-600 hover:text-blue-800 underline"
+                >
+                  Back to sign in
+                </button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -107,7 +201,18 @@ export function SignIn({ onSignInSuccess, onSwitchToSignUp }: SignInProps) {
                     className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 font-sans text-base"
                     style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
                   />
-
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowForgotPassword(true)
+                        setForgotPasswordEmail(email) // Pre-fill with current email
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                    >
+                      Forgot password?
+                    </button>
+                  </div>
                 </div>
 
                 {error && (

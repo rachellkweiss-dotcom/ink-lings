@@ -2,9 +2,9 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, Suspense, useMemo } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,37 +12,60 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import Image from 'next/image';
 
 function ResetPasswordContent() {
-  // Create Supabase client inside component to avoid build-time errors
-  const supabase = useMemo(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) {
-      // During build, return a mock client that will error at runtime if used
-      // This prevents build failures while still catching runtime errors
-      return createClient('https://placeholder.supabase.co', 'placeholder-key');
-    }
-    return createClient(url, key);
-  }, []);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
   const searchParams = useSearchParams();
 
-
-  // Check if we have the necessary tokens from the URL
-  const accessToken = searchParams.get('access_token');
-  const refreshToken = searchParams.get('refresh_token');
-
   useEffect(() => {
-    // If no tokens, redirect to sign in
-    if (!accessToken && !refreshToken) {
-      router.push('/');
-      return;
+    async function initializeSession() {
+      // Check for code parameter from Supabase password reset email
+      const code = searchParams.get('code');
+      
+      if (code) {
+        // Exchange the code for a session
+        console.log('🔑 Exchanging recovery code for session...');
+        console.log('Code:', code);
+        const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+        
+        if (exchangeError) {
+          console.error('Error exchanging code:', exchangeError);
+          console.error('Error details:', JSON.stringify(exchangeError, null, 2));
+          setError(`Reset link error: ${exchangeError.message}`);
+          setLoading(false);
+          return;
+        }
+        
+        if (data.session) {
+          console.log('✅ Session established for password reset');
+          setIsAuthenticated(true);
+          setLoading(false);
+          // Remove the code from URL for cleaner UX
+          window.history.replaceState({}, '', '/reset-password');
+          return;
+        }
+      }
+      
+      // No code - check for existing session
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // No session and no code - redirect to auth
+        setError('No valid session. Please request a new password reset.');
+        setLoading(false);
+        return;
+      }
+      
+      setIsAuthenticated(true);
+      setLoading(false);
     }
-  }, [accessToken, refreshToken, router]);
+    
+    initializeSession();
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,11 +97,11 @@ function ResetPasswordContent() {
         throw error;
       }
 
-      setMessage('Password updated successfully! Redirecting to sign in...');
+      setMessage('Password updated successfully! Redirecting to your account...');
       
-      // Redirect to sign in after a short delay
+      // Redirect to account after a short delay
       setTimeout(() => {
-        router.push('/');
+        router.push('/account');
       }, 2000);
 
     } catch (err) {
@@ -89,12 +112,50 @@ function ResetPasswordContent() {
     }
   };
 
-  if (!accessToken && !refreshToken) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-cyan-900/10 flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-blue-600">Redirecting...</p>
+          <p className="text-blue-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-cyan-50 dark:from-gray-900 dark:via-blue-900/10 dark:to-cyan-900/10" style={{ fontFamily: 'var(--font-shadows-into-light)' }}>
+        <div className="max-w-6xl mx-auto p-8">
+          <div className="text-center mb-8">
+            <div className="flex justify-center">
+              <Image
+                src="/ink_links_logo_final_final.png"
+                alt="Ink-lings Logo"
+                width={260}
+                height={104}
+                priority
+                className="h-20 w-auto"
+              />
+            </div>
+          </div>
+          <div className="max-w-md mx-auto">
+            <Card className="bg-white/90 backdrop-blur-sm border-0 shadow-lg">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl text-center text-gray-800">Reset Link Expired</CardTitle>
+              </CardHeader>
+              <CardContent className="text-center space-y-4">
+                <p className="text-gray-600">{error || 'This password reset link is invalid or has expired.'}</p>
+                <Button
+                  onClick={() => router.push('/auth')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                >
+                  Back to Sign In
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     );
