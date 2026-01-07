@@ -28,25 +28,40 @@ export async function GET(request: NextRequest) {
     const startTimestamp = Math.floor(startDate.getTime() / 1000);
     const endTimestamp = Math.floor(endDate.getTime() / 1000);
     
-    // Get payments only within the rolling annual period
-    const payments = await stripe.paymentIntents.list({
-      limit: 100, // Get up to 100 payments
+    // Get checkout sessions within the rolling annual period
+    // We use checkout sessions because they have the product/line item info
+    const sessions = await stripe.checkout.sessions.list({
+      limit: 100,
       created: {
         gte: startTimestamp,
         lt: endTimestamp
-      }
+      },
+      expand: ['data.line_items']
     });
 
-    // Filter for successful payments
-    const successfulPayments = payments.data.filter(payment => payment.status === 'succeeded');
-
-    // Calculate total amount from successful payments within the period
+    // Filter for:
+    // 1. Completed payments
+    // 2. Ink-lings products only (exclude Remember-lings)
     let totalDonations = 0;
     
-    successfulPayments.forEach(payment => {
-      // Convert from cents to dollars and add to total
-      totalDonations += payment.amount / 100;
-    });
+    for (const session of sessions.data) {
+      if (session.payment_status !== 'paid') continue;
+      
+      // Check if this is an Ink-lings donation by looking at line items
+      const lineItems = session.line_items?.data || [];
+      const isInklings = lineItems.some(item => {
+        const productName = item.description || '';
+        return productName.toLowerCase().includes('ink-lings') || 
+               productName.toLowerCase().includes('inklings');
+      });
+      
+      // Also check metadata for donationType (Ink-lings donations have this)
+      const hasInklingsMetadata = session.metadata?.donationType !== undefined;
+      
+      if (isInklings || hasInklingsMetadata) {
+        totalDonations += (session.amount_total || 0) / 100;
+      }
+    }
 
     // Log successful data access (public endpoint, no user ID)
     logSuccess(request, 'donation_total_accessed', undefined, undefined, {

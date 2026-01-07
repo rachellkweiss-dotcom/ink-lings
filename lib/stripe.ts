@@ -35,7 +35,7 @@ export const DONATION_AMOUNTS = {
   COFFEE_JOURNALING: 500, // $5.00 coffee + journal amount
 };
 
-// Get rolling annual donation total (Aug to Aug)
+// Get rolling annual donation total (Aug to Aug) - Ink-lings only
 export async function getRollingAnnualDonations() {
   try {
     const now = new Date();
@@ -50,23 +50,35 @@ export async function getRollingAnnualDonations() {
     const endYear = currentMonth >= 7 ? currentYear + 1 : currentYear;
     const endDate = new Date(endYear, 7, 1); // August 1st of next year
     
-    const payments = await stripe.paymentIntents.list({
+    // Use checkout sessions to filter by product
+    const sessions = await stripe.checkout.sessions.list({
       created: {
         gte: Math.floor(startDate.getTime() / 1000),
         lt: Math.floor(endDate.getTime() / 1000),
       },
       limit: 100,
+      expand: ['data.line_items']
     });
     
-    // Filter for successful payments
-    const successfulPayments = payments.data.filter(payment => 
-      payment.status === 'succeeded'
-    );
+    let totalAmount = 0;
     
-    // Sum up the amounts (convert from cents to dollars)
-    const totalAmount = successfulPayments.reduce((sum, payment) => 
-      sum + (payment.amount || 0), 0
-    ) / 100;
+    for (const session of sessions.data) {
+      if (session.payment_status !== 'paid') continue;
+      
+      // Check if this is an Ink-lings donation
+      const lineItems = session.line_items?.data || [];
+      const isInklings = lineItems.some(item => {
+        const productName = item.description || '';
+        return productName.toLowerCase().includes('ink-lings') || 
+               productName.toLowerCase().includes('inklings');
+      });
+      
+      const hasInklingsMetadata = session.metadata?.donationType !== undefined;
+      
+      if (isInklings || hasInklingsMetadata) {
+        totalAmount += (session.amount_total || 0) / 100;
+      }
+    }
     
     return totalAmount;
   } catch (error) {
@@ -75,22 +87,33 @@ export async function getRollingAnnualDonations() {
   }
 }
 
-// Get total lifetime donations
+// Get total lifetime donations - Ink-lings only
 export async function getLifetimeDonations() {
   try {
-    const payments = await stripe.paymentIntents.list({
+    const sessions = await stripe.checkout.sessions.list({
       limit: 100,
+      expand: ['data.line_items']
     });
     
-    // Filter for successful payments
-    const successfulPayments = payments.data.filter(payment => 
-      payment.status === 'succeeded'
-    );
+    let totalAmount = 0;
     
-    // Sum up the amounts (convert from cents to dollars)
-    const totalAmount = successfulPayments.reduce((sum, payment) => 
-      sum + (payment.amount || 0), 0
-    ) / 100;
+    for (const session of sessions.data) {
+      if (session.payment_status !== 'paid') continue;
+      
+      // Check if this is an Ink-lings donation
+      const lineItems = session.line_items?.data || [];
+      const isInklings = lineItems.some(item => {
+        const productName = item.description || '';
+        return productName.toLowerCase().includes('ink-lings') || 
+               productName.toLowerCase().includes('inklings');
+      });
+      
+      const hasInklingsMetadata = session.metadata?.donationType !== undefined;
+      
+      if (isInklings || hasInklingsMetadata) {
+        totalAmount += (session.amount_total || 0) / 100;
+      }
+    }
     
     return totalAmount;
   } catch (error) {
