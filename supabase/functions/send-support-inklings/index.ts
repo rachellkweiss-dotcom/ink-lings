@@ -161,7 +161,7 @@ serve(async (req) => {
   }
 })
 
-// Get rolling annual donation total (August to August)
+// Get rolling annual donation total (August to August) - Ink-lings only
 async function getRollingAnnualDonations(): Promise<number> {
   try {
     const now = new Date()
@@ -180,64 +180,42 @@ async function getRollingAnnualDonations(): Promise<number> {
     const startTimestamp = Math.floor(startDate.getTime() / 1000)
     const endTimestamp = Math.floor(endDate.getTime() / 1000)
     
-    // Get payments only within the rolling annual period
-    const payments = await stripe.paymentIntents.list({
-      limit: 100, // Get up to 100 payments
+    // Get checkout sessions to filter by product (Ink-lings only)
+    const sessions = await stripe.checkout.sessions.list({
+      limit: 100,
       created: {
         gte: startTimestamp,
         lt: endTimestamp
-      }
+      },
+      expand: ['data.line_items']
     })
 
-    // Filter for successful payments that are donations
-    const donationPayments = payments.data.filter(payment => {
-      // Must be successful
-      if (payment.status !== 'succeeded') return false
-      
-      // Check if it's a donation by looking at metadata
-      const metadata = payment.metadata || {}
-      const donationType = metadata.donationType
-      
-      // Count donations from:
-      // 1. App donations (TIP_JAR and COFFEE_JOURNALING)
-      // 2. Direct Stripe payment link donations
-      const isAppDonation = donationType === 'TIP_JAR' || donationType === 'COFFEE_JOURNALING'
-      
-      // Check if it's from the direct Stripe payment link
-      // This link: https://buy.stripe.com/dRm4gAebs6N38Xa0ks24001
-      // Since description is null, we'll include all successful payments that aren't app donations
-      // as they're likely from the direct Stripe link
-      const isDirectLinkDonation = !isAppDonation && payment.status === 'succeeded'
-      
-      return isAppDonation || isDirectLinkDonation
-    })
-
-    console.log(`Found ${donationPayments.length} donation payments out of ${payments.data.length} total payments`)
-
-    // Calculate total amount from donation payments within the period
     let totalDonations = 0
-    
-    donationPayments.forEach(payment => {
-      // Convert from cents to dollars and add to total
-      totalDonations += payment.amount / 100
+    let inklingsCount = 0
+
+    for (const session of sessions.data) {
+      if (session.payment_status !== 'paid') continue
       
-      // Determine donation type for logging
-      const metadata = payment.metadata || {}
-      const donationType = metadata.donationType
-      let donationSource = 'Unknown'
+      // Check if this is an Ink-lings donation by looking at line items
+      const lineItems = session.line_items?.data || []
+      const isInklings = lineItems.some(item => {
+        const productName = item.description || ''
+        return productName.toLowerCase().includes('ink-lings') || 
+               productName.toLowerCase().includes('inklings')
+      })
       
-      if (donationType === 'TIP_JAR') {
-        donationSource = 'App Tip Jar'
-      } else if (donationType === 'COFFEE_JOURNALING') {
-        donationSource = 'App Coffee + Journal'
-      } else if (payment.description?.includes('Ink-lings') || 
-                 payment.description?.includes('support') ||
-                 payment.description?.includes('donation')) {
-        donationSource = 'Direct Stripe Link'
+      // Also check metadata for donationType (Ink-lings donations have this)
+      const hasInklingsMetadata = session.metadata?.donationType !== undefined
+      
+      if (isInklings || hasInklingsMetadata) {
+        const amount = (session.amount_total || 0) / 100
+        totalDonations += amount
+        inklingsCount++
+        console.log(`Ink-lings Donation: $${amount}`)
       }
-      
-      console.log(`Donation: $${payment.amount / 100} (${donationSource})`)
-    })
+    }
+
+    console.log(`Found ${inklingsCount} Ink-lings donations out of ${sessions.data.length} total sessions`)
 
     return totalDonations
   } catch (error) {
