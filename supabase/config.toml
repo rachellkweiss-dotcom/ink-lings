@@ -360,3 +360,28 @@ enabled = true
 verify_jwt = false
 import_map = "./functions/send-catchup-prompts/deno.json"
 entrypoint = "./functions/send-catchup-prompts/index.ts"
+
+[functions.send-support-inklings]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/send-support-inklings/index.ts"
+
+[functions.check-set-preferences]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/check-set-preferences/index.ts"
+
+[functions.send-15-prompt-milestone]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/send-15-prompt-milestone/index.ts"
+
+[functions.send-gratitude-prompts]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/send-gratitude-prompts/index.ts"
+
+[functions.send-gratitude-2026-announcement]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/send-gratitude-2026-announcement/index.ts"
