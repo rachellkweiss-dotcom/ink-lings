@@ -86,7 +86,6 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: userId,
         active: true,
-        notification_time_utc: '16:00:00', // 11:00 AM EST
         ...(timezone && { timezone })
       })
       .select()

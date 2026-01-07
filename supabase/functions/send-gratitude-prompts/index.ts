@@ -91,18 +91,6 @@ serve(async (req) => {
       });
     }
 
-    // Check if it's the right time (16:00 UTC = 11:00 AM EST / 12:00 PM EDT) - unless test mode
-    if (currentHour !== 16 && !isTestMode) {
-      console.log(`⏭️ Skipping - not 16:00 UTC (current time: ${currentHour}:${currentMinute} UTC)`);
-      return new Response(JSON.stringify({
-        success: true,
-        message: `Not the right time - runs at 16:00 UTC (current: ${currentHour}:${currentMinute} UTC)`,
-        emailsSent: 0
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200
-      });
-    }
 
     // Calculate day of year (1-365) - use test parameter if provided
     const dayOfYear = testDayOfYear ? parseInt(testDayOfYear, 10) : (() => {
@@ -335,7 +323,7 @@ serve(async (req) => {
     // PRODUCTION MODE: Get all active gratitude challenge participants
     const { data: participants, error: participantsError } = await supabase
       .from('gratitude_2026_participants')
-      .select('user_id, notification_time_utc, last_prompt_sent')
+      .select('user_id, last_prompt_sent')
       .eq('active', true);
 
     if (participantsError) {
@@ -612,8 +600,7 @@ serve(async (req) => {
             category_id: '2026-gratitude',
             prompt_text: prompt.prompt_text,
             prompt_number: dayOfYear,
-            email_sent_to: userEmail,
-            feedback_token: feedbackToken
+            email_sent_to: userEmail
           });
 
         if (historyError) {
