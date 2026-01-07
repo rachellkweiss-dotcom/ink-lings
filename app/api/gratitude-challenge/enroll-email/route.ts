@@ -139,7 +139,6 @@ export async function GET(request: NextRequest) {
       .insert({
         user_id: userId,
         active: true,
-        notification_time_utc: '16:00:00', // 11:00 AM EST
         ...(userPrefs.timezone && { timezone: userPrefs.timezone })
       })
       .select()
