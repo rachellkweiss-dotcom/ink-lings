@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const next = requestUrl.searchParams.get('next') ?? '/account'
+  const type = requestUrl.searchParams.get('type')
 
   if (code) {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
@@ -66,6 +67,11 @@ export async function GET(request: NextRequest) {
     if (error || !session?.user) {
       console.error('Error exchanging code for session:', error)
       return NextResponse.redirect(new URL('/auth?error=session_error', request.url))
+    }
+
+    // If this is a password recovery flow, redirect to reset password page
+    if (type === 'recovery' || next === '/reset-password') {
+      return NextResponse.redirect(new URL('/reset-password', request.url))
     }
 
     // Check if user has completed onboarding (has row in user_preferences)

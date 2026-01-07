@@ -12,6 +12,12 @@ export function Footer() {
           </div>
           
           <div className="flex space-x-6 text-sm">
+            <a 
+              href="mailto:support@inklingsjournal.live" 
+              className="text-blue-700 hover:text-blue-800 transition-colors font-medium hover:bg-blue-50/50 px-3 py-1 rounded-md"
+            >
+              Contact Us
+            </a>
             <Link 
               href="/privacy-policy" 
               className="text-blue-700 hover:text-blue-800 transition-colors font-medium hover:bg-blue-50/50 px-3 py-1 rounded-md"
