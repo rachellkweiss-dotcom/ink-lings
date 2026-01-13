@@ -60,23 +60,29 @@ serve(async (req) => {
 
     console.log('📊 Finding users who need 15-prompt milestone email...')
     
-    // Step 1: Get users with exactly 15 prompts sent
-    const { data: usersWith15Prompts, error: usersError } = await supabase
-      .from('user_preferences')
-      .select(`
-        user_id,
-        notification_email,
-        users!inner(email)
-      `)
-      .eq('total_prompts_sent_count', 15)
+    // Step 1: Get all prompt counts from prompt_history table
+    const { data: promptHistory, error: historyError } = await supabase
+      .from('prompt_history')
+      .select('user_id')
 
-    if (usersError) {
-      throw new Error(`Error fetching users with 15 prompts: ${usersError.message}`)
+    if (historyError) {
+      throw new Error(`Error fetching prompt history: ${historyError.message}`)
     }
 
-    console.log(`Found ${usersWith15Prompts?.length || 0} users with exactly 15 prompts`)
+    // Count prompts per user
+    const promptCounts: Record<string, number> = {}
+    for (const record of promptHistory || []) {
+      promptCounts[record.user_id] = (promptCounts[record.user_id] || 0) + 1
+    }
 
-    if (!usersWith15Prompts || usersWith15Prompts.length === 0) {
+    // Find users with exactly 15 prompts
+    const usersWith15Prompts = Object.entries(promptCounts)
+      .filter(([_, count]) => count === 15)
+      .map(([user_id]) => user_id)
+
+    console.log(`Found ${usersWith15Prompts.length} users with exactly 15 prompts`)
+
+    if (usersWith15Prompts.length === 0) {
       console.log('No users found with 15 prompts. Exiting.')
       return new Response(
         JSON.stringify({ 
@@ -88,29 +94,53 @@ serve(async (req) => {
       )
     }
 
-    // Step 2: Check email_milestones table for each user
+    // Step 2: Get notification emails for these users from user_preferences
+    const { data: userPrefs, error: prefsError } = await supabase
+      .from('user_preferences')
+      .select('user_id, notification_email')
+      .in('user_id', usersWith15Prompts)
+
+    if (prefsError) {
+      throw new Error(`Error fetching user preferences: ${prefsError.message}`)
+    }
+
+    // Create a map of user_id to email
+    const userEmailMap: Record<string, string> = {}
+    for (const pref of userPrefs || []) {
+      if (pref.notification_email) {
+        userEmailMap[pref.user_id] = pref.notification_email
+      }
+    }
+
+    // Step 3: Check email_milestones table for each user
     const usersToEmail = []
     
-    for (const userPref of usersWith15Prompts) {
+    for (const user_id of usersWith15Prompts) {
+      const email = userEmailMap[user_id]
+      if (!email) {
+        console.log(`User ${user_id} has no notification_email, skipping`)
+        continue
+      }
+
       const { data: milestoneData, error: milestoneError } = await supabase
         .from('email_milestones')
         .select('alt_notifications')
-        .eq('user_id', userPref.user_id)
+        .eq('user_id', user_id)
         .single()
 
       if (milestoneError && milestoneError.code !== 'PGRST116') { // PGRST116 = no rows returned
-        console.error(`Error checking milestone for user ${userPref.user_id}:`, milestoneError)
+        console.error(`Error checking milestone for user ${user_id}:`, milestoneError)
         continue
       }
 
       // If alt_notifications is empty/null, this user should receive the email
       if (!milestoneData || !milestoneData.alt_notifications) {
         usersToEmail.push({
-          user_id: userPref.user_id,
-          email: userPref.users.email
+          user_id,
+          email
         })
       } else {
-        console.log(`User ${userPref.user_id} already received alt_notifications email, skipping`)
+        console.log(`User ${user_id} already received alt_notifications email, skipping`)
       }
     }
 
