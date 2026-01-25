@@ -63,7 +63,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "^15.5.9",
+    "eslint-config-next": "^16.1.4",
     "eslint-plugin-security": "^3.0.1",
     "snyk": "^1.1301.2",
     "tailwindcss": "^4",
