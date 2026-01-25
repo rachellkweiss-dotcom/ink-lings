@@ -23,8 +23,13 @@ const FROM_EMAIL = 'Ink-lings <hello@inklingsjournal.live>'
 
 // Constants
 const ANNUAL_COST = 675 // $675/year total
-const SUPPORT_MILESTONES = [30, 80, 130, 200] // Prompt counts that trigger support emails
-const MIN_DAYS_BETWEEN_EMAILS = 10 // Minimum days between support emails
+const MIN_PROMPTS_FOR_SUPPORT_EMAIL = 30 // Minimum prompts before sending support email
+const MIN_DAYS_BETWEEN_OTHER_EMAILS = 10 // Minimum days since other emails for first support email
+const DAYS_BETWEEN_SUPPORT_EMAILS = 120 // Days between repeat support emails
+const RESEND_RATE_LIMIT_DELAY_MS = 200 // Delay between email sends for rate limiting
+
+// Helper function to add delay for rate limiting
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -87,17 +92,17 @@ serve(async (req) => {
       )
     }
 
-    // Step 2: Find users who have reached support milestones
-    console.log('Finding users at support milestones...')
-    const milestoneUsers = await findUsersAtMilestones()
-    console.log(`Found ${milestoneUsers.length} users at milestones`)
+    // Step 2: Find users with more than 30 prompts
+    console.log('Finding eligible users (>30 prompts)...')
+    const eligibleUsers = await findEligibleUsers()
+    console.log(`Found ${eligibleUsers.length} users with >${MIN_PROMPTS_FOR_SUPPORT_EMAIL} prompts`)
 
-    if (milestoneUsers.length === 0) {
-      console.log('No users found at support milestones')
+    if (eligibleUsers.length === 0) {
+      console.log('No eligible users found')
       return new Response(
         JSON.stringify({ 
           success: true, 
-          message: 'No users found at support milestones' 
+          message: 'No eligible users found (need >30 prompts)' 
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -110,20 +115,25 @@ serve(async (req) => {
     let emailsSent = 0
     let emailsSkipped = 0
 
-    for (const user of milestoneUsers) {
+    for (const user of eligibleUsers) {
       const shouldSendEmail = await checkAndUpdateEmailMilestone(user.user_id)
       
       if (shouldSendEmail) {
         try {
+          // Rate limiting: add delay before sending
+          if (emailsSent > 0) {
+            await delay(RESEND_RATE_LIMIT_DELAY_MS)
+          }
+          
           await sendSupportEmail(user, donationTotal)
           emailsSent++
-          console.log(`Support email sent to user ${user.user_id} (${user.notification_email})`)
+          console.log(`✅ Support email sent to user ${user.user_id} (${user.notification_email})`)
         } catch (error) {
-          console.error(`Failed to send email to user ${user.user_id}:`, error)
+          console.error(`❌ Failed to send email to user ${user.user_id}:`, error)
         }
       } else {
         emailsSkipped++
-        console.log(`Skipped email for user ${user.user_id} (recently sent)`)
+        console.log(`⏭️ Skipped email for user ${user.user_id}`)
       }
     }
 
@@ -224,18 +234,17 @@ async function getRollingAnnualDonations(): Promise<number> {
   }
 }
 
-// Find users who have reached support milestones
-async function findUsersAtMilestones() {
-  console.log(`=== FINDING USERS AT SUPPORT MILESTONES ===`)
-  console.log(`Looking for users with prompt counts: ${SUPPORT_MILESTONES.join(', ')}`)
+// Find users with more than 30 prompts
+async function findEligibleUsers() {
+  console.log(`=== FINDING ELIGIBLE USERS ===`)
+  console.log(`Looking for users with more than ${MIN_PROMPTS_FOR_SUPPORT_EMAIL} prompts`)
   
-  // First, let's see ALL users and their prompt counts
+  // Get all users with their email addresses
   const { data: allUsers, error: allUsersError } = await supabase
     .from('user_preferences')
     .select(`
       user_id,
-      notification_email,
-      total_prompts_sent_count
+      notification_email
     `)
 
   if (allUsersError) {
@@ -245,32 +254,42 @@ async function findUsersAtMilestones() {
 
   console.log(`Total users in user_preferences: ${allUsers?.length || 0}`)
   
-  if (allUsers && allUsers.length > 0) {
-    console.log('All users and their prompt counts:')
-    allUsers.forEach((user, index) => {
-      console.log(`  User ${index + 1}: ${user.user_id} - ${user.notification_email} - ${user.total_prompts_sent_count} prompts`)
-    })
-  } else {
+  if (!allUsers || allUsers.length === 0) {
     console.log('No users found in user_preferences table')
+    return []
   }
 
-  // Now get only milestone users
-  const { data: users, error } = await supabase
-    .from('user_preferences')
-    .select(`
-      user_id,
-      notification_email,
-      total_prompts_sent_count
-    `)
-    .in('total_prompts_sent_count', SUPPORT_MILESTONES)
-
-  if (error) {
-    console.error('Error fetching milestone users:', error)
-    throw error
+  // For each user, count their prompts from prompt_history
+  const eligibleUsers: Array<{ user_id: string; notification_email: string; prompt_count: number }> = []
+  
+  for (const user of allUsers) {
+    const { count, error: countError } = await supabase
+      .from('prompt_history')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.user_id)
+    
+    if (countError) {
+      console.error(`Error counting prompts for user ${user.user_id}:`, countError)
+      continue
+    }
+    
+    const promptCount = count || 0
+    
+    // Only include users with more than 30 prompts
+    if (promptCount > MIN_PROMPTS_FOR_SUPPORT_EMAIL) {
+      eligibleUsers.push({
+        user_id: user.user_id,
+        notification_email: user.notification_email,
+        prompt_count: promptCount
+      })
+      console.log(`  ✓ User ${user.user_id} - ${user.notification_email} - ${promptCount} prompts (eligible)`)
+    } else {
+      console.log(`  ✗ User ${user.user_id} - ${promptCount} prompts (not eligible, need >${MIN_PROMPTS_FOR_SUPPORT_EMAIL})`)
+    }
   }
 
-  console.log(`Users at milestones: ${users?.length || 0}`)
-  return users || []
+  console.log(`Eligible users: ${eligibleUsers.length}`)
+  return eligibleUsers
 }
 
 // Check if we should send email and update timestamp if needed
@@ -278,10 +297,10 @@ async function checkAndUpdateEmailMilestone(userId: string): Promise<boolean> {
   try {
     console.log(`=== CHECKING EMAIL MILESTONE FOR USER ${userId} ===`)
     
-    // Get current email milestone record
+    // Get current email milestone record (including other email types for cooldown check)
     const { data: milestone, error } = await supabase
       .from('email_milestones')
-      .select('support_inklings')
+      .select('support_inklings, set_preferences, alt_notifications')
       .eq('user_id', userId)
       .single()
 
@@ -293,10 +312,19 @@ async function checkAndUpdateEmailMilestone(userId: string): Promise<boolean> {
     const now = new Date()
     console.log(`Current time: ${now.toISOString()}`)
     
-    // If no timestamp exists, send email and record timestamp
+    // CASE 1: First-time support email (no support_inklings timestamp)
     if (!milestone || !milestone.support_inklings) {
       console.log(`No previous support email timestamp found for user ${userId}`)
-      console.log(`Will update email_milestones with current timestamp`)
+      
+      // Check if any other emails were sent in the last 10 days
+      const otherEmailsTooRecent = checkOtherEmailsTooRecent(milestone, now)
+      
+      if (otherEmailsTooRecent) {
+        console.log(`⏭️ Other emails sent within ${MIN_DAYS_BETWEEN_OTHER_EMAILS} days - skipping first support email`)
+        return false
+      }
+      
+      console.log(`No recent other emails - will send first support email`)
       
       const { error: updateError } = await supabase
         .from('email_milestones')
@@ -310,19 +338,19 @@ async function checkAndUpdateEmailMilestone(userId: string): Promise<boolean> {
         return false
       }
       
-      console.log(`Successfully updated email_milestones for user ${userId} with timestamp: ${now.toISOString()}`)
+      console.log(`✅ Updated email_milestones for user ${userId} with timestamp: ${now.toISOString()}`)
       return true
     }
 
-    // Check if more than 10 days have passed
+    // CASE 2: Repeat support email (has support_inklings timestamp)
     const lastSent = new Date(milestone.support_inklings)
     const daysDiff = (now.getTime() - lastSent.getTime()) / (1000 * 60 * 60 * 24)
     
     console.log(`Previous support email sent: ${lastSent.toISOString()}`)
-    console.log(`Days since last email: ${Math.round(daysDiff)} (minimum: ${MIN_DAYS_BETWEEN_EMAILS})`)
+    console.log(`Days since last support email: ${Math.round(daysDiff)} (need ${DAYS_BETWEEN_SUPPORT_EMAILS} days)`)
 
-    if (daysDiff >= MIN_DAYS_BETWEEN_EMAILS) {
-      console.log(`${Math.round(daysDiff)} days have passed since last email - will update timestamp`)
+    if (daysDiff >= DAYS_BETWEEN_SUPPORT_EMAILS) {
+      console.log(`${Math.round(daysDiff)} days have passed - will send repeat support email`)
       
       const { error: updateError } = await supabase
         .from('email_milestones')
@@ -336,16 +364,38 @@ async function checkAndUpdateEmailMilestone(userId: string): Promise<boolean> {
         return false
       }
       
-      console.log(`Successfully updated email_milestones for user ${userId} with new timestamp: ${now.toISOString()}`)
+      console.log(`✅ Updated email_milestones for user ${userId} with new timestamp: ${now.toISOString()}`)
       return true
     }
 
-    console.log(`Only ${Math.round(daysDiff)} days since last email - will skip (minimum ${MIN_DAYS_BETWEEN_EMAILS} days required)`)
+    console.log(`Only ${Math.round(daysDiff)} days since last support email - skipping (need ${DAYS_BETWEEN_SUPPORT_EMAILS} days)`)
     return false
   } catch (error) {
     console.error('Error checking email milestone:', error)
     return false
   }
+}
+
+// Check if other email types were sent within the cooldown period
+function checkOtherEmailsTooRecent(milestone: any, now: Date): boolean {
+  if (!milestone) return false
+  
+  const emailTypesToCheck = ['set_preferences', 'alt_notifications']
+  
+  for (const emailType of emailTypesToCheck) {
+    const timestamp = milestone[emailType]
+    if (timestamp) {
+      const sentDate = new Date(timestamp)
+      const daysDiff = (now.getTime() - sentDate.getTime()) / (1000 * 60 * 60 * 24)
+      
+      if (daysDiff < MIN_DAYS_BETWEEN_OTHER_EMAILS) {
+        console.log(`  ${emailType} sent ${Math.round(daysDiff)} days ago (within ${MIN_DAYS_BETWEEN_OTHER_EMAILS} day cooldown)`)
+        return true
+      }
+    }
+  }
+  
+  return false
 }
 
 // Send support email to user
