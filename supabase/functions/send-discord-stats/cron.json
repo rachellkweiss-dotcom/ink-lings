@@ -1,0 +1,5 @@
+{
+  "name": "send-discord-stats",
+  "schedule": "0 10 */3 * *",
+  "timezone": "UTC"
+}
