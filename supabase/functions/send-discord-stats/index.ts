@@ -21,6 +21,11 @@ const GA_SERVICE_ACCOUNT_EMAIL = Deno.env.get('GA_SERVICE_ACCOUNT_EMAIL')
 const GA_PRIVATE_KEY = Deno.env.get('GA_PRIVATE_KEY')
 const GA_PROPERTY_ID = Deno.env.get('GA_PROPERTY_ID')
 
+// Instagram configuration
+const INSTAGRAM_ACCESS_TOKEN = Deno.env.get('INSTAGRAM_ACCESS_TOKEN')
+const INSTAGRAM_USER_ID = Deno.env.get('INSTAGRAM_USER_ID')
+const INSTAGRAM_APP_SECRET = Deno.env.get('INSTAGRAM_APP_SECRET')
+
 // ============================================================
 // Types
 // ============================================================
@@ -41,6 +46,21 @@ interface GAStats {
   pageViews: number
   uniqueVisitors: number
   topReferrers: Array<{ source: string; sessions: number }>
+}
+
+interface IGStats {
+  followerCount: number
+  followsCount: number
+  mediaCount: number
+  recentPosts: Array<{
+    caption: string
+    likeCount: number
+    commentsCount: number
+    timestamp: string
+    mediaType: string
+  }>
+  tokenExpiresIn: number | null // days until token expires
+  tokenRefreshed: boolean
 }
 
 // ============================================================
@@ -201,6 +221,106 @@ async function fetchGAStats(): Promise<GAStats | null> {
 }
 
 // ============================================================
+// Instagram Graph API helpers
+// ============================================================
+
+async function refreshInstagramToken(currentToken: string): Promise<{ token: string; expiresIn: number } | null> {
+  try {
+    const response = await fetch(
+      `https://graph.instagram.com/refresh_access_token?grant_type=ig_refresh_token&access_token=${currentToken}`
+    )
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`❌ Instagram token refresh failed: ${response.status} ${errorText}`)
+      return null
+    }
+
+    const data = await response.json()
+    return {
+      token: data.access_token,
+      expiresIn: data.expires_in, // seconds
+    }
+  } catch (error) {
+    console.error('❌ Error refreshing Instagram token:', error)
+    return null
+  }
+}
+
+async function fetchInstagramStats(): Promise<IGStats | null> {
+  if (!INSTAGRAM_ACCESS_TOKEN || !INSTAGRAM_USER_ID) {
+    console.log('⚠️ Instagram credentials not configured — skipping Instagram analytics')
+    return null
+  }
+
+  try {
+    let currentToken = INSTAGRAM_ACCESS_TOKEN
+    let tokenRefreshed = false
+    let tokenExpiresIn: number | null = null
+
+    // Try to refresh the token proactively (keeps it alive for another 60 days)
+    // Only works if token is at least 24 hours old and not yet expired
+    const refreshResult = await refreshInstagramToken(currentToken)
+    if (refreshResult) {
+      currentToken = refreshResult.token
+      tokenExpiresIn = Math.floor(refreshResult.expiresIn / 86400) // convert seconds to days
+      tokenRefreshed = true
+      console.log(`✅ Instagram token refreshed — expires in ${tokenExpiresIn} days`)
+
+      // Update the token in Supabase secrets for next run
+      // Note: This won't update the Deno env var, but the new token is used for this run.
+      // The token needs to be manually updated in Supabase secrets if refresh succeeds.
+      // We'll log it so you know to update if needed.
+      console.log('ℹ️ If using Supabase secrets, update INSTAGRAM_ACCESS_TOKEN with the refreshed token.')
+    }
+
+    // Fetch account info (follower count, follows count, media count)
+    const accountResponse = await fetch(
+      `https://graph.instagram.com/v22.0/${INSTAGRAM_USER_ID}?fields=followers_count,follows_count,media_count&access_token=${currentToken}`
+    )
+
+    if (!accountResponse.ok) {
+      const errorText = await accountResponse.text()
+      throw new Error(`Instagram account request failed: ${accountResponse.status} ${errorText}`)
+    }
+
+    const accountData = await accountResponse.json()
+
+    // Fetch recent media (last 6 posts) with engagement metrics
+    const mediaResponse = await fetch(
+      `https://graph.instagram.com/v22.0/${INSTAGRAM_USER_ID}/media?fields=caption,like_count,comments_count,timestamp,media_type&limit=6&access_token=${currentToken}`
+    )
+
+    let recentPosts: IGStats['recentPosts'] = []
+
+    if (mediaResponse.ok) {
+      const mediaData = await mediaResponse.json()
+      recentPosts = (mediaData.data || []).map((post: any) => ({
+        caption: post.caption ? post.caption.substring(0, 80) + (post.caption.length > 80 ? '...' : '') : '(no caption)',
+        likeCount: post.like_count || 0,
+        commentsCount: post.comments_count || 0,
+        timestamp: post.timestamp,
+        mediaType: post.media_type || 'UNKNOWN',
+      }))
+    } else {
+      console.warn('⚠️ Could not fetch Instagram media, continuing with account stats only')
+    }
+
+    return {
+      followerCount: accountData.followers_count || 0,
+      followsCount: accountData.follows_count || 0,
+      mediaCount: accountData.media_count || 0,
+      recentPosts,
+      tokenExpiresIn,
+      tokenRefreshed,
+    }
+  } catch (error) {
+    console.error('❌ Error fetching Instagram stats:', error)
+    return null
+  }
+}
+
+// ============================================================
 // Supabase queries
 // ============================================================
 
@@ -279,7 +399,7 @@ async function fetchAppStats(): Promise<AppStats> {
 // Discord webhook
 // ============================================================
 
-function buildDiscordEmbed(appStats: AppStats, gaStats: GAStats | null) {
+function buildDiscordEmbed(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null) {
   const userMentions = DISCORD_USER_IDS.map(id => `<@${id}>`).join(' ')
 
   const fields = [
@@ -328,6 +448,45 @@ function buildDiscordEmbed(appStats: AppStats, gaStats: GAStats | null) {
     })
   }
 
+  // Instagram stats section
+  if (igStats) {
+    const igLines = [
+      `• Followers: **${igStats.followerCount}**`,
+      `• Following: **${igStats.followsCount}**`,
+      `• Total Posts: **${igStats.mediaCount}**`,
+    ]
+
+    if (igStats.tokenRefreshed && igStats.tokenExpiresIn !== null) {
+      igLines.push(`• 🔑 Token: Refreshed (expires in ${igStats.tokenExpiresIn} days)`)
+    }
+
+    fields.push({
+      name: '📸 Instagram (@ink_lings_journal)',
+      value: igLines.join('\n'),
+      inline: false,
+    })
+
+    // Add recent posts performance if available
+    if (igStats.recentPosts.length > 0) {
+      const postLines = igStats.recentPosts.slice(0, 5).map((post, i) => {
+        const date = new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        return `${i + 1}. ${date} — ❤️ ${post.likeCount} 💬 ${post.commentsCount} — _${post.caption}_`
+      })
+
+      fields.push({
+        name: '📱 Recent Posts Performance',
+        value: postLines.join('\n'),
+        inline: false,
+      })
+    }
+  } else {
+    fields.push({
+      name: '📸 Instagram',
+      value: '_Instagram credentials not configured — set INSTAGRAM_ACCESS_TOKEN and INSTAGRAM_USER_ID secrets to enable._',
+      inline: false,
+    })
+  }
+
   return {
     content: userMentions,
     embeds: [
@@ -344,8 +503,8 @@ function buildDiscordEmbed(appStats: AppStats, gaStats: GAStats | null) {
   }
 }
 
-async function sendToDiscord(appStats: AppStats, gaStats: GAStats | null): Promise<void> {
-  const payload = buildDiscordEmbed(appStats, gaStats)
+async function sendToDiscord(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null): Promise<void> {
+  const payload = buildDiscordEmbed(appStats, gaStats, igStats)
 
   const response = await fetch(DISCORD_WEBHOOK_URL, {
     method: 'POST',
@@ -406,17 +565,19 @@ serve(async (req) => {
   try {
     console.log('=== Discord Stats Report Started ===')
 
-    // Fetch app stats and GA stats in parallel
-    const [appStats, gaStats] = await Promise.all([
+    // Fetch app stats, GA stats, and Instagram stats in parallel
+    const [appStats, gaStats, igStats] = await Promise.all([
       fetchAppStats(),
       fetchGAStats(),
+      fetchInstagramStats(),
     ])
 
     console.log('App stats:', JSON.stringify(appStats))
     console.log('GA stats:', gaStats ? JSON.stringify(gaStats) : 'not available')
+    console.log('IG stats:', igStats ? JSON.stringify(igStats) : 'not available')
 
     // Send to Discord
-    await sendToDiscord(appStats, gaStats)
+    await sendToDiscord(appStats, gaStats, igStats)
 
     console.log('=== Discord Stats Report Complete ===')
 
@@ -425,6 +586,7 @@ serve(async (req) => {
       message: 'Stats report sent to Discord',
       appStats,
       gaStats: gaStats || 'not configured',
+      igStats: igStats || 'not configured',
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
