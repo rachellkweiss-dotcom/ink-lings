@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -11,17 +11,9 @@ function DonationSuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
 
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (sessionId) {
-      // In a real app, you'd verify the session with your backend
-      // For now, we'll show a generic success message
-      setLoading(false);
-    }
-  }, [sessionId]);
-
-  if (loading) {
+  // In a real app, you'd verify the session with your backend
+  // For now, we'll show a generic success message
+  if (!sessionId) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-white via-purple-50 to-pink-50 flex items-center justify-center">
         <div className="text-center">
