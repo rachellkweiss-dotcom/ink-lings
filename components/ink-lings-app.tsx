@@ -827,6 +827,10 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
           onPauseNotifications={handlePauseNotifications}
           onDeleteAccount={handleDeleteAccount}
           isNewUser={!userPreferences?.notification_days?.length}
+          deletionMeta={{
+            registrationMethod: user?.app_metadata?.provider || 'email',
+            userFirstName: user?.user_metadata?.first_name,
+          }}
         />
       </>
     );

@@ -5,6 +5,7 @@ import { Shadows_Into_Light } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/auth-context";
+import { SupportProvider } from "@/components/support-context";
 import { Footer } from "@/components/footer";
 
 
@@ -37,8 +38,10 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${shadowsIntoLight.variable} ${dancingScript.variable}`}>
         <AuthProvider>
-          {children}
-          <Footer />
+          <SupportProvider>
+            {children}
+            <Footer />
+          </SupportProvider>
         </AuthProvider>
       </body>
       {process.env.NEXT_PUBLIC_GA_ID && (

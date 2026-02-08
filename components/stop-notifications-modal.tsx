@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { useSupport } from './support-context';
 
 interface StopNotificationsModalProps {
   isOpen: boolean;
@@ -10,6 +11,8 @@ interface StopNotificationsModalProps {
   onPauseNotifications: () => void;
   onDeleteAccount: () => void;
   isNewUser: boolean;
+  /** Optional metadata for account deletion support ticket */
+  deletionMeta?: { registrationMethod?: string; userFirstName?: string };
 }
 
 export function StopNotificationsModal({ 
@@ -17,9 +20,11 @@ export function StopNotificationsModal({
   onClose, 
   onPauseNotifications, 
   onDeleteAccount, 
-  isNewUser 
+  isNewUser,
+  deletionMeta,
 }: StopNotificationsModalProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const { openSupport } = useSupport();
 
   if (!isOpen) return null;
 
@@ -32,13 +37,13 @@ export function StopNotificationsModal({
     }
   };
 
-  const handleDelete = async () => {
-    setIsProcessing(true);
-    try {
-      await onDeleteAccount();
-    } finally {
-      setIsProcessing(false);
-    }
+  const handleDelete = () => {
+    // Close this modal and open the support modal pre-filled for account deletion
+    onClose();
+    openSupport({
+      ticketType: 'account_deletion',
+      deletionMeta,
+    });
   };
 
   return (
@@ -88,7 +93,7 @@ export function StopNotificationsModal({
               className="w-full"
               size="sm"
             >
-              {isProcessing ? 'Submitting...' : 'Request Deletion'}
+              Request Deletion
             </Button>
           </div>
 
