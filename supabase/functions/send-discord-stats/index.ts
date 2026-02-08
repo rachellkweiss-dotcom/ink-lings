@@ -26,6 +26,13 @@ const INSTAGRAM_ACCESS_TOKEN = Deno.env.get('INSTAGRAM_ACCESS_TOKEN')
 const INSTAGRAM_USER_ID = Deno.env.get('INSTAGRAM_USER_ID')
 const INSTAGRAM_APP_SECRET = Deno.env.get('INSTAGRAM_APP_SECRET')
 
+// Clawdbot Supabase (social_media table)
+const CLAWDBOT_SUPABASE_URL = Deno.env.get('CLAWDBOT_SUPABASE_URL')
+const CLAWDBOT_SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('CLAWDBOT_SUPABASE_SERVICE_ROLE_KEY')
+const clawdbotSupabase = CLAWDBOT_SUPABASE_URL && CLAWDBOT_SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(CLAWDBOT_SUPABASE_URL, CLAWDBOT_SUPABASE_SERVICE_ROLE_KEY)
+  : null
+
 // ============================================================
 // Types
 // ============================================================
@@ -58,9 +65,13 @@ interface IGStats {
     commentsCount: number
     timestamp: string
     mediaType: string
+    permalink: string | null
+    reach: number | null
+    views: number | null
+    saved: number | null
+    shares: number | null
+    totalInteractions: number | null
   }>
-  tokenExpiresIn: number | null // days until token expires
-  tokenRefreshed: boolean
 }
 
 // ============================================================
@@ -247,6 +258,123 @@ async function refreshInstagramToken(currentToken: string): Promise<{ token: str
   }
 }
 
+// ============================================================
+// Social media performance tracking
+// ============================================================
+
+function extractShortcode(url: string): string | null {
+  // Matches /p/CODE/, /reel/CODE/, /tv/CODE/ etc.
+  const match = url.match(/instagram\.com\/(?:p|reel|tv)\/([A-Za-z0-9_-]+)/)
+  return match ? match[1] : null
+}
+
+async function syncPerformanceToSocialMedia(posts: IGStats['recentPosts']): Promise<number> {
+  if (!clawdbotSupabase) {
+    console.log('⚠️ Clawdbot Supabase not configured — skipping social media performance sync')
+    return 0
+  }
+
+  let updatedCount = 0
+
+  for (const post of posts) {
+    if (!post.permalink) continue
+
+    const shortcode = extractShortcode(post.permalink)
+    if (!shortcode) continue
+
+    // Find matching rows where instagram_permalink contains this shortcode
+    const { data: matches, error: fetchError } = await clawdbotSupabase
+      .from('social_media')
+      .select('id, instagram_permalink, performance_history')
+      .eq('product', 'ink-lings')
+      .not('instagram_permalink', 'is', null)
+
+    if (fetchError) {
+      console.warn(`⚠️ Error querying social_media: ${fetchError.message}`)
+      continue
+    }
+
+    // Match by shortcode extracted from the stored permalink
+    const matchingRows = (matches || []).filter((row: any) => {
+      if (!row.instagram_permalink) return false
+      const rowShortcode = extractShortcode(row.instagram_permalink)
+      return rowShortcode === shortcode
+    })
+
+    if (matchingRows.length === 0) continue
+
+    // Build the performance snapshot
+    const snapshot = {
+      recorded_at: new Date().toISOString(),
+      reach: post.reach,
+      views: post.views,
+      likes: post.likeCount,
+      comments: post.commentsCount,
+      saved: post.saved,
+      shares: post.shares,
+      total_interactions: post.totalInteractions,
+    }
+
+    for (const row of matchingRows) {
+      const history = Array.isArray(row.performance_history) ? row.performance_history : []
+      history.push(snapshot)
+
+      const { error: updateError } = await clawdbotSupabase
+        .from('social_media')
+        .update({ performance_history: history })
+        .eq('id', row.id)
+
+      if (updateError) {
+        console.warn(`⚠️ Error updating social_media row ${row.id}: ${updateError.message}`)
+      } else {
+        updatedCount++
+        console.log(`✅ Updated performance for post ${shortcode} (row ${row.id})`)
+      }
+    }
+  }
+
+  return updatedCount
+}
+
+async function fetchMediaInsights(mediaId: string, accessToken: string): Promise<{
+  reach: number | null
+  views: number | null
+  saved: number | null
+  shares: number | null
+  totalInteractions: number | null
+}> {
+  try {
+    // These metrics work for FEED (static/carousel) and REELS
+    const metrics = 'reach,saved,shares,views,total_interactions'
+
+    const response = await fetch(
+      `https://graph.instagram.com/v24.0/${mediaId}/insights?metric=${metrics}&access_token=${accessToken}`
+    )
+
+    if (!response.ok) {
+      console.warn(`⚠️ Could not fetch insights for media ${mediaId}`)
+      return { reach: null, views: null, saved: null, shares: null, totalInteractions: null }
+    }
+
+    const data = await response.json()
+    const metricsMap: Record<string, number> = {}
+    for (const item of (data.data || [])) {
+      metricsMap[item.name] = item.values?.[0]?.value ?? 0
+    }
+
+    return {
+      reach: metricsMap['reach'] ?? null,
+      views: metricsMap['views'] ?? null,
+      saved: metricsMap['saved'] ?? null,
+      shares: metricsMap['shares'] ?? null,
+      totalInteractions: metricsMap['total_interactions'] ?? null,
+    }
+  } catch (error) {
+    console.warn(`⚠️ Error fetching insights for media ${mediaId}:`, error)
+    return { reach: null, views: null, saved: null, shares: null, totalInteractions: null }
+  }
+}
+
 async function fetchInstagramStats(): Promise<IGStats | null> {
   if (!INSTAGRAM_ACCESS_TOKEN || !INSTAGRAM_USER_ID) {
     console.log('⚠️ Instagram credentials not configured — skipping Instagram analytics')
@@ -255,28 +383,18 @@ async function fetchInstagramStats(): Promise<IGStats | null> {
 
   try {
     let currentToken = INSTAGRAM_ACCESS_TOKEN
-    let tokenRefreshed = false
-    let tokenExpiresIn: number | null = null
 
     // Try to refresh the token proactively (keeps it alive for another 60 days)
-    // Only works if token is at least 24 hours old and not yet expired
     const refreshResult = await refreshInstagramToken(currentToken)
     if (refreshResult) {
       currentToken = refreshResult.token
-      tokenExpiresIn = Math.floor(refreshResult.expiresIn / 86400) // convert seconds to days
-      tokenRefreshed = true
-      console.log(`✅ Instagram token refreshed — expires in ${tokenExpiresIn} days`)
-
-      // Update the token in Supabase secrets for next run
-      // Note: This won't update the Deno env var, but the new token is used for this run.
-      // The token needs to be manually updated in Supabase secrets if refresh succeeds.
-      // We'll log it so you know to update if needed.
-      console.log('ℹ️ If using Supabase secrets, update INSTAGRAM_ACCESS_TOKEN with the refreshed token.')
+      const daysLeft = Math.floor(refreshResult.expiresIn / 86400)
+      console.log(`✅ Instagram token refreshed — expires in ${daysLeft} days`)
     }
 
     // Fetch account info (follower count, follows count, media count)
     const accountResponse = await fetch(
-      `https://graph.instagram.com/v22.0/${INSTAGRAM_USER_ID}?fields=followers_count,follows_count,media_count&access_token=${currentToken}`
+      `https://graph.instagram.com/v24.0/${INSTAGRAM_USER_ID}?fields=followers_count,follows_count,media_count&access_token=${currentToken}`
     )
 
     if (!accountResponse.ok) {
@@ -286,21 +404,37 @@ async function fetchInstagramStats(): Promise<IGStats | null> {
 
     const accountData = await accountResponse.json()
 
-    // Fetch recent media (last 6 posts) with engagement metrics
+    // Fetch recent media with engagement metrics
+    // Get enough posts to cover the 3-day window
     const mediaResponse = await fetch(
-      `https://graph.instagram.com/v22.0/${INSTAGRAM_USER_ID}/media?fields=caption,like_count,comments_count,timestamp,media_type&limit=6&access_token=${currentToken}`
+      `https://graph.instagram.com/v24.0/${INSTAGRAM_USER_ID}/media?fields=id,caption,like_count,comments_count,timestamp,media_type,permalink&limit=20&access_token=${currentToken}`
     )
 
     let recentPosts: IGStats['recentPosts'] = []
 
     if (mediaResponse.ok) {
       const mediaData = await mediaResponse.json()
-      recentPosts = (mediaData.data || []).map((post: any) => ({
+      const threeDaysAgo = new Date()
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+
+      const recentMedia = (mediaData.data || [])
+        .filter((post: any) => new Date(post.timestamp) >= threeDaysAgo)
+
+      // Fetch insights for each recent post in parallel
+      const insightsResults = await Promise.all(
+        recentMedia.map((post: any) =>
+          fetchMediaInsights(post.id, currentToken)
+        )
+      )
+
+      recentPosts = recentMedia.map((post: any, i: number) => ({
         caption: post.caption ? post.caption.substring(0, 80) + (post.caption.length > 80 ? '...' : '') : '(no caption)',
         likeCount: post.like_count || 0,
         commentsCount: post.comments_count || 0,
         timestamp: post.timestamp,
         mediaType: post.media_type || 'UNKNOWN',
+        permalink: post.permalink || null,
+        ...insightsResults[i],
       }))
     } else {
       console.warn('⚠️ Could not fetch Instagram media, continuing with account stats only')
@@ -311,8 +445,6 @@ async function fetchInstagramStats(): Promise<IGStats | null> {
       followsCount: accountData.follows_count || 0,
       mediaCount: accountData.media_count || 0,
       recentPosts,
-      tokenExpiresIn,
-      tokenRefreshed,
     }
   } catch (error) {
     console.error('❌ Error fetching Instagram stats:', error)
@@ -345,10 +477,8 @@ async function fetchAppStats(): Promise<AppStats> {
       .select('*', { count: 'exact', head: true })
       .gte('created_at', threeDaysAgoISO),
 
-    // Total users
-    supabase
-      .from('user_preferences')
-      .select('*', { count: 'exact', head: true }),
+    // Total authenticated users
+    supabase.auth.admin.listUsers({ page: 1, perPage: 10000 }),
 
     // Users receiving prompts (have notification days and time set)
     supabase
@@ -386,7 +516,7 @@ async function fetchAppStats(): Promise<AppStats> {
 
   return {
     newUsers: newUsersResult.count || 0,
-    totalUsers: totalUsersResult.count || 0,
+    totalUsers: totalUsersResult.data?.users?.length || 0,
     usersReceivingPrompts: receivingPromptsResult.count || 0,
     gratitudeChallengeEnrolled: gratitudeResult.count || 0,
     promptsSent: promptsSentResult.count || 0,
@@ -399,112 +529,84 @@ async function fetchAppStats(): Promise<AppStats> {
 // Discord webhook
 // ============================================================
 
-function buildDiscordEmbed(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null) {
+function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null) {
   const userMentions = DISCORD_USER_IDS.map(id => `<@${id}>`).join(' ')
 
-  const fields = [
-    {
-      name: '👥 Users',
-      value: [
-        `• New Users (Last 3 Days): **${appStats.newUsers}**`,
-        `• Total Users: **${appStats.totalUsers}**`,
-        `• Receiving Prompts: **${appStats.usersReceivingPrompts}**`,
-        `• 2026 Gratitude Challenge: **${appStats.gratitudeChallengeEnrolled}**`,
-      ].join('\n'),
-      inline: false,
-    },
-    {
-      name: '📝 Prompts (Last 3 Days)',
-      value: [
-        `• Sent: **${appStats.promptsSent}**`,
-        `• 👍 Positive Reactions: **${appStats.positiveReactions}**`,
-        `• 👎 Negative Reactions: **${appStats.negativeReactions}**`,
-      ].join('\n'),
-      inline: false,
-    },
-  ]
+  const lines: string[] = []
 
+  lines.push(`${userMentions}`)
+  lines.push(``)
+  lines.push(`**📊 Ink-lings Stats Report**`)
+  lines.push(``)
+
+  // Users section
+  lines.push(`**👥 Users**`)
+  lines.push(`New Users (Last 3 Days): ${appStats.newUsers}`)
+  lines.push(`Total Authenticated Users: ${appStats.totalUsers}`)
+  lines.push(`Receiving Prompts: ${appStats.usersReceivingPrompts}`)
+  lines.push(`2026 Gratitude Challenge: ${appStats.gratitudeChallengeEnrolled}`)
+  lines.push(``)
+
+  // Prompts section
+  lines.push(`**📝 Prompts (Last 3 Days)**`)
+  lines.push(`Sent: ${appStats.promptsSent}`)
+  lines.push(`👍 Positive Reactions: ${appStats.positiveReactions}`)
+  lines.push(`👎 Negative Reactions: ${appStats.negativeReactions}`)
+  lines.push(``)
+
+  // Website analytics section
   if (gaStats) {
     const referrersText = gaStats.topReferrers.length > 0
       ? gaStats.topReferrers.map(r => `${r.source} (${r.sessions})`).join(', ')
       : 'No referrer data'
 
-    fields.push({
-      name: '🌐 Website Analytics (Last 3 Days)',
-      value: [
-        `• Active Users: **${gaStats.activeUsers}**`,
-        `• Sessions: **${gaStats.sessions}**`,
-        `• Page Views: **${gaStats.pageViews}**`,
-        `• 👥 Unique Visitors: **${gaStats.uniqueVisitors}**`,
-        `• 🔗 Top Referrers: ${referrersText}`,
-      ].join('\n'),
-      inline: false,
-    })
+    lines.push(`**🌐 Website Analytics (Last 3 Days)**`)
+    lines.push(`Active Users: ${gaStats.activeUsers}`)
+    lines.push(`Sessions: ${gaStats.sessions}`)
+    lines.push(`Page Views: ${gaStats.pageViews}`)
+    lines.push(`Unique Visitors: ${gaStats.uniqueVisitors}`)
+    lines.push(`Top Referrers: ${referrersText}`)
+    lines.push(``)
   } else {
-    fields.push({
-      name: '🌐 Website Analytics (Last 3 Days)',
-      value: '_GA credentials not configured — set GA_SERVICE_ACCOUNT_EMAIL, GA_PRIVATE_KEY, and GA_PROPERTY_ID secrets to enable._',
-      inline: false,
-    })
+    lines.push(`**🌐 Website Analytics (Last 3 Days)**`)
+    lines.push(`GA credentials not configured`)
+    lines.push(``)
   }
 
-  // Instagram stats section
+  // Instagram section
   if (igStats) {
-    const igLines = [
-      `• Followers: **${igStats.followerCount}**`,
-      `• Following: **${igStats.followsCount}**`,
-      `• Total Posts: **${igStats.mediaCount}**`,
-    ]
+    lines.push(`**📸 Instagram (@ink_lings_journal)**`)
+    lines.push(`Followers: ${igStats.followerCount}`)
+    lines.push(`Following: ${igStats.followsCount}`)
+    lines.push(`Total Posts: ${igStats.mediaCount}`)
+    lines.push(``)
 
-    if (igStats.tokenRefreshed && igStats.tokenExpiresIn !== null) {
-      igLines.push(`• 🔑 Token: Refreshed (expires in ${igStats.tokenExpiresIn} days)`)
-    }
-
-    fields.push({
-      name: '📸 Instagram (@ink_lings_journal)',
-      value: igLines.join('\n'),
-      inline: false,
-    })
-
-    // Add recent posts performance if available
     if (igStats.recentPosts.length > 0) {
-      const postLines = igStats.recentPosts.slice(0, 5).map((post, i) => {
+      lines.push(`**📱 Posts Since Last Report (${igStats.recentPosts.length})**`)
+      igStats.recentPosts.forEach((post, i) => {
         const date = new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-        return `${i + 1}. ${date} — ❤️ ${post.likeCount} 💬 ${post.commentsCount} — _${post.caption}_`
+        const type = post.mediaType === 'VIDEO' ? '🎬' : post.mediaType === 'CAROUSEL_ALBUM' ? '🎠' : '🖼️'
+        const link = post.permalink ? `${post.permalink}` : ''
+        lines.push(`${i + 1}. ${type} ${date} — ${link}`)
+        lines.push(`   ❤️ ${post.likeCount} 💬 ${post.commentsCount} 👁️ ${post.views ?? '—'} 📣 ${post.reach ?? '—'} 💾 ${post.saved ?? '—'} 🔄 ${post.shares ?? '—'}`)
+        lines.push(`   ${post.caption}`)
       })
-
-      fields.push({
-        name: '📱 Recent Posts Performance',
-        value: postLines.join('\n'),
-        inline: false,
-      })
+      lines.push(``)
+    } else {
+      lines.push(`No new posts in the last 3 days`)
+      lines.push(``)
     }
   } else {
-    fields.push({
-      name: '📸 Instagram',
-      value: '_Instagram credentials not configured — set INSTAGRAM_ACCESS_TOKEN and INSTAGRAM_USER_ID secrets to enable._',
-      inline: false,
-    })
+    lines.push(`**📸 Instagram**`)
+    lines.push(`Instagram credentials not configured`)
+    lines.push(``)
   }
 
-  return {
-    content: userMentions,
-    embeds: [
-      {
-        title: '📊 Ink-lings Stats Report',
-        color: 0x3b82f6, // blue
-        fields,
-        footer: {
-          text: 'Ink-lings Stats Bot • Reports every 3 days',
-        },
-        timestamp: new Date().toISOString(),
-      },
-    ],
-  }
+  return { content: lines.join('\n') }
 }
 
 async function sendToDiscord(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null): Promise<void> {
-  const payload = buildDiscordEmbed(appStats, gaStats, igStats)
+  const payload = buildDiscordMessage(appStats, gaStats, igStats)
 
   const response = await fetch(DISCORD_WEBHOOK_URL, {
     method: 'POST',
@@ -576,6 +678,13 @@ serve(async (req) => {
     console.log('GA stats:', gaStats ? JSON.stringify(gaStats) : 'not available')
     console.log('IG stats:', igStats ? JSON.stringify(igStats) : 'not available')
 
+    // Sync Instagram performance data to Clawdbot social_media table
+    let performanceUpdates = 0
+    if (igStats && igStats.recentPosts.length > 0) {
+      performanceUpdates = await syncPerformanceToSocialMedia(igStats.recentPosts)
+      console.log(`📊 Updated performance for ${performanceUpdates} social_media rows`)
+    }
+
     // Send to Discord
     await sendToDiscord(appStats, gaStats, igStats)
 
@@ -587,6 +696,7 @@ serve(async (req) => {
       appStats,
       gaStats: gaStats || 'not configured',
       igStats: igStats || 'not configured',
+      performanceUpdates,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
