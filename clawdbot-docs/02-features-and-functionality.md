@@ -8,7 +8,7 @@
 - Email verification required
 
 ### Step 2: Onboarding (4-Step Flow)
-1. **Choose Journal Topics** -- Select from 17 categories (can pick multiple)
+1. **Choose Journal Topics** -- Select from 18 categories (can pick multiple)
 2. **Set Up Notifications** -- Confirm or change delivery email; send a test notification
 3. **Choose Schedule** -- Pick days of the week, delivery time, and timezone
 4. **Review & Complete** -- Review all choices before confirming
@@ -127,13 +127,13 @@ Delivery times available from 6:00 AM to 10:00 PM (in the user's timezone)
 ## 2026 Gratitude Challenge
 
 ### What It Is
-A year-long challenge running throughout 2026 where participants receive a **daily gratitude prompt** at 11:00 AM EST, separate from their regular prompt schedule.
+A year-long challenge running throughout 2026 where participants receive a **daily gratitude prompt** in the morning, separate from their regular prompt schedule.
 
 ### Key Details
 - **365 unique gratitude prompts** (one for each day of the year)
-- Delivered daily at a consistent time (11:00 AM EST)
+- Delivered daily 
 - Separate from regular category prompts (users get both)
-- Some prompts include a **Stoic philosophy blurb** connecting gratitude to Stoic wisdom
+- Prompts include a **Stoic philosophy blurb** connecting gratitude to Stoic wisdom
 - Orange/amber visual styling (distinct from the regular blue/cyan prompts)
 - Can enroll or deactivate anytime
 

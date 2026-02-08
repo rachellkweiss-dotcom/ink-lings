@@ -39,7 +39,7 @@ Ink-lings is completely free. No hidden fees, no credit card required, no premiu
 You choose the days and time that work for you. Daily? Three times a week? Just weekends? Ink-lings delivers prompts on your schedule so journaling becomes part of your routine, not another thing to remember.
 
 ### The Variety Pitch
-With 17 categories and hundreds of prompts, you won't run out of things to write about. If you selected every category and received a prompt every day, you wouldn't see a repeat for 18 years. By then, your answers will have changed anyway.
+With 18 categories and hundreds of prompts, you won't run out of things to write about. If you selected every category and received a prompt every day, you wouldn't see a repeat for 18 years. By then, your answers will have changed anyway.
 
 ### The Low Pressure Pitch
 There's no right or wrong way to use Ink-lings. Write a paragraph. Write a sentence. Use the prompt as a conversation starter at dinner. Skip a day and come back. There are no streaks to break, no grades, no judgment. Just prompts waiting for you when you're ready.
