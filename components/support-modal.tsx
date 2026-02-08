@@ -7,27 +7,32 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { useAuth } from './auth-context';
 
+export type TicketType = 'general_inquiry' | 'help' | 'bug' | 'feature_request' | 'request_data' | 'account_deletion';
+
 interface SupportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  defaultTicketType?: 'help' | 'bug' | 'account_deletion';
+  defaultTicketType?: TicketType;
   /** Extra metadata for account deletion (registrationMethod, userFirstName) */
   deletionMeta?: { registrationMethod?: string; userFirstName?: string };
 }
 
-const ALL_TICKET_TYPES: readonly { value: string; label: string; emoji: string; description: string; authOnly?: boolean }[] = [
-  { value: 'help', label: 'Help / Question', emoji: '❓', description: 'Ask us anything about Ink-lings' },
-  { value: 'bug', label: 'Bug Report', emoji: '🐛', description: 'Something not working right? Let us know' },
-  { value: 'account_deletion', label: 'Account Deletion', emoji: '🗑️', description: 'Request to delete your account and data', authOnly: true },
+const ALL_TICKET_TYPES: readonly { value: TicketType; label: string; emoji: string; authOnly?: boolean }[] = [
+  { value: 'general_inquiry', label: 'General Inquiry', emoji: '💬' },
+  { value: 'help', label: 'Help', emoji: '❓' },
+  { value: 'bug', label: 'Report a Bug', emoji: '🐛' },
+  { value: 'feature_request', label: 'Feature Request', emoji: '💡' },
+  { value: 'request_data', label: 'Request My Data', emoji: '📦', authOnly: true },
+  { value: 'account_deletion', label: 'Delete My Account', emoji: '🗑️', authOnly: true },
 ];
 
 export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta }: SupportModalProps) {
   const { user } = useAuth();
 
-  // Unauth users see Bug + Help only; auth users see all 3
-  // Exception: if defaultTicketType is account_deletion (opened from stop-notifications), show it regardless
+  // Unauth users see general + help + bug + feature_request; auth users see all 6
+  // Exception: if defaultTicketType is account_deletion or request_data (opened programmatically), show it regardless
   const ticketTypes = ALL_TICKET_TYPES.filter(
-    (t) => !t.authOnly || user || defaultTicketType === 'account_deletion'
+    (t) => !t.authOnly || user || t.value === defaultTicketType
   );
   const [ticketType, setTicketType] = useState<string>(defaultTicketType || '');
   const [subject, setSubject] = useState(defaultTicketType === 'account_deletion' ? 'Account Deletion Request' : '');
@@ -191,7 +196,7 @@ export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta 
 
             <div className="p-4 border-2 border-blue-200 rounded-lg bg-blue-50">
               <p className="text-blue-800 text-sm">
-                Not sure yet? You can switch to <button type="button" onClick={handleSwitchToHelp} className="font-semibold underline underline-offset-2 hover:text-blue-900">Help / Question</button> instead to ask us anything — we&apos;re happy to help.
+                Not sure yet? You can switch to <button type="button" onClick={handleSwitchToHelp} className="font-semibold underline underline-offset-2 hover:text-blue-900">Help</button> instead to ask us anything — we&apos;re happy to help.
               </p>
             </div>
 
@@ -244,7 +249,7 @@ export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta 
             {/* Ticket Type Selector */}
             <div className="space-y-2">
               <Label className="text-gray-700">What do you need help with?</Label>
-              <div className="grid grid-cols-1 gap-2">
+              <div className="grid grid-cols-2 gap-2">
                 {ticketTypes.map((type) => (
                   <button
                     key={type.value}
@@ -253,6 +258,9 @@ export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta 
                       setTicketType(type.value);
                       if (type.value === 'account_deletion' && !subject) {
                         setSubject('Account Deletion Request');
+                      }
+                      if (type.value === 'request_data' && !subject) {
+                        setSubject('Data Export Request');
                       }
                     }}
                     className={`p-3 border-2 rounded-lg text-left transition-all ${
@@ -263,9 +271,8 @@ export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta 
                   >
                     <div className="flex items-center gap-2">
                       <span>{type.emoji}</span>
-                      <span className="font-medium text-gray-900">{type.label}</span>
+                      <span className="font-medium text-gray-900 text-sm">{type.label}</span>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1 ml-6">{type.description}</p>
                   </button>
                 ))}
               </div>
@@ -275,7 +282,7 @@ export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta 
             {ticketType === 'account_deletion' && (
               <div className="p-3 border-2 border-amber-200 rounded-lg bg-amber-50">
                 <p className="text-amber-800 text-sm">
-                  <strong>Note:</strong> Your notifications will be automatically paused when you submit this request. We&apos;ll contact you to confirm the deletion.
+                  <strong>Note:</strong> Your notifications will be automatically paused and your account will be deleted when you submit this request.
                 </p>
               </div>
             )}

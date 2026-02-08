@@ -81,10 +81,10 @@ export function StopNotificationsModal({
           {/* Delete Account Option */}
           <div className="p-4 border-2 border-red-200 rounded-lg bg-red-50">
             <h3 className="font-semibold text-red-900 mb-2">
-              🗑️ Request Account Deletion
+              🗑️ Delete My Account
             </h3>
             <p className="text-red-700 text-sm mb-3">
-              Submit a request to permanently delete your account. We&apos;ll process this manually and contact you to confirm the deletion.
+              Permanently delete your account, preferences, and all associated data. This action cannot be undone.
             </p>
             <Button 
               onClick={handleDelete}
@@ -93,7 +93,7 @@ export function StopNotificationsModal({
               className="w-full"
               size="sm"
             >
-              Request Deletion
+              Delete My Account
             </Button>
           </div>
 

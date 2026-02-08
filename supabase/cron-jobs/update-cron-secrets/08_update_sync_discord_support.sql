@@ -1,33 +1,33 @@
--- Update send-prompts-hourly cron job to include secret token
+-- Update sync-discord-support cron job to include secret token
 -- 
 -- ⚠️ SECURITY WARNING: This file contains a PLACEHOLDER for the secret.
 -- DO NOT commit this file with a real secret value!
 -- 
 -- INSTRUCTIONS:
--- 1. Set SEND_PROMPTS_CRON_SECRET in Supabase Dashboard → Edge Functions → Secrets
--- 2. Copy this file and replace 'YOUR_SEND_PROMPTS_CRON_SECRET_HERE' with your actual secret
+-- 1. Set DISCORD_SUPPORT_CRON_SECRET in Supabase Dashboard → Edge Functions → Secrets
+-- 2. Copy this file and replace 'YOUR_DISCORD_SUPPORT_CRON_SECRET_HERE' with your actual secret
 -- 3. Run the SQL in Supabase Dashboard → SQL Editor
 -- 4. Delete the file with the real secret (or don't save it)
 
 -- Step 1: Remove existing cron job if it exists
 DO $$
 BEGIN
-    IF EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'send-prompts-hourly') THEN
-        PERFORM cron.unschedule('send-prompts-hourly');
+    IF EXISTS (SELECT 1 FROM cron.job WHERE jobname = 'sync-discord-support') THEN
+        PERFORM cron.unschedule('sync-discord-support');
     END IF;
 END $$;
 
 -- Step 2: Create new cron job with secret token
 SELECT cron.schedule(
-    'send-prompts-hourly',
-    '55 * * * *',  -- Every hour at :55 minutes
+    'sync-discord-support',
+    '0 0-3,14-23 * * *',  -- Every hour between 8am-9pm CST
     $$
     SELECT
         net.http_post(
-            url := 'https://plbesopwfipvxqqzendc.supabase.co/functions/v1/send-prompts',
+            url := 'https://plbesopwfipvxqqzendc.supabase.co/functions/v1/sync-discord-support',
             headers := jsonb_build_object(
                 'Content-Type', 'application/json',
-                'x-cron-secret', 'YOUR_SEND_PROMPTS_CRON_SECRET_HERE'  -- ⚠️ REPLACE WITH SECRET FROM DASHBOARD!
+                'x-cron-secret', 'YOUR_DISCORD_SUPPORT_CRON_SECRET_HERE'  -- ⚠️ REPLACE WITH SECRET FROM DASHBOARD!
             ),
             body := '{}'::jsonb
         ) AS request_id;
@@ -41,5 +41,4 @@ SELECT
     schedule,
     active
 FROM cron.job
-WHERE jobname = 'send-prompts-hourly';
-
+WHERE jobname = 'sync-discord-support';

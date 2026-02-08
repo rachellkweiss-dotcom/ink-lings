@@ -104,9 +104,9 @@ export function SignUp({ onSwitchToSignIn }: SignUpProps) {
                   
                   <div className="text-gray-600 text-base">
                     <p>The email will come from <span className="font-semibold">Supabase Auth</span>.</p>
-                    <p className="mt-2">Didn&apos;t receive it? Check your spam folder or contact us at{' '}
-                      <a href="mailto:support@inklingsjournal.live" className="text-blue-600 hover:text-blue-800 underline">
-                        support@inklingsjournal.live
+                    <p className="mt-2">Didn&apos;t receive it? Check your spam folder or{' '}
+                      <a href="/contact" className="text-blue-600 hover:text-blue-800 underline">
+                        contact us
                       </a>
                     </p>
                   </div>
