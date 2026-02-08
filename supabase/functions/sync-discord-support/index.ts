@@ -283,7 +283,8 @@ function hasCloseCommand(content: string): boolean {
   const lowerContent = content.toLowerCase()
   return lowerContent.includes('!close') ||
     lowerContent.includes('[resolved]') ||
-    lowerContent.includes('[close]')
+    lowerContent.includes('[close]') ||
+    lowerContent.includes('[closed]')
 }
 
 function hasDeleteCommand(content: string): boolean {
