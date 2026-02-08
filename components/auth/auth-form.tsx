@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { SignUp } from './sign-up';
 import { SignIn } from './sign-in';
 
@@ -9,15 +9,12 @@ interface AuthFormProps {
 }
 
 export function AuthForm({ onSuccess }: AuthFormProps) {
-  const [isSignUp, setIsSignUp] = useState(false); // Default to sign-in form
-
   // Check if user is coming from email verification or wants to sign up
-  useEffect(() => {
+  const [isSignUp, setIsSignUp] = useState(() => {
+    if (typeof window === 'undefined') return false;
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('signup') === 'true') {
-      setIsSignUp(true);
-    }
-  }, []);
+    return urlParams.get('signup') === 'true';
+  });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">

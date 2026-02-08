@@ -58,6 +58,25 @@ export const renderSocialSchema = z.object({
   textElements: z.array(textElementSchema).min(1, 'At least one text element is required'),
 });
 
+// Support ticket creation validation
+export const createSupportTicketSchema = z.object({
+  ticketType: z.enum(['help', 'bug', 'account_deletion'], {
+    message: 'Ticket type must be help, bug, or account_deletion',
+  }),
+  subject: z.string().min(1, 'Subject is required').max(200, 'Subject too long'),
+  description: z.string().min(1, 'Description is required').max(5000, 'Description too long'),
+  email: emailSchema,
+  name: z.string().max(100, 'Name too long').optional(),
+  // Optional fields for account deletion
+  registrationMethod: z.string().optional(),
+  userFirstName: z.string().optional(),
+});
+
+// Support ticket reply validation
+export const supportTicketReplySchema = z.object({
+  content: z.string().min(1, 'Message is required').max(2000, 'Message too long (max 2000 characters)'),
+});
+
 /**
  * Validate request body against a schema
  */

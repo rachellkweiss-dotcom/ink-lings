@@ -9,15 +9,15 @@ import { Button } from '@/components/ui/button';
 
 function GratitudeChallengeContent() {
   const searchParams = useSearchParams();
-  const [showSuccess, setShowSuccess] = useState(false);
+  const isEnrolled = searchParams.get('enrolled') === 'true';
+  const [showSuccess, setShowSuccess] = useState(isEnrolled);
 
   useEffect(() => {
-    if (searchParams.get('enrolled') === 'true') {
-      setShowSuccess(true);
+    if (isEnrolled) {
       // Scroll to top to show success message
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-  }, [searchParams]);
+  }, [isEnrolled]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-amber-50 to-orange-50 dark:from-blue-900/10 dark:via-amber-900/10 dark:to-orange-900/10" style={{ fontFamily: 'var(--font-shadows-into-light)' }}>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ink-lings Facebook Cover</title>
+  <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #1a1a2e;
+      padding: 20px;
+    }
+
+    .cover {
+      /* Facebook cover photo ratio (820x312) */
+      width: 960px;
+      height: 366px;
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 35%, #06b6d4 75%, #0891b2 100%);
+      position: relative;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+
+    /* Subtle ink splatter / watercolor shapes */
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      left: -80px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(ellipse, rgba(255, 255, 255, 0.06) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .cover::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      right: 200px;
+      width: 600px;
+      height: 400px;
+      background: radial-gradient(ellipse, rgba(6, 182, 212, 0.15) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    /* Decorative ink drops */
+    .ink-drop {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.08;
+      background: white;
+    }
+
+    .ink-drop:nth-child(1) {
+      width: 120px;
+      height: 120px;
+      top: 40px;
+      right: 200px;
+    }
+
+    .ink-drop:nth-child(2) {
+      width: 70px;
+      height: 70px;
+      top: 140px;
+      left: 100px;
+    }
+
+    .ink-drop:nth-child(3) {
+      width: 40px;
+      height: 40px;
+      bottom: 70px;
+      left: 280px;
+    }
+
+    .tagline {
+      position: absolute;
+      top: 46%;
+      left: 50px;
+      transform: translateY(-50%);
+      font-family: 'Shadows Into Light', cursive;
+      font-size: 34px;
+      color: rgba(255, 255, 255, 0.95);
+      line-height: 1.4;
+      max-width: 550px;
+      z-index: 2;
+      text-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .tagline .highlight {
+      display: block;
+      font-size: 38px;
+      color: #fff;
+    }
+
+    .subtitle {
+      position: absolute;
+      bottom: 36px;
+      left: 50px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    .logo {
+      position: absolute;
+      bottom: 24px;
+      right: 30px;
+      width: 200px;
+      z-index: 2;
+      /* Invert black logo to white */
+      filter: invert(1);
+      opacity: 0.9;
+    }
+
+    /* Thin decorative line */
+    .divider {
+      position: absolute;
+      top: 50%;
+      left: 50px;
+      transform: translateY(50px);
+      width: 80px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.3);
+      z-index: 2;
+    }
+
+    .instructions {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #888;
+      font-family: sans-serif;
+      font-size: 13px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="cover">
+    <!-- Decorative elements -->
+    <div class="ink-drop"></div>
+    <div class="ink-drop"></div>
+    <div class="ink-drop"></div>
+
+    <!-- Logo bottom right -->
+    <img class="logo" src="ink_links_logo_final_final.png" alt="Ink-lings Logo">
+  </div>
+
+  <p class="instructions">Screenshot this cover image (820&times;312 recommended for Facebook) &mdash; right-click the image or use your screenshot tool</p>
+</body>
+</html>

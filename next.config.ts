@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  eslint: {
-    // Don't fail build on ESLint warnings (only errors)
-    ignoreDuringBuilds: false,
-  },
   typescript: {
     // Don't fail build on TypeScript errors (we want to catch these)
     ignoreBuildErrors: false,

@@ -1,0 +1,5 @@
+{
+  "name": "sync-discord-support",
+  "schedule": "0 * * * *",
+  "timezone": "UTC"
+}
