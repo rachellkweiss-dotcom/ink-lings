@@ -55,6 +55,12 @@ interface GAStats {
   topReferrers: Array<{ source: string; sessions: number }>
 }
 
+interface SupportStats {
+  ticketsCreatedLast3Days: number
+  ticketsByType: { help: number; bug: number; account_deletion: number }
+  currentOpenTickets: number
+}
+
 interface IGStats {
   followerCount: number
   followsCount: number
@@ -525,11 +531,62 @@ async function fetchAppStats(): Promise<AppStats> {
   }
 }
 
+async function fetchSupportStats(): Promise<SupportStats> {
+  const threeDaysAgo = new Date()
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+  const threeDaysAgoISO = threeDaysAgo.toISOString()
+
+  // Run all queries in parallel
+  const [
+    helpResult,
+    bugResult,
+    deletionResult,
+    openTicketsResult,
+  ] = await Promise.all([
+    // Help tickets created in last 3 days
+    supabase
+      .from('support_tickets')
+      .select('*', { count: 'exact', head: true })
+      .eq('ticket_type', 'help')
+      .gte('created_at', threeDaysAgoISO),
+
+    // Bug tickets created in last 3 days
+    supabase
+      .from('support_tickets')
+      .select('*', { count: 'exact', head: true })
+      .eq('ticket_type', 'bug')
+      .gte('created_at', threeDaysAgoISO),
+
+    // Account deletion tickets created in last 3 days
+    supabase
+      .from('support_tickets')
+      .select('*', { count: 'exact', head: true })
+      .eq('ticket_type', 'account_deletion')
+      .gte('created_at', threeDaysAgoISO),
+
+    // Currently open tickets (open or in_progress)
+    supabase
+      .from('support_tickets')
+      .select('*', { count: 'exact', head: true })
+      .in('status', ['open', 'in_progress']),
+  ])
+
+  const help = helpResult.count || 0
+  const bug = bugResult.count || 0
+  const accountDeletion = deletionResult.count || 0
+
+  return {
+    ticketsCreatedLast3Days: help + bug + accountDeletion,
+    ticketsByType: { help, bug, account_deletion: accountDeletion },
+    currentOpenTickets: openTicketsResult.count || 0,
+  }
+}
+
 // ============================================================
 // Discord webhook
 // ============================================================
 
-function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null) {
+function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null, supportStats: SupportStats) {
   const userMentions = DISCORD_USER_IDS.map(id => `<@${id}>`).join(' ')
 
   const lines: string[] = []
@@ -552,6 +609,20 @@ function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStat
   lines.push(`Sent: ${appStats.promptsSent}`)
   lines.push(`👍 Positive Reactions: ${appStats.positiveReactions}`)
   lines.push(`👎 Negative Reactions: ${appStats.negativeReactions}`)
+  lines.push(``)
+
+  // Support section
+  lines.push(`**🎫 Support**`)
+  lines.push(`Tickets Created (Last 3 Days): ${supportStats.ticketsCreatedLast3Days}`)
+  if (supportStats.ticketsCreatedLast3Days > 0) {
+    const types = supportStats.ticketsByType
+    const breakdown: string[] = []
+    if (types.help > 0) breakdown.push(`Help: ${types.help}`)
+    if (types.bug > 0) breakdown.push(`Bug: ${types.bug}`)
+    if (types.account_deletion > 0) breakdown.push(`Account Deletion: ${types.account_deletion}`)
+    lines.push(`  → ${breakdown.join(' | ')}`)
+  }
+  lines.push(`Current Open Tickets: ${supportStats.currentOpenTickets}`)
   lines.push(``)
 
   // Website analytics section
@@ -605,8 +676,8 @@ function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStat
   return { content: lines.join('\n') }
 }
 
-async function sendToDiscord(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null): Promise<void> {
-  const payload = buildDiscordMessage(appStats, gaStats, igStats)
+async function sendToDiscord(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null, supportStats: SupportStats): Promise<void> {
+  const payload = buildDiscordMessage(appStats, gaStats, igStats, supportStats)
 
   const response = await fetch(DISCORD_WEBHOOK_URL, {
     method: 'POST',
@@ -667,16 +738,18 @@ serve(async (req) => {
   try {
     console.log('=== Discord Stats Report Started ===')
 
-    // Fetch app stats, GA stats, and Instagram stats in parallel
-    const [appStats, gaStats, igStats] = await Promise.all([
+    // Fetch app stats, GA stats, Instagram stats, and support stats in parallel
+    const [appStats, gaStats, igStats, supportStats] = await Promise.all([
       fetchAppStats(),
       fetchGAStats(),
       fetchInstagramStats(),
+      fetchSupportStats(),
     ])
 
     console.log('App stats:', JSON.stringify(appStats))
     console.log('GA stats:', gaStats ? JSON.stringify(gaStats) : 'not available')
     console.log('IG stats:', igStats ? JSON.stringify(igStats) : 'not available')
+    console.log('Support stats:', JSON.stringify(supportStats))
 
     // Sync Instagram performance data to Clawdbot social_media table
     let performanceUpdates = 0
@@ -686,7 +759,7 @@ serve(async (req) => {
     }
 
     // Send to Discord
-    await sendToDiscord(appStats, gaStats, igStats)
+    await sendToDiscord(appStats, gaStats, igStats, supportStats)
 
     console.log('=== Discord Stats Report Complete ===')
 
@@ -696,6 +769,7 @@ serve(async (req) => {
       appStats,
       gaStats: gaStats || 'not configured',
       igStats: igStats || 'not configured',
+      supportStats,
       performanceUpdates,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
