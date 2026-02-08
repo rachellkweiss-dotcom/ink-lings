@@ -12,8 +12,7 @@ const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Discord configuration
-const DISCORD_WEBHOOK_URL = Deno.env.get('DISCORD_STATS_WEBHOOK_URL') || 
-  'https://discord.com/api/webhooks/1469761179575648276/-sRG_2VDD3meqAJk5yz0Sm5vbH4BtJekOD4GONzFbF_e8QYxWjTgiJu4Vr_5Z-zyKF7q'
+const DISCORD_WEBHOOK_URL = Deno.env.get('DISCORD_STATS_WEBHOOK_URL')
 const DISCORD_USER_IDS = ['1467371986056511622', '1014222908463255652']
 
 // GA configuration
@@ -677,6 +676,10 @@ function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStat
 }
 
 async function sendToDiscord(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null, supportStats: SupportStats): Promise<void> {
+  if (!DISCORD_WEBHOOK_URL) {
+    throw new Error('DISCORD_STATS_WEBHOOK_URL is not configured')
+  }
+
   const payload = buildDiscordMessage(appStats, gaStats, igStats, supportStats)
 
   const response = await fetch(DISCORD_WEBHOOK_URL, {
