@@ -39,34 +39,51 @@ export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [successData, setSuccessData] = useState<{ chatUrl: string } | null>(null);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validateForm = (): boolean => {
     setError('');
 
     if (!ticketType) {
       setError('Please select a request type.');
-      return;
+      return false;
     }
     if (!subject.trim()) {
       setError('Please enter a subject.');
-      return;
+      return false;
     }
     if (!description.trim()) {
       setError('Please describe your request.');
-      return;
+      return false;
     }
     if (!email.trim()) {
       setError('Please enter your email address.');
-      return;
+      return false;
     }
     if (!user && !name.trim()) {
       setError('Please enter your name.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    // Show confirmation dialog for account deletion
+    if (ticketType === 'account_deletion' && !showDeleteConfirmation) {
+      setShowDeleteConfirmation(true);
       return;
     }
 
+    await submitRequest();
+  };
+
+  const submitRequest = async () => {
     setIsSubmitting(true);
 
     try {
@@ -92,6 +109,7 @@ export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta 
         return;
       }
 
+      setShowDeleteConfirmation(false);
       setSuccessData({ chatUrl: data.chatUrl });
     } catch {
       setError('Unable to submit your request. Please try again later.');
@@ -107,7 +125,15 @@ export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta 
     setDescription('');
     setError('');
     setSuccessData(null);
+    setShowDeleteConfirmation(false);
     onClose();
+  };
+
+  const handleSwitchToHelp = () => {
+    setShowDeleteConfirmation(false);
+    setTicketType('help');
+    setSubject('');
+    setDescription('');
   };
 
   // Success state - auto-close after brief confirmation
@@ -137,6 +163,65 @@ export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta 
             >
               Got it
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Account deletion confirmation dialog
+  if (showDeleteConfirmation) {
+    return (
+      <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+        <Card className="max-w-md w-full">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl text-gray-900">
+              Are you sure?
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-4 border-2 border-red-200 rounded-lg bg-red-50">
+              <p className="text-red-800 text-sm font-medium mb-2">
+                This action is final and cannot be undone.
+              </p>
+              <p className="text-red-700 text-sm">
+                Submitting this request will permanently delete your account, preferences, prompt history, and all associated data. This cannot be reversed.
+              </p>
+            </div>
+
+            <div className="p-4 border-2 border-blue-200 rounded-lg bg-blue-50">
+              <p className="text-blue-800 text-sm">
+                Not sure yet? You can switch to <button type="button" onClick={handleSwitchToHelp} className="font-semibold underline underline-offset-2 hover:text-blue-900">Help / Question</button> instead to ask us anything — we&apos;re happy to help.
+              </p>
+            </div>
+
+            {error && (
+              <div className="p-3 border border-red-200 rounded-lg bg-red-50">
+                <p className="text-red-700 text-sm">{error}</p>
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-2">
+              <Button
+                type="button"
+                onClick={() => setShowDeleteConfirmation(false)}
+                variant="outline"
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+                size="sm"
+                disabled={isSubmitting}
+              >
+                Go Back
+              </Button>
+              <Button
+                type="button"
+                onClick={submitRequest}
+                disabled={isSubmitting}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                size="sm"
+              >
+                {isSubmitting ? 'Submitting...' : 'Delete My Account'}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

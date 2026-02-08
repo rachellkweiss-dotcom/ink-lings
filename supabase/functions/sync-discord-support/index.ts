@@ -28,6 +28,7 @@ interface SupportTicket {
   subject: string
   status: string
   discord_thread_id: string
+  user_id: string | null
 }
 
 interface DiscordMessage {
@@ -98,6 +99,21 @@ async function archiveThread(threadId: string): Promise<void> {
 
   if (!response.ok) {
     console.error(`Failed to archive thread ${threadId}: ${response.status}`)
+  }
+}
+
+async function sendDiscordMessage(threadId: string, content: string): Promise<void> {
+  const response = await fetch(
+    `${DISCORD_API_BASE}/channels/${threadId}/messages`,
+    {
+      method: 'POST',
+      headers: getDiscordHeaders(),
+      body: JSON.stringify({ content }),
+    }
+  )
+
+  if (!response.ok) {
+    console.error(`Failed to send message to thread ${threadId}: ${response.status}`)
   }
 }
 
@@ -270,6 +286,156 @@ function hasCloseCommand(content: string): boolean {
     lowerContent.includes('[close]')
 }
 
+function hasDeleteCommand(content: string): boolean {
+  return content.toLowerCase().includes('[delete]')
+}
+
+// ============================================================
+// Account deletion
+// ============================================================
+
+async function resolveUserId(ticket: SupportTicket): Promise<string | null> {
+  // Use the ticket's linked user_id if available
+  if (ticket.user_id) return ticket.user_id
+
+  // Otherwise look up by email in public.users
+  const { data } = await supabase
+    .from('users')
+    .select('id')
+    .eq('email', ticket.email)
+    .single()
+
+  return data?.id || null
+}
+
+async function deleteUserAccount(userId: string, email: string): Promise<{ success: boolean, errors: string[] }> {
+  const errors: string[] = []
+
+  // Helper to delete from a table and track errors
+  async function deleteFrom(table: string, column: string, value: string) {
+    const { error } = await supabase.from(table).delete().eq(column, value)
+    if (error) {
+      errors.push(`${table}: ${error.message}`)
+      console.error(`Failed to delete from ${table}:`, error.message)
+    } else {
+      console.log(`Deleted from ${table} where ${column} = ${value}`)
+    }
+  }
+
+  // 1. Delete support_messages for all of this user's tickets
+  const { data: userTickets } = await supabase
+    .from('support_tickets')
+    .select('id')
+    .or(`user_id.eq.${userId},email.eq.${email}`)
+
+  if (userTickets && userTickets.length > 0) {
+    for (const t of userTickets) {
+      await deleteFrom('support_messages', 'ticket_id', t.id)
+    }
+  }
+
+  // 2. Delete all support_tickets (by user_id and email to cover all)
+  await deleteFrom('support_tickets', 'user_id', userId)
+  const { error: ticketEmailErr } = await supabase.from('support_tickets').delete().eq('email', email)
+  if (ticketEmailErr) {
+    errors.push(`support_tickets (email): ${ticketEmailErr.message}`)
+  }
+
+  // 3. Delete from all user-data tables
+  await deleteFrom('gratitude_2026_participants', 'user_id', userId)
+  await deleteFrom('email_milestones', 'user_id', userId)
+  await deleteFrom('user_prompt_progress', 'user_id', userId)
+  await deleteFrom('user_prompt_rotation', 'user_id', userId)
+  await deleteFrom('prompt_history', 'user_id', userId)
+  await deleteFrom('user_preferences', 'user_id', userId)
+
+  // 4. Delete from public.users
+  await deleteFrom('users', 'id', userId)
+
+  // 5. Delete from auth.users (Supabase admin API)
+  const { error: authError } = await supabase.auth.admin.deleteUser(userId)
+  if (authError) {
+    errors.push(`auth.users: ${authError.message}`)
+    console.error('Failed to delete auth user:', authError.message)
+  } else {
+    console.log(`Deleted auth user ${userId}`)
+  }
+
+  return { success: errors.length === 0, errors }
+}
+
+// ============================================================
+// Account deletion email
+// ============================================================
+
+async function sendAccountDeletionEmail(email: string, name: string | null): Promise<void> {
+  if (!RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY not configured — skipping account deletion email')
+    return
+  }
+
+  const siteUrl = 'https://inklingsjournal.live'
+  const greeting = name ? `Hi ${name},` : 'Hi there,'
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f0f4ff;">
+      <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="background: linear-gradient(135deg, #2563eb, #06b6d4); color: white; padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
+          <h1 style="margin: 0; font-size: 24px;">Account Deleted</h1>
+          <p style="margin: 8px 0 0; opacity: 0.9;">Ink-lings</p>
+        </div>
+        
+        <div style="background: white; padding: 30px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <p>${greeting}</p>
+          
+          <p>We've completed your request and removed your account and associated data from Ink-lings.</p>
+          
+          <p>If you have questions or believe this was done in error, you're welcome to reach out.</p>
+          
+          <p>Thanks for having tried Ink-lings.</p>
+          
+          <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 25px 0;">
+          
+          <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
+            Ink-lings &bull; <a href="${siteUrl}" style="color: #2563eb; text-decoration: none;">inklingsjournal.live</a>
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  try {
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: 'Ink-lings <support@inklingsjournal.live>',
+        to: email,
+        subject: 'Your Ink-lings account has been deleted',
+        html,
+      }),
+    })
+
+    if (!response.ok) {
+      console.error(`Failed to send account deletion email to ${email}:`, await response.text())
+    } else {
+      console.log(`Account deletion email sent to ${email}`)
+    }
+  } catch (error) {
+    console.error(`Error sending account deletion email:`, error)
+  }
+}
+
 // ============================================================
 // Main handler
 // ============================================================
@@ -327,7 +493,7 @@ serve(async (req) => {
     // Fetch all open/in_progress tickets with Discord threads
     const { data: tickets, error: ticketError } = await supabase
       .from('support_tickets')
-      .select('id, token, email, name, subject, status, discord_thread_id')
+      .select('id, token, email, name, subject, status, discord_thread_id, user_id')
       .in('status', ['open', 'in_progress'])
       .not('discord_thread_id', 'is', null)
 
@@ -351,6 +517,7 @@ serve(async (req) => {
 
     let totalNewMessages = 0
     let ticketsClosed = 0
+    let accountsDeleted = 0
 
     for (const ticket of tickets) {
       try {
@@ -381,6 +548,7 @@ serve(async (req) => {
         console.log(`Ticket ${ticket.id}: ${newMessages.length} new message(s) from Discord`)
 
         let ticketShouldClose = false
+        let ticketShouldDelete = false
 
         // Save new messages to the database
         for (const msg of newMessages) {
@@ -410,44 +578,93 @@ serve(async (req) => {
 
           totalNewMessages++
 
+          // Check for delete command (account deletion)
+          if (hasDeleteCommand(msg.content)) {
+            ticketShouldDelete = true
+          }
+
           // Check for close commands
           if (hasCloseCommand(msg.content)) {
             ticketShouldClose = true
           }
         }
 
-        // Handle ticket closure
-        if (ticketShouldClose) {
-          const { error: closeError } = await supabase
-            .from('support_tickets')
-            .update({
-              status: 'resolved',
-              resolved_at: new Date().toISOString(),
-            })
-            .eq('id', ticket.id)
+        // Handle account deletion — takes priority over close
+        if (ticketShouldDelete) {
+          console.log(`[DELETE] Account deletion triggered for ticket ${ticket.id} (${ticket.email})`)
 
-          if (closeError) {
-            console.error(`Failed to close ticket ${ticket.id}:`, closeError.message)
+          const userId = await resolveUserId(ticket)
+
+          if (!userId) {
+            console.error(`Could not resolve user ID for ticket ${ticket.id} (${ticket.email})`)
+            await sendDiscordMessage(
+              ticket.discord_thread_id,
+              `⚠️ Could not find a user account for **${ticket.email}**. No data was deleted. Please verify the email and try again.`
+            )
           } else {
-            console.log(`Ticket ${ticket.id} resolved via Discord close command`)
-            ticketsClosed++
+            // Capture info before deletion wipes the records
+            const userEmail = ticket.email
+            const userName = ticket.name
+            const threadId = ticket.discord_thread_id
+
+            console.log(`Deleting account for user ${userId} (${userEmail})`)
+            const result = await deleteUserAccount(userId, userEmail)
+
+            if (result.success) {
+              await sendDiscordMessage(
+                threadId,
+                `✅ Account deletion complete for **${userEmail}**.\n\nAll user data has been removed:\n• Authentication & account\n• Preferences\n• Prompt history & progress\n• Prompt rotation\n• Email milestones\n• Gratitude challenge enrollment\n• Support tickets & messages\n\nFarewell email has been sent.`
+              )
+            } else {
+              await sendDiscordMessage(
+                threadId,
+                `⚠️ Account deletion for **${userEmail}** completed with errors:\n${result.errors.map(e => `• ${e}`).join('\n')}\n\nPlease review the logs and verify manually.`
+              )
+            }
+
+            // Send farewell email
+            await new Promise(resolve => setTimeout(resolve, 500))
+            await sendAccountDeletionEmail(userEmail, userName)
 
             // Archive the Discord thread
-            await archiveThread(ticket.discord_thread_id)
+            await archiveThread(threadId)
+
+            accountsDeleted++
           }
-        }
-
-        // Send email notification to user
-        if (newMessages.length > 0) {
-          // Rate limit emails: 500ms delay between sends
-          await new Promise(resolve => setTimeout(resolve, 500))
-
+        } else {
+          // Handle ticket closure
           if (ticketShouldClose) {
-            // Ticket was just resolved — send resolution email with rating stars
-            await sendResolutionEmail(ticket)
-          } else {
-            // Normal reply — send standard reply notification
-            await sendReplyNotification(ticket, newMessages.length)
+            const { error: closeError } = await supabase
+              .from('support_tickets')
+              .update({
+                status: 'resolved',
+                resolved_at: new Date().toISOString(),
+              })
+              .eq('id', ticket.id)
+
+            if (closeError) {
+              console.error(`Failed to close ticket ${ticket.id}:`, closeError.message)
+            } else {
+              console.log(`Ticket ${ticket.id} resolved via Discord close command`)
+              ticketsClosed++
+
+              // Archive the Discord thread
+              await archiveThread(ticket.discord_thread_id)
+            }
+          }
+
+          // Send email notification to user
+          if (newMessages.length > 0) {
+            // Rate limit emails: 500ms delay between sends
+            await new Promise(resolve => setTimeout(resolve, 500))
+
+            if (ticketShouldClose) {
+              // Ticket was just resolved — send resolution email with rating stars
+              await sendResolutionEmail(ticket)
+            } else {
+              // Normal reply — send standard reply notification
+              await sendReplyNotification(ticket, newMessages.length)
+            }
           }
         }
 
@@ -458,7 +675,7 @@ serve(async (req) => {
     }
 
     console.log(`=== Discord Support Sync Complete ===`)
-    console.log(`Tickets processed: ${tickets.length}, New messages: ${totalNewMessages}, Tickets closed: ${ticketsClosed}`)
+    console.log(`Tickets processed: ${tickets.length}, New messages: ${totalNewMessages}, Tickets closed: ${ticketsClosed}, Accounts deleted: ${accountsDeleted}`)
 
     return new Response(JSON.stringify({
       success: true,
@@ -466,6 +683,7 @@ serve(async (req) => {
       ticketsProcessed: tickets.length,
       newMessages: totalNewMessages,
       ticketsClosed,
+      accountsDeleted,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
