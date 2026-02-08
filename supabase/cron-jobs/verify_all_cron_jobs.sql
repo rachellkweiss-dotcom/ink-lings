@@ -16,9 +16,12 @@ WHERE jobname IN (
     'check-set-preferences-emails',
     'send-15-prompt-milestone',
     'send-prompts-hourly',
-    'send-support-inklings'
+    'send-gratitude-prompts',
+    'send-support-inklings',
+    'send-discord-stats',
+    'sync-discord-support'
 )
 ORDER BY jobname;
 
--- Expected result: All 5 jobs should show "✅ Has secret token" and active = true
+-- Expected result: All 8 jobs should show "✅ Has secret token" and active = true
 

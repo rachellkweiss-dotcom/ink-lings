@@ -59,9 +59,9 @@ export default function PrivacyPolicyPage() {
               <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Your Rights</h2>
               <ul className="list-disc pl-6 mb-6 space-y-2">
                 <li><strong>Access / Correction:</strong> View and update your information in the app or by request.</li>
-                <li><strong>Deletion:</strong> Request account deletion at any time.</li>
+                <li><strong>Deletion:</strong> Delete your account at any time through the app via <a href="/contact" className="text-blue-600 underline">Contact Support</a>.</li>
                 <li><strong>Pause:</strong> Stop notifications at any time in settings.</li>
-                <li><strong>Export:</strong> Contact us to request a machine-readable export of your data.</li>
+                <li><strong>Export:</strong> <a href="/contact" className="text-blue-600 underline">Contact us</a> to request a machine-readable export of your data.</li>
               </ul>
   
               <h3 className="text-xl font-semibold text-gray-800 mt-6 mb-3">Regional Disclosures</h3>
@@ -72,21 +72,21 @@ export default function PrivacyPolicyPage() {
   
               <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">How to Exercise Your Rights</h2>
               <p className="mb-6">
-                Email <a href="mailto:support@inklingsjournal.live" className="text-blue-600 underline">support@inklingsjournal.live</a> from the address on file.
-                We may ask you to verify ownership by replying from that address before we act on your request.
+                Use our <a href="/contact" className="text-blue-600 underline">Contact Support</a> form to submit requests related to your data or account.
+                Authenticated users can manage their account directly in the app.
               </p>
   
               <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Data Retention</h2>
               <ul className="list-disc pl-6 mb-6 space-y-2">
                 <li><strong>Active accounts:</strong> Retained while your account is open.</li>
                 <li><strong>Prompt & delivery logs:</strong> Retained up to <strong>90 days</strong> for troubleshooting and abuse prevention.</li>
-                <li><strong>Deleted accounts:</strong> Active records removed within <strong>30 days</strong> of a verified request; residual copies may remain in encrypted backups for up to <strong>90 days</strong> and then purge on routine cycles.</li>
+                <li><strong>Deleted accounts:</strong> Active records removed within <strong>30 days</strong> of your request; residual copies may remain in encrypted backups for up to <strong>90 days</strong> and then purge on routine cycles.</li>
               </ul>
   
               <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Children</h2>
               <p className="mb-6">
                 Ink-lings is not directed to children under 13, and we do not knowingly collect personal information from children.
-                If you believe a child has provided data, contact us and we will delete it.
+                If you believe a child has provided data, <a href="/contact" className="text-blue-600 underline">contact us</a> and we will delete it.
               </p>
   
               <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Changes</h2>
@@ -97,7 +97,7 @@ export default function PrivacyPolicyPage() {
   
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800 mt-0 mb-4">Contact</h2>
-                <p><strong>Email:</strong> <a href="mailto:support@inklingsjournal.live" className="text-blue-600 underline">support@inklingsjournal.live</a></p>
+                <p><a href="/contact" className="text-blue-600 underline font-medium">Contact Support</a></p>
               </div>
             </div>
           </div>

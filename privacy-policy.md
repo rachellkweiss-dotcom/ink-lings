@@ -26,17 +26,17 @@
 
 ## Your Rights
 - **Access:** View your data in the app
-- **Delete:** Request account deletion (emails us to process manually)
+- **Delete:** Delete your account at any time through the app via [Contact Support](/contact)
 - **Pause:** Stop notifications at any time
-- **Export:** Contact us for data export
+- **Export:** [Contact us](/contact) for data export
 
 ## Data Retention
 - **Active accounts:** Data kept while account exists
 - **Deleted accounts:** Data removed within 30 days of deletion request
 
 ## Contact
-- **Email:** support@inklingsjournal.live
-- **For deletion requests:** Use the "Delete Account" feature in the app
+- **Support:** [Contact Support](/contact)
+- **For account deletion:** Use the "Delete My Account" option in [Contact Support](/contact)
 
 ## Changes
 We may update this policy. Continued use means you accept changes.

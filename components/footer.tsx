@@ -1,11 +1,6 @@
-'use client';
-
 import Link from 'next/link';
-import { useSupport } from './support-context';
 
 export function Footer() {
-  const { openSupport } = useSupport();
-
   return (
     <footer className="bg-blue-50/30 border-t border-blue-200/50">
       <div className="max-w-6xl mx-auto px-8 py-8">
@@ -15,12 +10,12 @@ export function Footer() {
           </div>
           
           <div className="flex space-x-6 text-sm">
-            <button
-              onClick={() => openSupport()}
+            <Link
+              href="/contact"
               className="text-blue-700 hover:text-blue-800 transition-colors font-medium hover:bg-blue-50/50 px-3 py-1 rounded-md"
             >
               Contact Support
-            </button>
+            </Link>
             <Link 
               href="/privacy-policy" 
               className="text-blue-700 hover:text-blue-800 transition-colors font-medium hover:bg-blue-50/50 px-3 py-1 rounded-md"

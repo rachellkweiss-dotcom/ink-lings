@@ -60,8 +60,8 @@ export const renderSocialSchema = z.object({
 
 // Support ticket creation validation
 export const createSupportTicketSchema = z.object({
-  ticketType: z.enum(['help', 'bug', 'account_deletion'], {
-    message: 'Ticket type must be help, bug, or account_deletion',
+  ticketType: z.enum(['general_inquiry', 'help', 'bug', 'feature_request', 'request_data', 'account_deletion'], {
+    message: 'Invalid ticket type',
   }),
   subject: z.string().min(1, 'Subject is required').max(200, 'Subject too long'),
   description: z.string().min(1, 'Description is required').max(5000, 'Description too long'),

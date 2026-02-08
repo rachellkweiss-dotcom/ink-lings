@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Account deletion request submitted. Your notifications have been paused. We will process your request and contact you to confirm the deletion.' 
+      message: 'Your account deletion has been submitted. Your notifications have been paused and your account will be permanently deleted.' 
     });
 
   } catch (error) {

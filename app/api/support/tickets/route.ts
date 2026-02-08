@@ -138,15 +138,19 @@ export async function POST(request: NextRequest) {
 
     if (resendApiKey) {
       try {
-        const typeLabel = {
-          help: 'Help / Question',
+        const typeLabel: Record<string, string> = {
+          general_inquiry: 'General Inquiry',
+          help: 'Help',
           bug: 'Bug Report',
+          feature_request: 'Feature Request',
+          request_data: 'Data Export Request',
           account_deletion: 'Account Deletion Request',
-        }[ticketType] || ticketType;
+        };
+        const resolvedTypeLabel = typeLabel[ticketType] || ticketType;
 
         const confirmationHtml = buildConfirmationEmail({
           subject,
-          typeLabel,
+          typeLabel: resolvedTypeLabel,
           chatUrl,
           ticketType,
           name: ticketName,
@@ -217,7 +221,7 @@ function buildConfirmationEmail(opts: {
   const greeting = opts.name ? `Hi ${opts.name},` : 'Hi there,';
   const deletionNote = opts.ticketType === 'account_deletion'
     ? `<div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 8px; margin: 15px 0;">
-        <p style="margin: 0; color: #856404;"><strong>Note:</strong> Your notifications have been automatically paused while we process your account deletion request.</p>
+        <p style="margin: 0; color: #856404;"><strong>Note:</strong> Your notifications have been paused and your account deletion is being processed. Your account and all associated data will be permanently removed.</p>
       </div>`
     : '';
 

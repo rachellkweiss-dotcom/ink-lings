@@ -1,12 +1,13 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback } from 'react';
-import { SupportModal } from './support-modal';
+import { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { SupportModal, type TicketType } from './support-modal';
 
 interface SupportContextType {
   openSupport: (opts?: {
-    ticketType?: 'help' | 'bug' | 'account_deletion';
+    ticketType?: TicketType;
     deletionMeta?: { registrationMethod?: string; userFirstName?: string };
+    onClose?: () => void;
   }) => void;
   closeSupport: () => void;
 }
@@ -15,15 +16,18 @@ const SupportContext = createContext<SupportContextType | undefined>(undefined);
 
 export function SupportProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [defaultTicketType, setDefaultTicketType] = useState<'help' | 'bug' | 'account_deletion' | undefined>();
+  const [defaultTicketType, setDefaultTicketType] = useState<TicketType | undefined>();
   const [deletionMeta, setDeletionMeta] = useState<{ registrationMethod?: string; userFirstName?: string } | undefined>();
+  const onCloseCallbackRef = useRef<(() => void) | undefined>(undefined);
 
   const openSupport = useCallback((opts?: {
-    ticketType?: 'help' | 'bug' | 'account_deletion';
+    ticketType?: TicketType;
     deletionMeta?: { registrationMethod?: string; userFirstName?: string };
+    onClose?: () => void;
   }) => {
     setDefaultTicketType(opts?.ticketType);
     setDeletionMeta(opts?.deletionMeta);
+    onCloseCallbackRef.current = opts?.onClose;
     setIsOpen(true);
   }, []);
 
@@ -31,6 +35,8 @@ export function SupportProvider({ children }: { children: React.ReactNode }) {
     setIsOpen(false);
     setDefaultTicketType(undefined);
     setDeletionMeta(undefined);
+    onCloseCallbackRef.current?.();
+    onCloseCallbackRef.current = undefined;
   }, []);
 
   return (

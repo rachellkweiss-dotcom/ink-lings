@@ -118,7 +118,7 @@ export default function TermsOfServicePage() {
   
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
                 <h2 className="text-2xl font-semibold text-gray-800 mt-0 mb-4">Contact</h2>
-                <p><strong>Questions:</strong> <a href="mailto:support@inklingsjournal.live" className="text-blue-600 underline">support@inklingsjournal.live</a></p>
+                <p><strong>Questions:</strong> <a href="/contact" className="text-blue-600 underline">Contact Support</a></p>
               </div>
   
               <h2 className="text-2xl font-semibold text-gray-800 mt-8 mb-4">Governing Law & Venue</h2>

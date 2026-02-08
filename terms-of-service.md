@@ -52,7 +52,7 @@ Ink-lings is a journaling app that sends daily prompts and tracks your journalin
 - **Major changes** will be communicated via email
 
 ## Contact
-- **Questions:** support@inklingsjournal.live
+- **Questions:** [Contact Support](/contact)
 - **Address:** [Your Business Address if you have one]
 
 ## Governing Law
