@@ -15,11 +15,11 @@ interface SupportModalProps {
   deletionMeta?: { registrationMethod?: string; userFirstName?: string };
 }
 
-const ALL_TICKET_TYPES = [
+const ALL_TICKET_TYPES: readonly { value: string; label: string; emoji: string; description: string; authOnly?: boolean }[] = [
   { value: 'help', label: 'Help / Question', emoji: '❓', description: 'Ask us anything about Ink-lings' },
   { value: 'bug', label: 'Bug Report', emoji: '🐛', description: 'Something not working right? Let us know' },
   { value: 'account_deletion', label: 'Account Deletion', emoji: '🗑️', description: 'Request to delete your account and data', authOnly: true },
-] as const;
+];
 
 export function SupportModal({ isOpen, onClose, defaultTicketType, deletionMeta }: SupportModalProps) {
   const { user } = useAuth();
