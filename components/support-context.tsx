@@ -18,7 +18,7 @@ export function SupportProvider({ children }: { children: React.ReactNode }) {
   const [isOpen, setIsOpen] = useState(false);
   const [defaultTicketType, setDefaultTicketType] = useState<TicketType | undefined>();
   const [deletionMeta, setDeletionMeta] = useState<{ registrationMethod?: string; userFirstName?: string } | undefined>();
-  const onCloseCallbackRef = useRef<(() => void) | undefined>();
+  const onCloseCallbackRef = useRef<(() => void) | undefined>(undefined);
 
   const openSupport = useCallback((opts?: {
     ticketType?: TicketType;
