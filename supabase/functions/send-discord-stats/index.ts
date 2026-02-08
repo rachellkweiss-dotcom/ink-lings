@@ -286,7 +286,7 @@ async function syncPerformanceToSocialMedia(posts: IGStats['recentPosts']): Prom
     const { data: matches, error: fetchError } = await clawdbotSupabase
       .from('social_media')
       .select('id, instagram_permalink, performance_history')
-      .eq('product', 'ink-lings')
+      .ilike('product', 'ink-lings')
       .not('instagram_permalink', 'is', null)
 
     if (fetchError) {
