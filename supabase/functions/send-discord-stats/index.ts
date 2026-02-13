@@ -588,89 +588,120 @@ async function fetchSupportStats(): Promise<SupportStats> {
 function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null, supportStats: SupportStats) {
   const userMentions = DISCORD_USER_IDS.map(id => `<@${id}>`).join(' ')
 
+  const now = new Date()
+  const endDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+  const startDateObj = new Date(now)
+  startDateObj.setDate(startDateObj.getDate() - 3)
+  const startDate = startDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+
+  const sep = `━━━━━━━━━━━━━━━━━━━━━━`
+
   const lines: string[] = []
 
   lines.push(`${userMentions}`)
   lines.push(``)
-  lines.push(`**📊 Ink-lings Stats Report**`)
+  lines.push(sep)
+  lines.push(`📊 Ink-lings Performance Report`)
+  lines.push(`📅 Reporting Period: ${startDate} → ${endDate}`)
+  lines.push(`🕒 Window: Last 3 Days`)
   lines.push(``)
 
-  // Users section
-  lines.push(`**👥 Users**`)
-  lines.push(`New Users (Last 3 Days): ${appStats.newUsers}`)
-  lines.push(`Total Authenticated Users: ${appStats.totalUsers}`)
-  lines.push(`Receiving Prompts: ${appStats.usersReceivingPrompts}`)
-  lines.push(`2026 Gratitude Challenge: ${appStats.gratitudeChallengeEnrolled}`)
+  // Growth & Usage
+  lines.push(sep)
+  lines.push(`👥 Growth & Usage`)
+  lines.push(``)
+  lines.push(`New Users: ${appStats.newUsers}`)
+  lines.push(`Prompts Sent: ${appStats.promptsSent}`)
+  lines.push(`Prompt Reactions (👍 / 👎): ${appStats.positiveReactions} / ${appStats.negativeReactions}`)
+  lines.push(``)
+  lines.push(`All-Time Authenticated Users: ${appStats.totalUsers}`)
+  lines.push(`Users Receiving Prompts: ${appStats.usersReceivingPrompts}`)
+  lines.push(`2026 Gratitude Challenge Participants: ${appStats.gratitudeChallengeEnrolled}`)
   lines.push(``)
 
-  // Prompts section
-  lines.push(`**📝 Prompts (Last 3 Days)**`)
-  lines.push(`Sent: ${appStats.promptsSent}`)
-  lines.push(`👍 Positive Reactions: ${appStats.positiveReactions}`)
-  lines.push(`👎 Negative Reactions: ${appStats.negativeReactions}`)
+  // Website Performance
+  lines.push(sep)
+  lines.push(`🌐 Website Performance`)
   lines.push(``)
-
-  // Support section
-  lines.push(`**🎫 Support**`)
-  lines.push(`Tickets Created (Last 3 Days): ${supportStats.ticketsCreatedLast3Days}`)
-  if (supportStats.ticketsCreatedLast3Days > 0) {
-    const types = supportStats.ticketsByType
-    const breakdown: string[] = []
-    if (types.help > 0) breakdown.push(`Help: ${types.help}`)
-    if (types.bug > 0) breakdown.push(`Bug: ${types.bug}`)
-    if (types.account_deletion > 0) breakdown.push(`Account Deletion: ${types.account_deletion}`)
-    lines.push(`  → ${breakdown.join(' | ')}`)
-  }
-  lines.push(`Current Open Tickets: ${supportStats.currentOpenTickets}`)
-  lines.push(``)
-
-  // Website analytics section
   if (gaStats) {
     const referrersText = gaStats.topReferrers.length > 0
       ? gaStats.topReferrers.map(r => `${r.source} (${r.sessions})`).join(', ')
-      : 'No referrer data'
+      : '—'
 
-    lines.push(`**🌐 Website Analytics (Last 3 Days)**`)
     lines.push(`Active Users: ${gaStats.activeUsers}`)
     lines.push(`Sessions: ${gaStats.sessions}`)
     lines.push(`Page Views: ${gaStats.pageViews}`)
     lines.push(`Unique Visitors: ${gaStats.uniqueVisitors}`)
     lines.push(`Top Referrers: ${referrersText}`)
-    lines.push(``)
   } else {
-    lines.push(`**🌐 Website Analytics (Last 3 Days)**`)
-    lines.push(`GA credentials not configured`)
-    lines.push(``)
+    lines.push(`Active Users: —`)
+    lines.push(`Sessions: —`)
+    lines.push(`Page Views: —`)
+    lines.push(`Unique Visitors: —`)
+    lines.push(`Top Referrers: —`)
   }
+  lines.push(``)
 
-  // Instagram section
+  // Social Performance
+  lines.push(sep)
+  lines.push(`📣 Social Performance`)
+  lines.push(``)
   if (igStats) {
-    lines.push(`**📸 Instagram (@ink_lings_journal)**`)
+    lines.push(`Platform: Instagram (@ink_lings_journal)`)
     lines.push(`Followers: ${igStats.followerCount}`)
     lines.push(`Following: ${igStats.followsCount}`)
     lines.push(`Total Posts: ${igStats.mediaCount}`)
     lines.push(``)
+    lines.push(`New Posts Since Last Report: ${igStats.recentPosts.length}`)
+    lines.push(``)
 
     if (igStats.recentPosts.length > 0) {
-      lines.push(`**📱 Posts Since Last Report (${igStats.recentPosts.length})**`)
-      igStats.recentPosts.forEach((post, i) => {
+      igStats.recentPosts.forEach((post) => {
         const date = new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-        const type = post.mediaType === 'VIDEO' ? '🎬' : post.mediaType === 'CAROUSEL_ALBUM' ? '🎠' : '🖼️'
-        const link = post.permalink ? `${post.permalink}` : ''
-        lines.push(`${i + 1}. ${type} ${date} — ${link}`)
-        lines.push(`   ❤️ ${post.likeCount} 💬 ${post.commentsCount} 👁️ ${post.views ?? '—'} 📣 ${post.reach ?? '—'} 💾 ${post.saved ?? '—'} 🔄 ${post.shares ?? '—'}`)
-        lines.push(`   ${post.caption}`)
+        const type = post.mediaType === 'VIDEO' ? 'REEL' : post.mediaType === 'CAROUSEL_ALBUM' ? 'CAROUSEL' : 'IMAGE'
+        const link = post.permalink || '—'
+        const caption = post.caption.length > 100 ? post.caption.substring(0, 100) + '…' : post.caption
+
+        lines.push(`• ${date} — ${type}`)
+        lines.push(`  🔗 ${link}`)
+        lines.push(`  ❤️ Likes: ${post.likeCount}`)
+        lines.push(`  💬 Comments: ${post.commentsCount}`)
+        lines.push(`  👁 Views: ${post.views ?? '—'}`)
+        lines.push(`  📣 Reach: ${post.reach ?? '—'}`)
+        lines.push(`  💾 Saves: ${post.saved ?? '—'}`)
+        lines.push(`  🔄 Shares: ${post.shares ?? '—'}`)
+        lines.push(`  Caption: ${caption}`)
+        lines.push(``)
       })
-      lines.push(``)
-    } else {
-      lines.push(`No new posts in the last 3 days`)
-      lines.push(``)
     }
   } else {
-    lines.push(`**📸 Instagram**`)
-    lines.push(`Instagram credentials not configured`)
+    lines.push(`Platform: Instagram (@ink_lings_journal)`)
+    lines.push(`Followers: —`)
+    lines.push(`Following: —`)
+    lines.push(`Total Posts: —`)
     lines.push(``)
+    lines.push(`New Posts Since Last Report: —`)
   }
+  lines.push(``)
+
+  // Support
+  lines.push(sep)
+  lines.push(`🎫 Support`)
+  lines.push(``)
+  lines.push(`New Tickets: ${supportStats.ticketsCreatedLast3Days}`)
+  lines.push(`Open Tickets: ${supportStats.currentOpenTickets}`)
+  lines.push(``)
+
+  // System
+  lines.push(sep)
+  lines.push(`⚙️ System`)
+  lines.push(``)
+  const syncParts: string[] = []
+  if (gaStats) syncParts.push('GA ✅')
+  else syncParts.push('GA ❌')
+  if (igStats) syncParts.push('IG ✅')
+  else syncParts.push('IG ❌')
+  lines.push(`Sync Status: ${syncParts.join(' | ')}`)
 
   return { content: lines.join('\n') }
 }
