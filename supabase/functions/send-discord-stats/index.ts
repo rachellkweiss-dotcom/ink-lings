@@ -712,11 +712,14 @@ async function sendToDiscord(appStats: AppStats, gaStats: GAStats | null, igStat
   }
 
   const payload = buildDiscordMessage(appStats, gaStats, igStats, supportStats)
+  
+  // Add flags to suppress link embeds (4 = SUPPRESS_EMBEDS)
+  const payloadWithFlags = { ...payload, flags: 4 }
 
   const response = await fetch(DISCORD_WEBHOOK_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(payloadWithFlags),
   })
 
   if (!response.ok) {
@@ -795,6 +798,65 @@ serve(async (req) => {
     // Send to Discord
     await sendToDiscord(appStats, gaStats, igStats, supportStats)
 
+    // Save stats report to Clawdbot social_media table
+    let statsSaved = false
+    if (clawdbotSupabase) {
+      const now = new Date()
+      const periodEnd = now.toISOString().split('T')[0]
+      const periodStartDate = new Date(now)
+      periodStartDate.setDate(periodStartDate.getDate() - 3)
+      const periodStart = periodStartDate.toISOString().split('T')[0]
+
+      const { error: insertError } = await clawdbotSupabase
+        .from('social_media')
+        .insert({
+          product: 'Ink-lings',
+          post_type: 'App Performance',
+          post_date: periodEnd,
+          caption_content: JSON.stringify({
+            period: { from: periodStart, to: periodEnd },
+            app: {
+              new_users: appStats.newUsers,
+              total_users: appStats.totalUsers,
+              users_receiving_prompts: appStats.usersReceivingPrompts,
+              gratitude_enrolled: appStats.gratitudeChallengeEnrolled,
+              prompts_sent: appStats.promptsSent,
+              positive_reactions: appStats.positiveReactions,
+              negative_reactions: appStats.negativeReactions,
+            },
+            website: gaStats ? {
+              active_users: gaStats.activeUsers,
+              sessions: gaStats.sessions,
+              page_views: gaStats.pageViews,
+              unique_visitors: gaStats.uniqueVisitors,
+              top_referrers: gaStats.topReferrers,
+            } : null,
+            support: {
+              new_tickets: supportStats.ticketsCreatedLast3Days,
+              open_tickets: supportStats.currentOpenTickets,
+              tickets_by_type: supportStats.ticketsByType,
+            },
+            instagram: igStats ? {
+              followers: igStats.followerCount,
+              following: igStats.followsCount,
+              posts: igStats.mediaCount,
+              new_posts_since_last: igStats.recentPosts.length,
+            } : null,
+          }),
+          category: 'stats_report',
+          posted: true,
+        })
+
+      if (insertError) {
+        console.error('❌ Error saving stats to social_media:', insertError)
+      } else {
+        statsSaved = true
+        console.log('✅ Stats report saved to Clawdbot social_media table')
+      }
+    } else {
+      console.log('⚠️ Clawdbot Supabase not configured — skipping social_media insert')
+    }
+
     console.log('=== Discord Stats Report Complete ===')
 
     return new Response(JSON.stringify({
@@ -805,6 +867,7 @@ serve(async (req) => {
       igStats: igStats || 'not configured',
       supportStats,
       performanceUpdates,
+      statsSaved,
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
