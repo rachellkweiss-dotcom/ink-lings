@@ -13,7 +13,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Discord configuration
 const DISCORD_WEBHOOK_URL = Deno.env.get('DISCORD_STATS_WEBHOOK_URL')
-const DISCORD_USER_IDS = ['1467371986056511622', '1014222908463255652']
+const DISCORD_USER_IDS = ['1014222908463255652']
 
 // GA configuration
 const GA_SERVICE_ACCOUNT_EMAIL = Deno.env.get('GA_SERVICE_ACCOUNT_EMAIL')
@@ -55,7 +55,7 @@ interface GAStats {
 }
 
 interface SupportStats {
-  ticketsCreatedLast3Days: number
+  ticketsCreatedLastDay: number
   ticketsByType: { help: number; bug: number; account_deletion: number }
   currentOpenTickets: number
 }
@@ -174,7 +174,7 @@ async function fetchGAStats(): Promise<GAStats | null> {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          dateRanges: [{ startDate: '3daysAgo', endDate: 'today' }],
+          dateRanges: [{ startDate: 'yesterday', endDate: 'today' }],
           metrics: [
             { name: 'activeUsers' },
             { name: 'sessions' },
@@ -203,7 +203,7 @@ async function fetchGAStats(): Promise<GAStats | null> {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          dateRanges: [{ startDate: '3daysAgo', endDate: 'today' }],
+          dateRanges: [{ startDate: 'yesterday', endDate: 'today' }],
           dimensions: [{ name: 'sessionSource' }],
           metrics: [{ name: 'sessions' }],
           orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
@@ -410,7 +410,7 @@ async function fetchInstagramStats(): Promise<IGStats | null> {
     const accountData = await accountResponse.json()
 
     // Fetch recent media with engagement metrics
-    // Get enough posts to cover the 3-day window
+    // Get recent posts
     const mediaResponse = await fetch(
       `https://graph.instagram.com/v24.0/${INSTAGRAM_USER_ID}/media?fields=id,caption,like_count,comments_count,timestamp,media_type,permalink&limit=20&access_token=${currentToken}`
     )
@@ -419,11 +419,11 @@ async function fetchInstagramStats(): Promise<IGStats | null> {
 
     if (mediaResponse.ok) {
       const mediaData = await mediaResponse.json()
-      const threeDaysAgo = new Date()
-      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+    const oneDayAgo = new Date()
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1)
 
       const recentMedia = (mediaData.data || [])
-        .filter((post: any) => new Date(post.timestamp) >= threeDaysAgo)
+        .filter((post: any) => new Date(post.timestamp) >= oneDayAgo)
 
       // Fetch insights for each recent post in parallel
       const insightsResults = await Promise.all(
@@ -462,9 +462,9 @@ async function fetchInstagramStats(): Promise<IGStats | null> {
 // ============================================================
 
 async function fetchAppStats(): Promise<AppStats> {
-  const threeDaysAgo = new Date()
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
-  const threeDaysAgoISO = threeDaysAgo.toISOString()
+  const oneDayAgo = new Date()
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1)
+  const oneDayAgoISO = oneDayAgo.toISOString()
 
   // Run all queries in parallel
   const [
@@ -476,11 +476,11 @@ async function fetchAppStats(): Promise<AppStats> {
     positiveReactionsResult,
     negativeReactionsResult,
   ] = await Promise.all([
-    // New users in last 3 days
+    // New users in last 24 hours
     supabase
       .from('user_preferences')
       .select('*', { count: 'exact', head: true })
-      .gte('created_at', threeDaysAgoISO),
+      .gte('created_at', oneDayAgoISO),
 
     // Total authenticated users
     supabase.auth.admin.listUsers({ page: 1, perPage: 10000 }),
@@ -498,25 +498,25 @@ async function fetchAppStats(): Promise<AppStats> {
       .select('*', { count: 'exact', head: true })
       .eq('active', true),
 
-    // Prompts sent in last 3 days
+    // Prompts sent in last 24 hours
     supabase
       .from('prompt_history')
       .select('*', { count: 'exact', head: true })
-      .gte('sent_at', threeDaysAgoISO),
+      .gte('sent_at', oneDayAgoISO),
 
-    // Positive reactions in last 3 days
+    // Positive reactions in last 24 hours
     supabase
       .from('feedback_tokens')
       .select('*', { count: 'exact', head: true })
       .eq('feedback_type', 'up')
-      .gte('created_at', threeDaysAgoISO),
+      .gte('created_at', oneDayAgoISO),
 
-    // Negative reactions in last 3 days
+    // Negative reactions in last 24 hours
     supabase
       .from('feedback_tokens')
       .select('*', { count: 'exact', head: true })
       .eq('feedback_type', 'down')
-      .gte('created_at', threeDaysAgoISO),
+      .gte('created_at', oneDayAgoISO),
   ])
 
   return {
@@ -531,9 +531,9 @@ async function fetchAppStats(): Promise<AppStats> {
 }
 
 async function fetchSupportStats(): Promise<SupportStats> {
-  const threeDaysAgo = new Date()
-  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
-  const threeDaysAgoISO = threeDaysAgo.toISOString()
+  const oneDayAgo = new Date()
+  oneDayAgo.setDate(oneDayAgo.getDate() - 1)
+  const oneDayAgoISO = oneDayAgo.toISOString()
 
   // Run all queries in parallel
   const [
@@ -542,26 +542,23 @@ async function fetchSupportStats(): Promise<SupportStats> {
     deletionResult,
     openTicketsResult,
   ] = await Promise.all([
-    // Help tickets created in last 3 days
     supabase
       .from('support_tickets')
       .select('*', { count: 'exact', head: true })
       .eq('ticket_type', 'help')
-      .gte('created_at', threeDaysAgoISO),
+      .gte('created_at', oneDayAgoISO),
 
-    // Bug tickets created in last 3 days
     supabase
       .from('support_tickets')
       .select('*', { count: 'exact', head: true })
       .eq('ticket_type', 'bug')
-      .gte('created_at', threeDaysAgoISO),
+      .gte('created_at', oneDayAgoISO),
 
-    // Account deletion tickets created in last 3 days
     supabase
       .from('support_tickets')
       .select('*', { count: 'exact', head: true })
       .eq('ticket_type', 'account_deletion')
-      .gte('created_at', threeDaysAgoISO),
+      .gte('created_at', oneDayAgoISO),
 
     // Currently open tickets (open or in_progress)
     supabase
@@ -575,7 +572,7 @@ async function fetchSupportStats(): Promise<SupportStats> {
   const accountDeletion = deletionResult.count || 0
 
   return {
-    ticketsCreatedLast3Days: help + bug + accountDeletion,
+    ticketsCreatedLastDay: help + bug + accountDeletion,
     ticketsByType: { help, bug, account_deletion: accountDeletion },
     currentOpenTickets: openTicketsResult.count || 0,
   }
@@ -591,7 +588,7 @@ function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStat
   const now = new Date()
   const endDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   const startDateObj = new Date(now)
-  startDateObj.setDate(startDateObj.getDate() - 3)
+  startDateObj.setDate(startDateObj.getDate() - 1)
   const startDate = startDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
   const sep = `━━━━━━━━━━━━━━━━━━━━━━`
@@ -601,9 +598,9 @@ function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStat
   lines.push(`${userMentions}`)
   lines.push(``)
   lines.push(sep)
-  lines.push(`📊 Ink-lings Performance Report`)
+  lines.push(`📊 Ink-lings Daily Performance Report`)
   lines.push(`📅 Reporting Period: ${startDate} → ${endDate}`)
-  lines.push(`🕒 Window: Last 3 Days`)
+  lines.push(`🕒 Window: Last 24 Hours`)
   lines.push(``)
 
   // Growth & Usage
@@ -652,7 +649,7 @@ function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStat
     lines.push(`Following: ${igStats.followsCount}`)
     lines.push(`Total Posts: ${igStats.mediaCount}`)
     lines.push(``)
-    lines.push(`New Posts Since Last Report: ${igStats.recentPosts.length}`)
+    lines.push(`New Posts (Last 24h): ${igStats.recentPosts.length}`)
     lines.push(``)
 
     if (igStats.recentPosts.length > 0) {
@@ -680,7 +677,7 @@ function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStat
     lines.push(`Following: —`)
     lines.push(`Total Posts: —`)
     lines.push(``)
-    lines.push(`New Posts Since Last Report: —`)
+    lines.push(`New Posts (Last 24h): —`)
   }
   lines.push(``)
 
@@ -688,7 +685,7 @@ function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStat
   lines.push(sep)
   lines.push(`🎫 Support`)
   lines.push(``)
-  lines.push(`New Tickets: ${supportStats.ticketsCreatedLast3Days}`)
+  lines.push(`New Tickets: ${supportStats.ticketsCreatedLastDay}`)
   lines.push(`Open Tickets: ${supportStats.currentOpenTickets}`)
   lines.push(``)
 
@@ -804,7 +801,7 @@ serve(async (req) => {
       const now = new Date()
       const periodEnd = now.toISOString().split('T')[0]
       const periodStartDate = new Date(now)
-      periodStartDate.setDate(periodStartDate.getDate() - 3)
+      periodStartDate.setDate(periodStartDate.getDate() - 1)
       const periodStart = periodStartDate.toISOString().split('T')[0]
 
       const { error: insertError } = await clawdbotSupabase
@@ -832,7 +829,7 @@ serve(async (req) => {
               top_referrers: gaStats.topReferrers,
             } : null,
             support: {
-              new_tickets: supportStats.ticketsCreatedLast3Days,
+              new_tickets: supportStats.ticketsCreatedLastDay,
               open_tickets: supportStats.currentOpenTickets,
               tickets_by_type: supportStats.ticketsByType,
             },

@@ -20,7 +20,7 @@ END $$;
 -- Step 2: Create new cron job with secret token
 SELECT cron.schedule(
     'send-discord-stats',
-    '0 10 */3 * *',  -- Every 3 days at 10:00 AM UTC
+    '0 12 * * *',  -- Every day at 12:00 PM UTC (6:00 AM CST)
     $$
     SELECT
         net.http_post(
