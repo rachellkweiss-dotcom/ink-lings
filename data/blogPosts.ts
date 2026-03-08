@@ -86,6 +86,65 @@ Whatever time you pick, remove friction. Keep your journal (or your phone with p
 
 The best journaling habit is the one that fits your life — not the other way around.`,
   },
+  {
+    slug: '5-minute-journaling-trick-that-sticks',
+    title: 'The 5-Minute Journaling Trick That Actually Sticks',
+    date: 'March 2026',
+    summary: 'You\'ve tried journaling before and failed. The problem wasn\'t you—it was the advice. Here\'s a simple approach that actually works for real people with real lives.',
+    content: `You have tried journaling before. You bought the nice notebook. You wrote three entries. Then it collected dust on your nightstand for six months.
+
+You are not broken. The advice was.
+
+Most journaling guides tell you to write freely for twenty minutes every morning. That works great for people who already love writing. For everyone else, it's a recipe for guilt and another abandoned habit.
+
+Here's what actually works: **five minutes with a prompt**.
+
+---
+
+## Why Prompts Change Everything
+
+When you sit down to a blank page, your brain has to do two things at once. First, it has to figure out what to write about. Then it has to actually write. That decision fatigue is what kills the habit before it starts.
+
+A prompt removes the first step entirely. You already know the topic. All you have to do is respond.
+
+Think of it like the difference between being asked to cook dinner versus being handed a recipe and a bag of groceries. Same outcome, completely different energy.
+
+---
+
+## The Three Sentence Rule
+
+Forget filling pages. Your entire journal entry can be three sentences. What happened today that surprised you. How you felt about it. What you want to remember.
+
+That's it. Three sentences takes two minutes. Even on your worst day, you can manage two minutes.
+
+The magic is that some days those three sentences turn into three paragraphs. You start writing about a small moment and suddenly you're processing something you didn't even realize was on your mind. But you **never have to write more than three sentences**.
+
+---
+
+## When To Write
+
+Morning journaling is great for setting intentions. But if mornings are chaos in your house, then stop fighting it. Write at night. Write on your lunch break. Write in the pickup line at school.
+
+The best time to journal is whenever you will actually do it. **Consistency matters more than timing**.
+
+---
+
+## What Ink-lings Does Differently
+
+Ink-lings sends you a prompt on the days you choose. You pick the topics that matter to you. Gratitude. Creativity. Relationships. Self-reflection. The prompts arrive when you want them, and you respond when you're ready.
+
+No blank pages. No pressure. No guilt when you skip a day.
+
+Just a question that makes you think and a couple of minutes to answer it.
+
+---
+
+## Start With One Day
+
+Don't commit to journaling every day. Pick one day this week. Set a prompt for that day. Write your three sentences.
+
+If it feels good, add another day next week. Build slowly. The habit sticks when it doesn't feel like a chore.`,
+  },
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
