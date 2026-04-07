@@ -145,6 +145,59 @@ Don't commit to journaling every day. Pick one day this week. Set a prompt for t
 
 If it feels good, add another day next week. Build slowly. The habit sticks when it doesn't feel like a chore.`,
   },
+  {
+    slug: 'journaling-for-overthinkers',
+    title: 'Journaling for Overthinkers: How to Write When Your Brain Won\'t Settle',
+    date: 'April 2026',
+    summary: 'For minds that never quiet down, journaling can feel like herding ping-pong balls. Here\'s how to make peace with the page when your thoughts won\'t stop spinning.',
+    content: `I've always envied people who can empty their thoughts onto the page with ease. For overthinkers like me, journaling isn't a calm, meditative ritual—it's more like herding a room full of bouncing ping-pong balls. The idea of a clear mind can feel almost mythical. But I've learned that even the busiest brain can find a way in, if the approach is gentle and realistic.
+
+## Why Overthinking Makes Journaling Harder
+
+When your mind won't settle, the blank page can be intimidating—almost aggressive. I've sat down to write and instead found myself cataloguing every possible topic, questioning which is most "worth" writing about, worrying about form, grammar, and whether this entry will "fix" my mood or capture The Most Important Insight.
+
+Basically, **overthinking is the enemy of momentum**. I've seen people describe it as trying to untangle a knot without knowing which thread to pull first.
+
+A little research helped me see that I'm not alone. Writing helps disrupt rumination loops. The act of transferring thoughts out of your head and onto paper activates different neural circuits—your abstract mental recycling becomes concrete language. Suddenly, the internal noise is a little quieter, or at least contained within a jar you can look into from the outside.
+
+---
+
+## Three Strategies That Actually Work
+
+**Let the Prompt Be the Boss**
+
+Prompts are a lifeline if you tend to spiral. The real trick is surrendering the decision of what to write about. Just pick the first prompt that catches your eye and start there. Focusing on a single well-chosen question gives your mind rails to run on, so you spend less mental energy weighing your options and more actually writing.
+
+**Set a Tiny—Seriously Tiny—Time Limit**
+
+People who journal for hours are unicorns. For brains that overheat, five minutes is not only enough, it's freedom. Set a timer. Start writing whatever comes, even if it's nonsense or just "I don't know what to write." When I promise myself I can stop after five minutes, the pressure to "do it right" evaporates.
+
+**Write as an Observer, Not a Judge**
+
+Overthinking loves to turn the journal into a courtroom—did I say it right, is this the right problem to write about, am I digging deep enough? Instead, try to write as if you're a scientist recording observations. Don't police your feelings or analyze whether you're supposed to be grateful or productive or creative. Just notice.
+
+---
+
+## Stories from Real Overthinkers
+
+In online journaling communities, I repeatedly see people admit that the relief comes not because journaling quiets their minds on command, but because it gives all those tangled thoughts a place to land.
+
+> "I think of my journal as a jar—a container where thoughts can settle and separate."
+
+Many reported that routines fall apart when they focus too much on self-improvement or perfection, but stick better when they treat writing as a place to unload, not to perform.
+
+## Lowering the Bar Is a Superpower
+
+Overthinking tells you that your journal has to be special, deep, or reveal something life-changing. The reality? **Messy, rambling, half-hearted entries count**. Five minutes counts. Leaving some thoughts unfinished—counts.
+
+My own best habit breakthroughs came when I stopped making journaling about productiveness and started making it about relief.
+
+---
+
+## A Gentle Nudge
+
+If your brain is a noisy room, you deserve a quiet corner—even if it's just one small page. You're not the only brain that won't settle, but you might find five minutes of peace after all.`,
+  },
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
