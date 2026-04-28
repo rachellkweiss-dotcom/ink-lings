@@ -198,6 +198,63 @@ My own best habit breakthroughs came when I stopped making journaling about prod
 
 If your brain is a noisy room, you deserve a quiet corner—even if it's just one small page. You're not the only brain that won't settle, but you might find five minutes of peace after all.`,
   },
+  {
+    slug: 'when-a-prompt-wont-budge-the-blank-page',
+    title: 'When Even a Prompt Won\'t Budge the Blank Page',
+    date: 'April 2026',
+    summary: 'Sometimes you have the prompt, the pen, and the time — and the page still won\'t move. Here\'s what to do when journaling feels flat, forced, or just plain boring.',
+    content: `It's supposed to be easier now. You have prompts, a fresh page, maybe even your favorite pen. Sometimes there's a timer gently ticking nearby, so your brain knows this is "writing time" and not just another ten minutes scrolling for nothing.
+
+And still: silence. Not the peaceful, meditative kind. The flat, slightly stale kind you get in a waiting room when even the fish in the aquarium seem bored.
+
+If you journal — even if you love journaling — you know this blankness. Sometimes the prompt stares back at you: *What's something you noticed today that nobody else did?* And there's just. Nothing. Or worse: the same phrase that tumbled off your pen yesterday, or the day before, looping like an old commercial tune you can't shake.
+
+---
+
+## The Myth of the Magic Prompt
+
+It's easy to think a really good prompt will always break through. That if you just pick one angled enough — maybe something mysterious, or poetic, or a little bit funny — you'd skip over that inner block and drop straight into something real.
+
+But sometimes, the wall isn't the prompt's fault. Sometimes it's that your mind is tired, or raw, or just done collecting "meaningful moments" for the day. Sometimes your entire self wants **small, boring honesty** instead of new revelations.
+
+> I noticed the mail carrier wearing a new hat. I don't know why, but that's it. I noticed.
+
+That's a real answer. It counts.
+
+---
+
+## What If Boring Is Enough?
+
+Here's something worth trying — usually out of stubbornness, sometimes out of tiny, secret hope: when the page won't budge, answer the prompt as boringly as possible. No flourishes, no revelations. Just the literal, mundane answer.
+
+Something like: **"Nothing happened today."** Or **"I wish I could think of something interesting. But I can't."** Or simply **"I'm tired. Still, I'm writing."**
+
+Maybe someone else would crumple those pages up or leave them blank. But there's something comforting in the ritual of writing even when nothing feels worth writing down. Over time, these "dull" entries start to form a baseline — a kind of truth about how real life, the stuff journaling is supposed to capture, isn't highlights all the way down.
+
+And oddly enough, it tricks your mind. The pressure drops away. You're not "failing" at reflection. You're just archiving a minute in the real texture of today. Sometimes, right after writing something boring, your hand betrays you — a line, a memory, a side-thought sneaks in. Sometimes not, and that's fine, too.
+
+---
+
+## Patterns in the Quiet
+
+The most "boring" entries are often the ones you'll be most curious to reread months later. You see the shape of your days more honestly: there are weeks with lots of color and revelation, and also weeks that just were.
+
+The act of doing it — even without "results" — matters. **The pages fill, the story accumulates, no matter what you thought you had (or didn't have) to say.**
+
+---
+
+## Your Turn: Write the Dull Thing
+
+So if today's prompt, whatever it is, feels like a dare you're not up for, try answering with exactly what's in your head. Even if it's just:
+
+> I don't know. I feel the same as yesterday. I'm writing because I said I would.
+
+Showing up — on any page, in any state — builds a record worth having. Real life isn't a string of insights. It's this, too. And there's a small, steady power to writing it down anyway.
+
+---
+
+If you'd like a gentle nudge on exciting days, boring days, and everything in between, **Ink-lings** is a free personalized prompt service. Pick your categories, set your schedule, and get prompts delivered straight to your inbox.`,
+  },
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
