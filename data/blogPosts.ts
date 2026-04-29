@@ -198,6 +198,69 @@ My own best habit breakthroughs came when I stopped making journaling about prod
 
 If your brain is a noisy room, you deserve a quiet corner—even if it's just one small page. You're not the only brain that won't settle, but you might find five minutes of peace after all.`,
   },
+  {
+    slug: 'when-even-a-prompt-wont-budge-the-blank-page',
+    title: 'When Even a Prompt Won\'t Budge the Blank Page',
+    date: 'April 2026',
+    summary: 'Sometimes you have the notebook, the prompt, and the favorite pen — and still nothing comes. Here\'s why that blankness isn\'t failure, and what to do when even the best prompt won\'t break through.',
+    content: `It's supposed to be easier now. I have prompts, I have a fresh page, I even have my favorite pen — golden ink on creamy, thick paper. Sometimes I even have a timer gently ticking nearby, so my brain knows this is "writing time" and not just another ten minutes scrolling for nothing.
+
+And still: silence. Not the peaceful, meditative kind. The flat, slightly stale kind you get in a waiting room when even the fish in the aquarium seem bored.
+
+If you journal — even if you love journaling — you know this blankness. Sometimes the prompt stares back at you: "What's something you noticed today that nobody else did?" And there's just. Nothing. Or worse: the same phrase that tumbled off your pen yesterday, or the day before, looping like an old commercial tune you can't shake.
+
+---
+
+## The Myth of the Magic Prompt
+
+I used to think a really good prompt would always break through. That if I just picked one angled enough — maybe something mysterious, or poetic, or a little bit funny — I'd skip over that inner block and drop straight into something real.
+
+But sometimes, **the wall isn't the prompt's fault**. Sometimes it's that my mind is tired, or raw, or just done collecting "meaningful moments" for the day. Sometimes my entire self wants small, boring honesty instead of new revelations.
+
+> "I noticed the mail carrier wearing a new hat. I don't know why, but that's it. I noticed."
+
+That's a real entry. It counts.
+
+---
+
+## What If Boring Is Enough?
+
+Here's something I started doing — usually out of stubbornness, sometimes out of tiny, secret hope. When the page won't budge, I answer the prompt as boringly as possible. No flourishes, no revelations. Just the literal, mundane answer.
+
+> "Nothing happened today."
+
+> "I wish I could think of something interesting. But I can't."
+
+> "I'm tired. Still, I'm writing."
+
+Maybe someone else would crumple those pages up or leave them blank. But I'm learning there's something comforting in this ritual of writing even when nothing feels worth writing down. Over time, these "dull" entries start to form a baseline — a kind of truth about how real life, the stuff journaling is supposed to capture, **isn't highlights all the way down**.
+
+And oddly enough, it tricks my mind. The pressure drops away. I'm not "failing" at reflection. I'm just archiving a minute in the real texture of today. Sometimes, right after writing something boring, my hand betrays me — a line, a memory, a side-thought sneaks in. Sometimes not, and that's fine, too.
+
+---
+
+## Patterns in the Quiet
+
+What I've noticed over time is this: my most "boring" entries are often the ones I'm curious to reread months later. I see the shape of my days more honestly. There are weeks with lots of color and revelation, and also weeks that just were.
+
+**The act of doing it — even without results — matters.** The pages fill, the story accumulates, no matter what I thought I had (or didn't have) to say.
+
+There's something quietly powerful about a journal that holds both kinds of days. The ones that crackle with feeling and the ones that don't. Together, they make a record that actually looks like a life.
+
+---
+
+## Your Turn: Write the Dull Thing
+
+So if today's prompt, whatever it is, feels like a dare you're not up for, just try answering with exactly what's in your head. Even if it's just:
+
+> "I don't know."
+
+> "I feel the same as yesterday."
+
+> "I'm writing because I said I would."
+
+Because showing up — on any page, in any state — builds a record worth having. Real life isn't a string of insights. It's this, too. And there's a small, steady power to writing it down anyway.`,
+  },
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
