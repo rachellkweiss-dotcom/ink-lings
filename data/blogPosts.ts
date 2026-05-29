@@ -261,6 +261,55 @@ So if today's prompt, whatever it is, feels like a dare you're not up for, just 
 
 Because showing up — on any page, in any state — builds a record worth having. Real life isn't a string of insights. It's this, too. And there's a small, steady power to writing it down anyway.`,
   },
+  {
+    slug: 'the-stranger-in-your-old-notebook',
+    title: 'The Stranger in Your Old Notebook (Why Re-Reading Past Journals Feels So Weird — and What to Do About It)',
+    date: 'May 2026',
+    summary: 'Cracking open an old journal can feel like meeting a stranger who knows all your secrets. Here\'s why re-reading past entries is so unsettling — and how to do it without getting lost.',
+    content: `I found one of my old journals this morning — a denim-blue thing with a peeling spine and ink bled through half the pages. It was stashed behind winter boots, a little warped, faintly musty. I didn't mean to open it. But who can resist? That secret hope: maybe the old you will have an answer the now-you needs. Or at least a warning.
+
+I braced for the usual: cringing at old heartbreaks, dramatic predictions that never came true, a to-do list ("lemon dish soap, call Mom, figure out taxes") wedged between existential crises. Half of it felt like someone else's handwriting. Some entries were so foreign I forgot writing them at all. Others felt like a ghost tapping my shoulder — Don't forget who you were.
+
+Why is it so unsettling to meet yourself on the page like that? Journalers rarely talk about this, maybe because it's such a private ache. But here's what I've noticed.
+
+---
+
+## Your Old Self's Voice Never Shuts Up
+
+It's not just memories — it's the atmosphere of that time: the way your apartment smelled, songs stuck in your head, the unspoken things you couldn't write about directly. Re-reading can pull you under like a scent you forgot you missed. Sometimes familiarity feels like an ache instead of comfort.
+
+---
+
+## We Change More Than We Think
+
+People love to say "I haven't changed" — but give me five random journal pages and I'll find five versions of myself: worried, snarky, tender, wildly hopeful, uncertain. The illusion of sameness breaks down in ink. You forget just how many selves you've been, and how many times you've doubted or rescued yourself already.
+
+---
+
+## There's a Quiet Kind of Courage in Reading It All Anyway
+
+The bravest thing isn't writing honestly — it's facing the evidence of how you've grown or stayed put. When you read something painful, or cringey, or wildly off-base now, you're testifying: I survived that. I contain more than my worst day, or my best moment.
+
+---
+
+## How to Navigate Old Journals Without Getting Stuck
+
+**Read like you would a stranger.** Pretend you're finding someone else's notebook on the train. Suspend judgment. Notice patterns and soft spots. What would you want to tell this person?
+
+**Look for the gaps.** Sometimes the most important things about who you were are what's not written. Where do entries trail off or dodge? What's missing between the lines?
+
+**Find one thing to thank your past self for.** Maybe just the act of writing at all. Or a specific detail you'd forgotten — the exact smell of your college stairwell, or what you fantasized your life might look like at thirty. Let that gratitude break the spell a little.
+
+**Don't force nostalgia.** You aren't obligated to like your old self or want to go back. It's okay to leave some things safely closed. The point isn't comfort — it's noticing.
+
+---
+
+If you've ever cringed at something you wrote last year — or last week — you're in good company. Your past self, awkward as they are, left breadcrumbs. Even confusion, even embarrassment, is a sign you're moving in some direction.
+
+> The strange beauty is that your old voice is part of a chorus — never the final verse.
+
+Try reflecting on a past entry or two tonight. Let it feel weird. See what echoes. Then come find more questions and a few unexpected answers with free, personalized journal prompts delivered on your schedule. Try it free at inklingsjournal.live`,
+  },
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
