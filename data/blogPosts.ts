@@ -314,6 +314,45 @@ If you've ever cringed at something you wrote last year (or last week), you're i
 
 Try reflecting on a past entry or two tonight. Let it feel weird. See what echoes. Then come collect more questions — and a few unexpected answers — with free, personalized journal prompts delivered on your schedule. Try it free at inklingsjournal.live`,
   },
+  {
+    slug: 'what-happens-when-you-write-down-the-same-thought-over-and-over',
+    title: 'What Happens When You Write Down the Same Thought Over and Over?',
+    date: 'June 2026',
+    summary: 'If you journal long enough, you start to notice yourself repeating the same thoughts — sometimes word for word. Here\'s what those stubborn loops might actually be trying to tell you.',
+    content: `## The Thought That Keeps Coming Back
+
+If you keep any kind of journal for more than a few months, you start to notice your own patterns. Whole seasons written in one pen, a constellation of entries circling around the same worry. Sometimes you'll flip back and realize you've written the same sentence, nearly word-for-word, several weeks apart. The thought is stubborn — an unfinished loop in your mind, resurfacing because something inside you hasn't managed to outgrow it yet.
+
+There's a certain intimacy in facing these repeats. I've written "I need to call Dad back" so often it became a running joke with myself. I've watched other people in the Ink-lings community confess similar echoes: "Why do I always write about how tired I am?" "How many times can I say 'I feel stuck' before it gets annoying?"
+
+---
+
+## What the Repetition Is Trying to Show You
+
+Maybe these refrains are trying to show us something. In the white noise of everyday life, most repeating thoughts get brushed aside — muted by to-do lists, screens, distractions. The blank page, though, has nowhere to hide. Journaling has a way of catching what we've been skimming past. You look down and see **"How can I be less hard on myself?"** written six Tuesdays running. Or **"What if I just tried?"** fighting for a foothold in the margins of last month's pages.
+
+> Sometimes the act of noticing is enough. There's a quiet power in surrendering to the truth that, apparently, you're still not ready to move on — or maybe you're just circling close to something important.
+
+---
+
+## A Small Ritual for Stubborn Thoughts
+
+Here's a tiny ritual picked up from a fellow journaler: when you spot a thought that shows up again and again, **don't rush to fix or bury it**. Instead, give it a separate page. Write it big — centered or scrawled or messy, on purpose. Then, underneath, ask it some questions, almost like you're interviewing your own stuckness.
+
+Where did you first hear this thought? What does it want for you? If it could speak out loud, what would its real voice sound like? Has it changed at all since you first wrote it?
+
+Sometimes, the repetition softens when you turn toward it instead of away. Other times it hangs around, quieter, but still yours.
+
+---
+
+## When the Loop Finally Goes Quiet
+
+One day, leafing back, you'll notice a certain sentence has gone missing — like a song that's finally skipped to the next track. Or maybe you won't, and that's fine too. **Not every loop is a trap; some are just evidence that you're alive and paying attention.**
+
+So next time you catch yourself writing the same thing for the third — or thirtieth — time, know you're not failing. You're noticing. And maybe that's the whole point.
+
+Want prompts that help you spot your own patterns? Try it free at inklingsjournal.live.`,
+  },
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
