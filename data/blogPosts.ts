@@ -353,6 +353,55 @@ So next time you catch yourself writing the same thing for the third — or thir
 
 Want prompts that help you spot your own patterns? Try it free at inklingsjournal.live.`,
   },
+  {
+    slug: 'one-journal-many-selves-why-we-repeat-ourselves-on-the-page',
+    title: 'One Journal, Many Selves: Why We Repeat Ourselves on the Page',
+    date: 'June 2026',
+    summary: 'If you\'ve kept a journal long enough, you\'ve probably noticed yourself writing the same worries, dreams, or questions over and over. Here\'s why that repetition might be more meaningful than it feels.',
+    content: `If you keep a journal for more than a few months, you'll run into something kind of uncanny. Not just the occasional cringe at an old entry, or the feeling that your handwriting belongs to someone else. I mean the sudden realization: I've written this before. Maybe it's a worry about work, an old dream that resurfaces, or a phrase so familiar you could swear you copied it — not from someone else, but from yourself, months or years ago.
+
+What's going on there? Are we stuck? Or is something deeper trying to surface?
+
+---
+
+## The Loop Isn't Failure
+
+It's easy to get frustrated with these thought loops. What's the point of journaling if you're just treading water? But there's another way to look at it. What if repetition is actually the brain's way of pointing at something unresolved? Like when you wake up with the same half-remembered tune in your head for days, or keep dreaming about an old friend you haven't seen in years. The mind circles until it finds what it needs.
+
+Most people who journal have found themselves here — writing the same anxieties, dreams, or questions over and over. It can feel like stagnation. But **repetition in your journal is rarely in vain.** It might be the needle on your inner compass, rattling for attention.
+
+---
+
+## A Living Record, Not a Performance
+
+One thing prompts can help you see: you don't have to strike new ground with every entry. The page isn't some audience with expectations. It's a place to notice patterns. When a theme recurs in your writing — "I'm worried I'll never finish this project" or "Why do I miss that person so much?" — pause. Underneath the echo, there's often a shift: a new detail, a subtle emotion, a question you haven't let yourself ask directly.
+
+There's real value in circling these recurring lines in your own notebooks. Sometimes, after the third or fourth time the same thing shows up, it becomes a door instead of a brick wall.
+
+> What changed since the last time you wrote about this? What do you notice now that you didn't before?
+
+---
+
+## Try This Prompt
+
+If you want to play with this idea, flip through your last few entries and look for a line or theme that repeats. Write it at the top of a new page and finish one of these sentences:
+
+**"The real reason this keeps coming up might be..."**
+
+**"Last time I wrote this, I felt... But today, I notice..."**
+
+**"If this feeling could speak, it would say..."**
+
+It's not about fixing, solving, or silencing the loop. Sometimes you just need to listen long enough for it to reveal what it's really about.
+
+---
+
+## Let Your Patterns Speak
+
+Journaling isn't about making yourself more efficient, or getting past your sticking points as fast as possible. It's about **letting your patterns speak** — sometimes over and over — until you finally hear what's underneath. Your journal is big enough to hold a thousand versions of you, even the ones who keep saying the same thing.
+
+If you're curious what else your journal might reveal, you can get custom prompts delivered on your schedule — free — at inklingsjournal.live.`,
+  },
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
