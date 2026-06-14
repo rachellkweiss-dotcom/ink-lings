@@ -54,7 +54,7 @@
     "sharp": "^0.34.5",
     "sonner": "^2.0.7",
     "stripe": "^22.1.0",
-    "supabase": "^2.102.0",
+    "supabase": "^2.106.0",
     "tailwind-merge": "^3.6.0",
     "zod": "^4.3.6"
   },
