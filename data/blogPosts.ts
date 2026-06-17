@@ -402,6 +402,51 @@ Journaling isn't about making yourself more efficient, or getting past your stic
 
 If you're curious what else your journal might reveal, you can get custom prompts delivered on your schedule — free — at inklingsjournal.live.`,
   },
+  {
+    slug: 'writing-to-your-future-self',
+    title: 'The Intimacy (and Oddity) of Writing to Your Future Self',
+    date: 'June 2026',
+    summary: 'Writing journal entries addressed to a future version of yourself is one of the stranger, more revealing things a person can do. This piece explores why we do it, what we find when we read those entries back, and what actually survives across time.',
+    content: `## The Peculiar Act of Writing Across Time
+
+There are entries in my old journals that don't sound like me — not anymore, anyway. What's stranger still: some are addressed directly to a future version I imagined as wise, healed, or at least a little more organized than the present-day mess of my real life. "Hey, you," they begin, or "I hope by the time you read this you'll figure things out." Sometimes reading them back feels like walking into a house you used to live in, only to realize a new family has moved in and redecorated.
+
+If you've kept a journal for a while, maybe you've tried this trick, too: writing to the you of tomorrow, next month, or some unnamed day years away. It's not the same as a letter to a friend — there's a peculiar sense of self-consciousness. You're separated by time, but you share all the embarrassing habits. When you re-read those entries, do you cringe, or do you feel gentle with your past self?
+
+---
+
+## Why We Do It
+
+Why do we journal to our future selves? Part practical reminder, part tiny time capsule. Sometimes it's just to say: **remember this** — when things change, when you forget, when you need proof you were here and feeling these things. Other times, it's bargaining. Like, "If you're reading this, please let it have turned out okay."
+
+There's a particular magic in the details. I once described the exact smell of a kitchen on a rainy Tuesday, the way the light hit one mug in the dish rack. I wrote it down for a future self I couldn't yet picture. Reading it back years later, I still can't remember what the big crisis was that week, but I remember how that kitchen felt. **The ordinary details lasted longer than any of my epic plans or anxieties.**
+
+---
+
+## The Questions That Keep Coming Back
+
+Flip through enough notebooks and you'll see the same questions popping up: Will I always feel like this? Will I ever outgrow this fear? Am I really changing, or just circling the block with better shoes? If those questions make you wince, you're not alone. Sometimes they're the most honest parts.
+
+> Sometimes, the only answer your future self can give is to quietly sit with those old doubts and notice they've softened, even if they're not gone.
+
+You might notice patterns. Maybe the future you imagined in 2020 turned out different — messier, or smaller, or fuller in places you never planned for. Maybe there are questions you grew out of, and some that just changed shape. There is comfort (and a little discomfort) in this self-conversation stretching across years.
+
+---
+
+## What's Actually Worth Capturing
+
+So what's the point? For me, it's not about wisdom or tracking achievements. When I write to my future self now, I try to pin down one ephemeral thing I want to remember: the feel of the room, the strange hope of the day, the actual weather outside. Sometimes I even write something just for fun — an inside joke that only a future me will get.
+
+**The things that last are rarely the things you think will last.** Not the big resolutions or the ambitious five-year plans. It's the Tuesday kitchen smell. The mug in the dish rack. The weather.
+
+---
+
+## A Prompt to Try
+
+If you've never tried writing to your future self, here's one place to start: write a letter to yourself dated exactly one year from today. **Skip the advice.** Tell them about one ordinary thing they might forget — something you're wearing, or eating, or wondering about right now. You'll be surprised at what matters later.
+
+You can try it free at inklingsjournal.live`,
+  },
 ]
 
 export function getBlogPost(slug: string): BlogPost | undefined {
