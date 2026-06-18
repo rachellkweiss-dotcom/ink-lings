@@ -1,5 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import {
+  buildGratitudePromptEmbed,
+  sendPromptNotification,
+} from '../_shared/notify.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://inklingsjournal.live',
@@ -344,20 +348,29 @@ serve(async (req) => {
 
     console.log(`📧 Found ${participants.length} active participants`);
 
-    // Get user emails from user_preferences
+    // Get user delivery preferences (email + Discord channel choice)
     const userIds = participants.map(p => p.user_id);
     const { data: userPrefs, error: userPrefsError } = await supabase
       .from('user_preferences')
-      .select('user_id, notification_email')
+      .select('user_id, notification_email, notification_channel, discord_webhook_url')
       .in('user_id', userIds);
 
     if (userPrefsError) {
       throw new Error(`Error fetching user preferences: ${userPrefsError.message}`);
     }
 
-    // Create a map of user_id to email
-    const userEmailMap = new Map(
-      (userPrefs || []).map(up => [up.user_id, up.notification_email])
+    interface DeliveryPrefs {
+      notification_email: string;
+      notification_channel: 'email' | 'discord' | null;
+      discord_webhook_url: string | null;
+    }
+
+    const userPrefsMap = new Map<string, DeliveryPrefs>(
+      (userPrefs || []).map(up => [up.user_id, {
+        notification_email: up.notification_email,
+        notification_channel: up.notification_channel,
+        discord_webhook_url: up.discord_webhook_url,
+      }])
     );
 
     let emailsSent = 0;
@@ -366,16 +379,17 @@ serve(async (req) => {
 
     // Send emails to each participant
     for (const participant of participants) {
-      const userEmail = userEmailMap.get(participant.user_id);
-      
-      if (!userEmail) {
-        console.error(`❌ No email found for user ${participant.user_id}`);
+      const userPref = userPrefsMap.get(participant.user_id);
+      const userEmail = userPref?.notification_email;
+
+      if (!userPref || !userEmail) {
+        console.error(`❌ No preferences found for user ${participant.user_id}`);
         errors++;
         results.push({
           user_id: participant.user_id,
           email: 'unknown',
           status: 'error',
-          message: 'No email found in user_preferences'
+          message: 'No preferences found in user_preferences'
         });
         continue;
       }
@@ -569,28 +583,42 @@ serve(async (req) => {
           </html>
         `;
 
-        // Send email via Resend
-        const emailResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${resendApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            from: 'Ink-lings <prompts@inklingsjournal.live>',
-            to: userEmail,
-            subject: `A Year of Gratitude - ${formattedDate}`,
-            html: emailHtml
-          })
+        const discordEmbed = buildGratitudePromptEmbed({
+          formattedDate,
+          stoicBlurb: prompt.stoic_blurb,
+          promptText: prompt.prompt_text,
+          feedbackToken,
+          promptId: prompt.id,
         });
 
-        if (!emailResponse.ok) {
-          const errorData = await emailResponse.text();
-          throw new Error(`Resend API error: ${errorData}`);
+        const sendResult = await sendPromptNotification(
+          {
+            notification_channel: userPref.notification_channel,
+            notification_email: userPref.notification_email,
+            discord_webhook_url: userPref.discord_webhook_url,
+          },
+          {
+            subject: `A Year of Gratitude - ${formattedDate}`,
+            emailHtml,
+            discordEmbed,
+          },
+          { resendApiKey, fromAddress: 'Ink-lings <prompts@inklingsjournal.live>' },
+        );
+
+        if (!sendResult.ok) {
+          throw new Error(sendResult.error ?? 'Delivery failed (no detail)');
         }
 
-        const emailData = await emailResponse.json();
-        console.log(`✅ Email sent to ${userEmail} (ID: ${emailData.id})`);
+        if (sendResult.fellBackToEmail) {
+          console.warn(
+            `⚠️ Discord delivery failed for user ${participant.user_id}, fell back to email. Reason: ${sendResult.error}`,
+          );
+        }
+        console.log(
+          `✅ Gratitude prompt sent to ${userEmail} via ${sendResult.channel}${
+            sendResult.fellBackToEmail ? ' (fallback)' : ''
+          }`,
+        );
 
         // Add to prompt_history (but don't increment regular counts)
         const { error: historyError } = await supabase
@@ -627,7 +655,7 @@ serve(async (req) => {
           status: 'sent'
         });
 
-        // Rate limiting: 1 second delay between emails
+        // Rate limiting: 1 second delay between sends (covers both Resend and Discord).
         if (emailsSent < participants.length) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }

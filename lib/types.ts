@@ -6,11 +6,15 @@ export interface JournalCategory {
   image: string;
 }
 
+export type NotificationChannel = 'email' | 'discord';
+
 export interface UserPreferences {
   id?: string;
   user_id?: string;
   categories: string[];
   notification_email: string;
+  notification_channel?: NotificationChannel;
+  discord_webhook_url?: string | null;
   notification_days: string[];
   notification_time: string;
   timezone: string;

@@ -6,8 +6,10 @@ import { logSuccess, logFailure } from '@/lib/audit-log';
 
 export async function POST(request: NextRequest) {
   try {
-    // SECURITY: Rate limiting - 5 requests per minute
-    const rateLimitResult = rateLimit(request, 5, 60 * 1000);
+    // SECURITY: Rate limiting - 20 requests per minute
+    // (Higher than most write routes because users may toggle gratitude on/off
+    // multiple times while exploring the category list during onboarding.)
+    const rateLimitResult = rateLimit(request, 20, 60 * 1000);
     if (rateLimitResult) {
       return rateLimitResult;
     }

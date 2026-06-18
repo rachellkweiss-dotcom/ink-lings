@@ -14,11 +14,11 @@ import { SignIn } from './sign-in';
 import { AccountPage } from './account-page';
 import { StopNotificationsModal } from './stop-notifications-modal';
 import { UserPreferences, UserPromptRotation } from '@/lib/types';
-import { saveUserPreferences, getUserPreferences } from '@/lib/user-preferences';
+import { saveUserPreferences, getUserPreferences, updateUserPreferences } from '@/lib/user-preferences';
 import { Button } from './ui/button';
 import { useAuth } from './auth-context';
-import { startPromptScheduler } from '@/lib/prompt-scheduler';
 import { supabase } from '@/lib/supabase';
+import { toast } from 'sonner';
 
 type AppPhase = 'welcome' | 'create-account' | 'onboarding' | 'account' | 'complete';
 
@@ -40,15 +40,6 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
   const { user, isEmailVerified, loading } = useAuth();
 
 
-
-  // Start the automated prompt scheduler
-  useEffect(() => {
-    // Only start in development or when explicitly enabled
-    if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_SCHEDULER === 'true') {
-      console.log('🚀 Starting automated prompt scheduler...');
-      startPromptScheduler();
-    }
-  }, []);
 
   // Check if user is already logged in and has preferences
   useEffect(() => {
@@ -258,19 +249,61 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
     setAuthMode('signup');
   };
 
+  // Edit mode = the user already has a saved preferences row. In that case we
+  // autosave each step on "Next" so leaving the flow mid-edit (closing the tab,
+  // hitting back, etc.) doesn't drop their changes. Brand-new users still
+  // collect everything and save once at the end of onboarding, because the
+  // user_preferences row has NOT NULL columns that need every field at once.
+  const isEditingExistingPrefs = Boolean(userPreferences?.id);
+
+  const autosaveIfEditing = async (
+    fields: Partial<UserPreferences>,
+    successMessage: string,
+  ) => {
+    if (!isEditingExistingPrefs || !user) return;
+    try {
+      await updateUserPreferences(user.id, fields);
+      toast.success(successMessage);
+    } catch (err) {
+      console.error('Failed to autosave preferences:', err);
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast.error(`Couldn't save: ${message}`);
+    }
+  };
+
   const handleCategoriesSelected = (categories: string[]) => {
     setUserPreferences(prev => ({
       ...prev,
       categories
     } as UserPreferences));
+    // Categories also drive the prompt rotation table; full reconciliation
+    // happens at Complete Setup. The autosave here just persists the column.
+    void autosaveIfEditing({ categories }, 'Categories saved');
     setOnboardingPhase(2);
   };
 
-  const handleNotificationsSet = (email: string) => {
+  const handleNotificationsSet = (data: {
+    channel: 'email' | 'discord';
+    email: string;
+    discordWebhookUrl: string | null;
+  }) => {
     setUserPreferences(prev => ({
       ...prev,
-      notification_email: email
+      notification_email: data.email,
+      notification_channel: data.channel,
+      discord_webhook_url: data.discordWebhookUrl,
     } as UserPreferences));
+    void autosaveIfEditing(
+      {
+        notification_email: data.email,
+        notification_channel: data.channel,
+        discord_webhook_url:
+          data.channel === 'discord' ? data.discordWebhookUrl : null,
+      },
+      data.channel === 'discord'
+        ? 'Discord delivery saved'
+        : 'Notification email saved',
+    );
     setOnboardingPhase(3);
   };
 
@@ -281,6 +314,14 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
       notification_time: schedule.time,
       timezone: schedule.timezone
     } as UserPreferences));
+    void autosaveIfEditing(
+      {
+        notification_days: schedule.days,
+        notification_time: schedule.time,
+        timezone: schedule.timezone,
+      },
+      'Schedule saved',
+    );
     setOnboardingPhase(4);
   };
 
@@ -298,6 +339,11 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
         const savedPreferences = await saveUserPreferences(user.id, {
           categories: userPreferences.categories,
           notification_email: userPreferences.notification_email,
+          notification_channel: userPreferences.notification_channel ?? 'email',
+          discord_webhook_url:
+            userPreferences.notification_channel === 'discord'
+              ? userPreferences.discord_webhook_url ?? null
+              : null,
           notification_days: userPreferences.notification_days,
           notification_time: userPreferences.notification_time,
           timezone: userPreferences.timezone
@@ -758,6 +804,8 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
               accountEmail={user?.email}
               userFirstName={user?.user_metadata?.first_name || ''}
               existingEmail={userPreferences?.notification_email}
+              existingChannel={userPreferences?.notification_channel}
+              existingDiscordWebhookUrl={userPreferences?.discord_webhook_url ?? null}
               selectedCategories={userPreferences?.categories || []}
             />
           )}
@@ -778,6 +826,8 @@ export function InkLingsApp({ initialPhase = 'onboarding' }: InkLingsAppProps) {
             <SetupConfirmation
               selectedCategories={userPreferences.categories}
               email={userPreferences.notification_email}
+              channel={userPreferences.notification_channel ?? 'email'}
+              discordWebhookUrl={userPreferences.discord_webhook_url ?? null}
               schedule={{
                 days: userPreferences.notification_days,
                 time: userPreferences.notification_time,
