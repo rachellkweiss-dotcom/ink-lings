@@ -6,9 +6,30 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Disabled 2026-06-19: Discord notifications now configured directly in-app
+// (see notification-setup.tsx + the notification_channel column). The cron
+// that invoked this function was unscheduled in migration
+// 20260619000001_disable_send_15_milestone_cron.sql. The function is kept
+// deployed (not deleted) so the historical URL doesn't 404, but it now
+// short-circuits to a no-op response.
+const FUNCTION_DISABLED = true
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
+  }
+
+  if (FUNCTION_DISABLED) {
+    console.log('ℹ️ send-15-prompt-milestone is disabled — Discord notifications are now in-app. No-op.')
+    return new Response(JSON.stringify({
+      success: true,
+      disabled: true,
+      message: 'send-15-prompt-milestone is disabled. Discord notifications are now configured directly in the app.',
+      processed: 0
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200
+    })
   }
 
   // SECURITY: Require secret token for authentication

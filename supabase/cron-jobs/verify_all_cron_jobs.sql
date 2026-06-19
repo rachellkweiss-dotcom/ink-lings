@@ -14,7 +14,8 @@ FROM cron.job
 WHERE jobname IN (
     'cleanup-old-prompts',
     'check-set-preferences-emails',
-    'send-15-prompt-milestone',
+    -- 'send-15-prompt-milestone' unscheduled 2026-06-19 (Discord notifications now in-app);
+    -- see migration 20260619000001_disable_send_15_milestone_cron.sql
     'send-prompts-hourly',
     'send-gratitude-prompts',
     'send-support-inklings',
@@ -23,5 +24,5 @@ WHERE jobname IN (
 )
 ORDER BY jobname;
 
--- Expected result: All 8 jobs should show "✅ Has secret token" and active = true
+-- Expected result: All 7 jobs should show "✅ Has secret token" and active = true
 
