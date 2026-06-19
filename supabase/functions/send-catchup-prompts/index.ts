@@ -1,5 +1,9 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import {
+  buildRegularPromptEmbed,
+  sendPromptNotification,
+} from '../_shared/notify.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': 'https://inklingsjournal.live',
@@ -104,6 +108,8 @@ serve(async (req) => {
       .select(`
         user_id, 
         notification_email,
+        notification_channel,
+        discord_webhook_url,
         notification_days, 
         notification_time, 
         timezone, 
@@ -359,27 +365,41 @@ serve(async (req) => {
           </html>
         `;
 
-        const emailResponse = await fetch('https://api.resend.com/emails', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${resendApiKey}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            from: 'Ink-lings <support@inklingsjournal.live>',
-            to: user.notification_email,
-            subject: `✍️ Your Journal Prompt - ${formattedDate}`,
-            html: emailHtml
-          })
+        const discordEmbed = buildRegularPromptEmbed({
+          categoryName,
+          promptText: prompt.prompt_text,
+          feedbackToken,
+          promptId: actualPromptId,
         });
 
-        if (!emailResponse.ok) {
-          const errorData = await emailResponse.text();
-          throw new Error(`Resend API error: ${emailResponse.status} ${errorData}`);
+        const sendResult = await sendPromptNotification(
+          {
+            notification_channel: user.notification_channel,
+            notification_email: user.notification_email,
+            discord_webhook_url: user.discord_webhook_url,
+          },
+          {
+            subject: `✍️ Your Journal Prompt - ${formattedDate}`,
+            emailHtml,
+            discordEmbed,
+          },
+          { resendApiKey, fromAddress: 'Ink-lings <support@inklingsjournal.live>' },
+        );
+
+        if (!sendResult.ok) {
+          throw new Error(sendResult.error ?? 'Delivery failed (no detail)');
         }
 
-        const emailResult = await emailResponse.json();
-        console.log(`✅ Email sent to ${user.notification_email}`);
+        if (sendResult.fellBackToEmail) {
+          console.warn(
+            `⚠️ Discord delivery failed for user ${user.user_id}, fell back to email. Reason: ${sendResult.error}`,
+          );
+        }
+        console.log(
+          `✅ Catch-up prompt sent to ${user.notification_email} via ${sendResult.channel}${
+            sendResult.fellBackToEmail ? ' (fallback)' : ''
+          }`,
+        );
 
         // Record in prompt_history
         const { error: historyError } = await supabase

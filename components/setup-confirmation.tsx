@@ -6,10 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { journalCategories } from '../lib/categories';
 import { GratitudeEnrollmentBanner } from './gratitude-enrollment-banner';
+import type { NotificationChannel } from '@/lib/types';
 
 interface SetupConfirmationProps {
   selectedCategories: string[];
   email: string;
+  channel?: NotificationChannel;
+  discordWebhookUrl?: string | null;
   schedule: { days: string[]; time: string; timezone: string };
   onEditCategories: () => void;
   onEditNotifications: () => void;
@@ -21,6 +24,8 @@ interface SetupConfirmationProps {
 export function SetupConfirmation({ 
   selectedCategories, 
   email, 
+  channel = 'email',
+  discordWebhookUrl,
   schedule, 
   onEditCategories,
   onEditNotifications,
@@ -134,10 +139,12 @@ export function SetupConfirmation({
           </CardContent>
         </Card>
 
-        {/* Email */}
+        {/* Notification delivery */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="text-xl text-gray-900">Notification Email</CardTitle>
+            <CardTitle className="text-xl text-gray-900">
+              {channel === 'discord' ? 'Discord Delivery' : 'Notification Email'}
+            </CardTitle>
             <Button 
               variant="outline" 
               size="sm"
@@ -148,7 +155,18 @@ export function SetupConfirmation({
             </Button>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-700" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>{email}</p>
+            {channel === 'discord' ? (
+              <div style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>
+                <p className="text-gray-700">Prompts will be posted to your Discord webhook.</p>
+                {discordWebhookUrl && (
+                  <p className="mt-1 break-all text-xs text-gray-500">
+                    {discordWebhookUrl.replace(/(\/api\/webhooks\/\d+\/)[\w-]+/, '$1\u2022\u2022\u2022\u2022\u2022\u2022')}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-gray-700" style={{ fontFamily: 'Inter, system-ui, -apple-system, sans-serif' }}>{email}</p>
+            )}
           </CardContent>
         </Card>
 

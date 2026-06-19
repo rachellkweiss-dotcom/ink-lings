@@ -50,3 +50,6 @@ supabase/cron-jobs/update-cron-secrets/*.secret.sql
 
 # Supabase temp files
 supabase/.temp/
+
+# Cursor local config (per-developer MCP servers, rules, etc.)
+.cursor/
