@@ -13,7 +13,6 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 // Discord configuration
 const DISCORD_WEBHOOK_URL = Deno.env.get('DISCORD_STATS_WEBHOOK_URL')
-const DISCORD_USER_IDS = ['1014222908463255652']
 
 // GA configuration
 const GA_SERVICE_ACCOUNT_EMAIL = Deno.env.get('GA_SERVICE_ACCOUNT_EMAIL')
@@ -583,8 +582,6 @@ async function fetchSupportStats(): Promise<SupportStats> {
 // ============================================================
 
 function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStats: IGStats | null, supportStats: SupportStats) {
-  const userMentions = DISCORD_USER_IDS.map(id => `<@${id}>`).join(' ')
-
   const now = new Date()
   const endDate = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
   const startDateObj = new Date(now)
@@ -595,8 +592,6 @@ function buildDiscordMessage(appStats: AppStats, gaStats: GAStats | null, igStat
 
   const lines: string[] = []
 
-  lines.push(`${userMentions}`)
-  lines.push(``)
   lines.push(sep)
   lines.push(`📊 Ink-lings Daily Performance Report`)
   lines.push(`📅 Reporting Period: ${startDate} → ${endDate}`)
