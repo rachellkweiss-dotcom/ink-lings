@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,7 +25,6 @@ interface JournalHistoryProps {
 
 export function JournalHistory({ userId, onBackToAccount }: JournalHistoryProps) {
   const [promptHistory, setPromptHistory] = useState<PromptHistoryItem[]>([]);
-  const [filteredEntries, setFilteredEntries] = useState<PromptHistoryItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedDate, setSelectedDate] = useState('');
@@ -56,7 +55,6 @@ export function JournalHistory({ userId, onBackToAccount }: JournalHistoryProps)
           });
           
           setPromptHistory(recentPrompts);
-          setFilteredEntries(recentPrompts);
         } else {
           setError('Failed to fetch prompt history');
         }
@@ -73,23 +71,19 @@ export function JournalHistory({ userId, onBackToAccount }: JournalHistoryProps)
     }
   }, [userId]);
 
-  // Filter entries based on search criteria
-  useEffect(() => {
+  const filteredEntries = useMemo(() => {
     let filtered = promptHistory;
 
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter(entry =>
         entry.promptText.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by category
     if (selectedCategory && selectedCategory !== 'all') {
       filtered = filtered.filter(entry => entry.category === selectedCategory);
     }
 
-    // Filter by date
     if (selectedDate) {
       filtered = filtered.filter(entry => {
         const entryDate = new Date(entry.sentAt).toISOString().split('T')[0];
@@ -97,7 +91,7 @@ export function JournalHistory({ userId, onBackToAccount }: JournalHistoryProps)
       });
     }
 
-    setFilteredEntries(filtered);
+    return filtered;
   }, [promptHistory, searchTerm, selectedCategory, selectedDate]);
 
   const getCategoryName = (id: string) => {
