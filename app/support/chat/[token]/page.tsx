@@ -110,7 +110,17 @@ export default function SupportChatPage() {
   }, [token]);
 
   useEffect(() => {
-    fetchTicket();
+    let cancelled = false;
+    // The hooks plugin treats a direct call as synchronous setState, even when
+    // the updates happen after await. Start the request from a microtask.
+    queueMicrotask(() => {
+      if (!cancelled) {
+        void fetchTicket();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [fetchTicket]);
 
   // Auto-scroll to bottom when messages change

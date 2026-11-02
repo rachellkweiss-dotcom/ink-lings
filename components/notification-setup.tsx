@@ -38,7 +38,9 @@ export function NotificationSetup({
   selectedCategories,
 }: NotificationSetupProps) {
   const [channel, setChannel] = useState<NotificationChannel>(existingChannel ?? 'email');
-  const [email, setEmail] = useState('');
+  const emailSource = existingEmail || accountEmail || '';
+  const [email, setEmail] = useState(emailSource);
+  const [appliedEmailSource, setAppliedEmailSource] = useState(emailSource);
   const [webhookUrl, setWebhookUrl] = useState(existingDiscordWebhookUrl ?? '');
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
@@ -49,6 +51,13 @@ export function NotificationSetup({
   // Switching channels (or editing the value after testing) re-arms the prompt.
   const [emailTested, setEmailTested] = useState(false);
   const [discordTested, setDiscordTested] = useState(false);
+
+  if (emailSource !== appliedEmailSource) {
+    setAppliedEmailSource(emailSource);
+    if (emailSource) {
+      setEmail(emailSource);
+    }
+  }
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -68,14 +77,6 @@ export function NotificationSetup({
     };
     checkGratitudeStatus();
   }, []);
-
-  useEffect(() => {
-    if (existingEmail) {
-      setEmail(existingEmail);
-    } else if (accountEmail) {
-      setEmail(accountEmail);
-    }
-  }, [accountEmail, existingEmail]);
 
   const webhookValid = DISCORD_WEBHOOK_RE.test(webhookUrl.trim());
   const emailValid = email.trim().length > 0;

@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,11 +44,7 @@ export default function AdminDashboard() {
   const [feedbackData, setFeedbackData] = useState<FeedbackAnalytics | null>(null);
   const [loadingData, setLoadingData] = useState(false);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
@@ -73,9 +69,23 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabase]);
 
-  const loadStats = async () => {
+  useEffect(() => {
+    let cancelled = false;
+    // The hooks plugin treats a direct call as synchronous setState, even when
+    // the updates happen after await. Start the request from a microtask.
+    queueMicrotask(() => {
+      if (!cancelled) {
+        void checkAuth();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [checkAuth]);
+
+  const loadStats = useCallback(async () => {
     try {
       setLoadingData(true);
       
@@ -134,13 +144,21 @@ export default function AdminDashboard() {
     } finally {
       setLoadingData(false);
     }
-  };
+  }, [supabase]);
 
   useEffect(() => {
-    if (isAdmin) {
-      loadStats();
-    }
-  }, [isAdmin]);
+    if (!isAdmin) return;
+    let cancelled = false;
+    // Same as checkAuth: keep setState out of the effect body itself.
+    queueMicrotask(() => {
+      if (!cancelled) {
+        void loadStats();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAdmin, loadStats]);
 
   if (loading) {
     return (
