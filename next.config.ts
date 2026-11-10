@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Next 16 writes an AGENTS.md file on `next dev`. This app does not use that file.
+  agentRules: false,
   typescript: {
     // Don't fail build on TypeScript errors (we want to catch these)
     ignoreBuildErrors: false,
